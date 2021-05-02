@@ -1,5 +1,4 @@
-import { resolve } from 'path';
-import { AnyType } from 'generate-runtypes';
+import { AnyType, RecordType } from 'generate-runtypes';
 import { OpenAPIV3 } from 'openapi-types';
 
 export type HttpMethods = OpenAPIV3.HttpMethods;
@@ -29,8 +28,21 @@ export interface Operation {
   summary?: string;
 }
 
+// fixme: check if I can deeply invariant check
+
+interface AllOfSchemaObject extends OpenAPIV3.NonArraySchemaObject {
+  allOf: NonNullable<OpenAPIV3.NonArraySchemaObject['allOf']>;
+}
+
 export function isDefined<T>(value: T | undefined | null): value is T {
   return value !== undefined && value !== null;
+}
+
+export function isAllOfSchemaObject(
+  schema: SchemaObject,
+): schema is AllOfSchemaObject {
+  // fixme: verify if this "good" enough.
+  return schema.allOf != null;
 }
 
 export function isReferenceObject(
@@ -72,4 +84,8 @@ export function getParamKind(str: string): ParamKind {
       return str;
   }
   throw new Error(`Invalid param kind "${str}"`);
+}
+
+export function isRecordType(type: AnyType): type is RecordType {
+  return type.kind === 'record';
 }

@@ -28,9 +28,9 @@ function parseParameter(param: ParameterObject): Param {
   };
 }
 
-function parseRequstBodyParamater(body: OpenAPIV3.RequestBodyObject): Param {
+function parseRequstBodyParameter(body: OpenAPIV3.RequestBodyObject): Param {
   const jsonBody = body.content['application/json'];
-  console.log(body.content);
+
   invariant(jsonBody, 'Can only deal with json body for now');
   invariant(jsonBody.schema, 'Jsonbody is missing.schema');
   invariant(isSchemaObject(jsonBody.schema));
@@ -66,8 +66,7 @@ function parseOperation(
     invariant(isRequestBodyObject(requestBody));
     const hasJson = requestBody.content['application/json'];
     if (hasJson) {
-      const lal = parseRequstBodyParamater(requestBody);
-      console.log(lal);
+      const lal = parseRequstBodyParameter(requestBody);
     }
   }
 
@@ -91,9 +90,9 @@ function parsePath(path: string, item: PathItemObject): Operation[] {
       if (operation) {
         const op = parseOperation(operation);
         return {
-          ...op,
           path,
           method,
+          ...op,
           params: [...op.params, ...paramsForPath],
         };
       } else {
@@ -108,13 +107,11 @@ function parsePath(path: string, item: PathItemObject): Operation[] {
 async function main() {
   const v4 = await dereference(definitionPath);
 
-  const pathMethods = Object.entries(v4.paths).flatMap(([path, item]) =>
+  const operations = Object.entries(v4.paths).flatMap(([path, item]) =>
     parsePath(path, item),
   );
 
-  const first = pathMethods[1];
-
-  console.log(JSON.stringify(first, null, 2));
+  console.log(JSON.stringify(operations, null, 2));
 }
 
 main();
