@@ -8,6 +8,9 @@ export type PathItemObject = OpenAPIV3.PathItemObject;
 export type ReferenceObject = OpenAPIV3.ReferenceObject;
 export type RequestBodyObject = OpenAPIV3.RequestBodyObject;
 export type SchemaObject = OpenAPIV3.SchemaObject;
+export type ResponseObject = OpenAPIV3.ResponseObject;
+export type ResponsesObject = OpenAPIV3.ResponsesObject;
+export type HeaderObject = OpenAPIV3.HeaderObject;
 
 export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
 
@@ -18,12 +21,19 @@ export interface Param {
   type: AnyType;
 }
 
+export interface ApiResponse {
+  default: boolean;
+  status?: number;
+  headers: { name: string; type: AnyType }[];
+}
+
 export interface Operation {
   operationId: string;
   method: HttpMethods;
   path: string;
   deprecated: boolean;
   params: Param[];
+  responses: ApiResponse[];
   description?: string;
   summary?: string;
 }
@@ -49,6 +59,7 @@ export function isReferenceObject(
     | ReferenceObject
     | RequestBodyObject
     | SchemaObject
+    | HeaderObject
     | undefined,
 ): thing is ReferenceObject {
   return thing != null && '$ref' in thing;
@@ -69,6 +80,18 @@ export function isSchemaObject(
 export function isRequestBodyObject(
   thing: ReferenceObject | RequestBodyObject | undefined,
 ): thing is RequestBodyObject {
+  return !isReferenceObject(thing);
+}
+
+export function isResponseObject(
+  thing: ReferenceObject | ResponseObject | undefined,
+): thing is ResponseObject {
+  return !isReferenceObject(thing);
+}
+
+export function isHeaderObject(
+  thing: ReferenceObject | HeaderObject | undefined,
+): thing is HeaderObject {
   return !isReferenceObject(thing);
 }
 

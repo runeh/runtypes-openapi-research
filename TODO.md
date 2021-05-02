@@ -12,3 +12,6 @@
 - use "example" field
 - Validator functions for date etc
 - Use some specific number type? not just Number?
+- get rid og "HttpMethods" from the bleh types package
+- Move code into openapi3 file
+- Think about how to deal with recursive refs. There was an option in the lib?

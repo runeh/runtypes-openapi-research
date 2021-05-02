@@ -5,6 +5,7 @@ import { dereference } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import { parse } from 'yaml';
 import {
+  ApiResponse,
   Operation,
   OperationObject,
   Param,
@@ -14,9 +15,12 @@ import {
   isDefined,
   isParameterObject,
   isRequestBodyObject,
+  isResponseObject,
   isSchemaObject,
+  isHeaderObject,
 } from './common';
 import { schemaToType } from './type-parser';
+import { AnyType } from 'generate-runtypes';
 
 function parseParameter(param: ParameterObject): Param {
   invariant(isSchemaObject(param.schema));
@@ -48,6 +52,38 @@ function parseRequestBodyParameter(body: OpenAPIV3.RequestBodyObject): Param {
   return ret;
 }
 
+function parseResponses(responses: OpenAPIV3.ResponsesObject): ApiResponse[] {
+  return Object.entries(responses).map(([status, response]) => {
+    invariant(isResponseObject(response));
+    return parseResponse(response, status ? Number(status) : 'default');
+  });
+}
+
+function parseHeaders(
+  headers:
+    | Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.HeaderObject>
+    | undefined,
+): { name: string; type: AnyType }[] {
+  return Object.entries(headers || {})
+    .map(([name, val]) => {
+      return isHeaderObject(val)
+        ? ({ name, type: { kind: 'never' } } as const)
+        : undefined;
+    })
+    .filter(isDefined);
+}
+
+function parseResponse(
+  response: OpenAPIV3.ResponseObject,
+  status: number | 'default',
+): ApiResponse {
+  return {
+    default: status === 'default',
+    status: typeof status === 'number' ? status : undefined,
+    headers: parseHeaders(response.headers),
+  };
+}
+
 function parseOperation(
   operation: OperationObject,
 ): Omit<Operation, 'method' | 'path'> {
@@ -62,12 +98,15 @@ function parseOperation(
 
   invariant(operationId);
 
+  const responses = parseResponses(operation.responses ?? {});
+
   const ret = {
     operationId,
     description,
     summary,
     deprecated: deprecated ?? false,
     params: (parameters || []).filter(isParameterObject).map(parseParameter),
+    responses,
   };
 
   if (requestBody) {
