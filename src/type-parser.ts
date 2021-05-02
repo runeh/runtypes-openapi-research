@@ -1,6 +1,12 @@
-import { AnyType, LiteralType } from 'generate-runtypes';
+import {
+  AnyType,
+  LiteralType,
+  RecordField,
+  RecordType,
+} from 'generate-runtypes';
 import { OpenAPIV3 } from 'openapi-types';
 import invariant from 'ts-invariant';
+import { isSchemaObject } from './common';
 
 /**
  * Parse a "string" schema type. Strings are either strings or
@@ -22,6 +28,26 @@ function parseString(t: OpenAPIV3.NonArraySchemaObject): AnyType {
   }
 }
 
+function parseObject(t: OpenAPIV3.NonArraySchemaObject): RecordType {
+  invariant(t.type === 'object');
+  invariant(t.properties);
+
+  const requiredFields = t.required ?? [];
+
+  const pairs = Object.entries(t.properties);
+
+  const fields = pairs.map<RecordField>(([name, entry]) => {
+    invariant(isSchemaObject(entry));
+    return {
+      name,
+      nullable: requiredFields.includes(name),
+      type: schemaToType(entry),
+    };
+  });
+
+  return { kind: 'record', fields };
+}
+
 export function schemaToType(t: OpenAPIV3.SchemaObject): AnyType {
   switch (t.type) {
     // fixme: check spec for difference
@@ -39,6 +65,10 @@ export function schemaToType(t: OpenAPIV3.SchemaObject): AnyType {
       // fixme: util for this?
       invariant(!('$ref' in t.items));
       return { kind: 'array', type: schemaToType(t.items) };
+    }
+
+    case 'object': {
+      return parseObject(t);
     }
   }
 
