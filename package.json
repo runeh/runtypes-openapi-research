@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@tsconfig/node12": "^1.0.7",
     "@types/jest": "~26.0.22",
     "@types/node": "~14.14.37",
     "@types/ramda": "^0.27.39",
@@ -28,7 +29,6 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
-    "ajv": "^8.2.0",
     "generate-runtypes": "^2.1.0",
     "hasha": "^5.2.2",
     "openapi-types": "^8.0.0",
