@@ -1,7 +1,9 @@
+import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { OpenAPIV3 } from 'openapi-types';
 import { dereference } from 'swagger-parser';
 import invariant from 'ts-invariant';
+import { parse } from 'yaml';
 import {
   Operation,
   OperationObject,
@@ -15,8 +17,6 @@ import {
   isSchemaObject,
 } from './common';
 import { schemaToType } from './type-parser';
-
-const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
 
 function parseParameter(param: ParameterObject): Param {
   invariant(isSchemaObject(param.schema));
@@ -109,9 +109,16 @@ function parsePath(path: string, item: PathItemObject): Operation[] {
 }
 
 async function main() {
-  const v4 = await dereference(definitionPath);
+  // const definitionPath = resolve(__dirname, '../resources/tripletex.json');
+  const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
+  const raw = await readFile(definitionPath, 'utf-8');
+  const parsed = await parse(raw);
+  if (parsed.swagger) {
+    throw new Error('Not handling swagger files yet. Only openapi 3');
+  }
 
-  const operations = Object.entries(v4.paths).flatMap(([path, item]) =>
+  const dereffed = await dereference(parsed);
+  const operations = Object.entries(dereffed.paths).flatMap(([path, item]) =>
     parsePath(path, item),
   );
 
