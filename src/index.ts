@@ -6,33 +6,26 @@ import { schemaToType } from './type-parser';
 
 const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
 
-type HttpMethod =
-  | 'get'
-  | 'put'
-  | 'post'
-  | 'delete'
-  | 'options'
-  | 'head'
-  | 'patch'
-  | 'trace';
-
-// function parseParameters(params: OpenAPIV3.ParameterObject) {
-
-// }
+type HttpMethods = OpenAPIV3.HttpMethods;
+type OperationObject = OpenAPIV3.OperationObject;
+type ParameterObject = OpenAPIV3.ParameterObject;
+type PathItemObject = OpenAPIV3.PathItemObject;
+type ReferenceObject = OpenAPIV3.ReferenceObject;
+type SchemaObject = OpenAPIV3.SchemaObject;
 
 function isDefined<T>(value: T | undefined | null): value is T {
-  return typeof value !== 'undefined' && value !== null;
+  return value !== undefined && value !== null;
 }
 
-function isParam(
-  thing: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject,
-): thing is OpenAPIV3.ParameterObject {
+function isParameterObject(
+  thing: ReferenceObject | ParameterObject,
+): thing is ParameterObject {
   return !('$ref' in thing);
 }
 
 function isSchemaObject(
-  thing: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject | undefined,
-): thing is OpenAPIV3.SchemaObject {
+  thing: ReferenceObject | SchemaObject | undefined,
+): thing is SchemaObject {
   return thing != null && !('$ref' in thing);
 }
 
@@ -50,14 +43,14 @@ function getParamKind(str: string): ParamKind {
 }
 
 function parseMethod(
-  method: OpenAPIV3.HttpMethods,
-  operation: OpenAPIV3.OperationObject,
-): { method: OpenAPIV3.HttpMethods; operation: any } {
+  method: HttpMethods,
+  operation: OperationObject,
+): { method: HttpMethods; operation: any } {
   return { method, operation };
 }
 
-function parsePath(path: string, item: OpenAPIV3.PathItemObject) {
-  const paramsForPath = item.parameters?.filter(isParam).map((e) => {
+function parsePath(path: string, item: PathItemObject) {
+  const paramsForPath = item.parameters?.filter(isParameterObject).map((e) => {
     invariant(isSchemaObject(e.schema));
     return {
       path,
@@ -86,9 +79,9 @@ async function main() {
   );
 
   for (const [path, val] of Object.entries(v4.paths)) {
-    const item: OpenAPIV3.PathItemObject = val;
+    const item: PathItemObject = val;
     if (item.parameters) {
-      invariant(item.parameters.every(isParam), 'not every');
+      invariant(item.parameters.every(isParameterObject), 'not every');
       const params = item.parameters.map((e) => {
         invariant(isSchemaObject(e.schema), 'not schema');
         // invariant
@@ -104,10 +97,6 @@ async function main() {
       console.log(params);
     }
   }
-
-  // const pth = '/companies/{companySlug}/projects';
-  // const things = JSON.stringify(v4.paths, null, 2);
-  // console.log(things);
 }
 
 main();
