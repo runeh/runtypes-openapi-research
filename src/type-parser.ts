@@ -29,8 +29,6 @@ function parseString(t: OpenAPIV3.NonArraySchemaObject): AnyType {
 }
 
 function parseObject(t: OpenAPIV3.NonArraySchemaObject): RecordType {
-  // fixme: oneOf not handled yet
-
   if (isAllOfSchemaObject(t)) {
     const fields = t.allOf
       .filter(isSchemaObject)
@@ -56,8 +54,6 @@ function parseObject(t: OpenAPIV3.NonArraySchemaObject): RecordType {
     return { kind: 'record', fields };
   }
 }
-
-// fixme: add a "get actual type of schema" helper?
 
 export function schemaToType(t: OpenAPIV3.SchemaObject): AnyType {
   switch (t.type) {

@@ -28,7 +28,7 @@ function parseParameter(param: ParameterObject): Param {
   };
 }
 
-function parseRequstBodyParameter(body: OpenAPIV3.RequestBodyObject): Param {
+function parseRequestBodyParameter(body: OpenAPIV3.RequestBodyObject): Param {
   const jsonBody = body.content['application/json'];
 
   invariant(jsonBody, 'Can only deal with json body for now');
@@ -62,21 +62,25 @@ function parseOperation(
 
   invariant(operationId);
 
-  if (requestBody) {
-    invariant(isRequestBodyObject(requestBody));
-    const hasJson = requestBody.content['application/json'];
-    if (hasJson) {
-      const lal = parseRequstBodyParameter(requestBody);
-    }
-  }
-
-  return {
+  const ret = {
     operationId,
     description,
     summary,
     deprecated: deprecated ?? false,
     params: (parameters || []).filter(isParameterObject).map(parseParameter),
   };
+
+  if (requestBody) {
+    invariant(isRequestBodyObject(requestBody));
+    const hasJson = requestBody.content['application/json'];
+    if (hasJson) {
+      const requestParam = parseRequestBodyParameter(requestBody);
+      ret.params.push(requestParam);
+    }
+    // fixme: do something else here when other type
+  }
+
+  return ret;
 }
 
 function parsePath(path: string, item: PathItemObject): Operation[] {

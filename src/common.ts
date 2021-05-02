@@ -28,8 +28,6 @@ export interface Operation {
   summary?: string;
 }
 
-// fixme: check if I can deeply invariant check
-
 interface AllOfSchemaObject extends OpenAPIV3.NonArraySchemaObject {
   allOf: NonNullable<OpenAPIV3.NonArraySchemaObject['allOf']>;
 }
