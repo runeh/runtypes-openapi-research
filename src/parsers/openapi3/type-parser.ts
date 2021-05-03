@@ -4,9 +4,14 @@ import {
   RecordField,
   RecordType,
 } from 'generate-runtypes';
-import { OpenAPIV3 } from 'openapi-types';
 import invariant from 'ts-invariant';
-import { isAllOfSchemaObject, isRecordType, isSchemaObject } from './common';
+import {
+  NonArraySchemaObject,
+  SchemaObject,
+  isAllOfSchemaObject,
+  isRecordType,
+  isSchemaObject,
+} from './common';
 
 /**
  * Parse a "string" schema type. Strings are either strings or
@@ -15,7 +20,7 @@ import { isAllOfSchemaObject, isRecordType, isSchemaObject } from './common';
  * @param t
  * @returns
  */
-function parseString(t: OpenAPIV3.NonArraySchemaObject): AnyType {
+function parseString(t: NonArraySchemaObject): AnyType {
   invariant(t.type === 'string');
 
   if (t.enum) {
@@ -28,7 +33,7 @@ function parseString(t: OpenAPIV3.NonArraySchemaObject): AnyType {
   }
 }
 
-function parseObject(t: OpenAPIV3.NonArraySchemaObject): RecordType {
+function parseObject(t: NonArraySchemaObject): RecordType {
   if (isAllOfSchemaObject(t)) {
     const fields = t.allOf
       .filter(isSchemaObject)
@@ -55,7 +60,7 @@ function parseObject(t: OpenAPIV3.NonArraySchemaObject): RecordType {
   }
 }
 
-export function schemaToType(t: OpenAPIV3.SchemaObject): AnyType {
+export function schemaToType(t: SchemaObject): AnyType {
   switch (t.type) {
     // fixme: check spec for difference
     case 'number':
