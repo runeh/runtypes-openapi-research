@@ -78,10 +78,20 @@ export function schemaToType(t: OpenAPIV3.SchemaObject): AnyType {
       return parseObject(t);
   }
 
-  // 'type' is not required on schema objects (╯°□°)╯︵ ┻━┻
+  // `type` is not required on schema objects (╯°□°)╯︵ ┻━┻
 
   if (isAllOfSchemaObject(t)) {
     return parseObject(t);
+  }
+
+  // some times you get `format` but not `type` (╯°□°)╯︵ ┻━┻
+  switch (t.format) {
+    case 'float':
+    case 'int32':
+    case 'int64': {
+      console.warn('Got format but no type');
+      return { kind: 'number' };
+    }
   }
 
   throw new Error(`Unable to parse thing of type "${t.type}"`);

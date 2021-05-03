@@ -1,26 +1,32 @@
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
-import { OpenAPIV3 } from 'openapi-types';
+import { AnyType } from 'generate-runtypes';
 import { dereference } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import { parse } from 'yaml';
 import {
   ApiResponse,
+  HeaderObject,
+  MediaTypeObject,
   Operation,
   OperationObject,
   Param,
   ParameterObject,
   PathItemObject,
+  ReferenceObject,
+  RequestBodyObject,
+  ResponseObject,
+  ResponsesObject,
   getParamKind,
   isDefined,
+  isHeaderObject,
   isParameterObject,
   isRequestBodyObject,
   isResponseObject,
   isSchemaObject,
-  isHeaderObject,
 } from './common';
 import { schemaToType } from './type-parser';
-import { AnyType } from 'generate-runtypes';
+import { OpenAPIV3 } from 'openapi-types';
 
 function parseParameter(param: ParameterObject): Param {
   invariant(isSchemaObject(param.schema));
@@ -32,7 +38,7 @@ function parseParameter(param: ParameterObject): Param {
   };
 }
 
-function parseRequestBodyParameter(body: OpenAPIV3.RequestBodyObject): Param {
+function parseRequestBodyParameter(body: RequestBodyObject): Param {
   const jsonBody = body.content['application/json'];
 
   invariant(jsonBody, 'Can only deal with json body for now');
@@ -52,7 +58,7 @@ function parseRequestBodyParameter(body: OpenAPIV3.RequestBodyObject): Param {
   return ret;
 }
 
-function parseResponses(responses: OpenAPIV3.ResponsesObject): ApiResponse[] {
+function parseResponses(responses: ResponsesObject): ApiResponse[] {
   return Object.entries(responses).map(([status, response]) => {
     invariant(isResponseObject(response));
     return parseResponse(response, status ? Number(status) : 'default');
@@ -60,27 +66,35 @@ function parseResponses(responses: OpenAPIV3.ResponsesObject): ApiResponse[] {
 }
 
 function parseHeaders(
-  headers:
-    | Record<string, OpenAPIV3.ReferenceObject | OpenAPIV3.HeaderObject>
-    | undefined,
+  headers: Record<string, ReferenceObject | HeaderObject> | undefined,
 ): { name: string; type: AnyType }[] {
-  return Object.entries(headers || {})
+  return Object.entries(headers ?? {})
     .map(([name, val]) => {
       return isHeaderObject(val)
-        ? ({ name, type: { kind: 'never' } } as const)
+        ? ({ name, type: { kind: 'never' } } as const) // fixme: use schema here
         : undefined;
     })
     .filter(isDefined);
 }
 
+function parseBodies(
+  bodies: Record<string, MediaTypeObject> | undefined,
+): { mimeType: string; type: AnyType }[] {
+  return Object.entries(bodies ?? {}).map(([mimeType, val]) => {
+    invariant(isSchemaObject(val.schema));
+    return { mimeType, type: schemaToType(val.schema) };
+  });
+}
+
 function parseResponse(
-  response: OpenAPIV3.ResponseObject,
+  response: ResponseObject,
   status: number | 'default',
 ): ApiResponse {
   return {
     default: status === 'default',
     status: typeof status === 'number' ? status : undefined,
     headers: parseHeaders(response.headers),
+    bodyAlternatives: parseBodies(response.content),
   };
 }
 

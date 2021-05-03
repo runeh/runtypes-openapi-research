@@ -11,6 +11,7 @@ export type SchemaObject = OpenAPIV3.SchemaObject;
 export type ResponseObject = OpenAPIV3.ResponseObject;
 export type ResponsesObject = OpenAPIV3.ResponsesObject;
 export type HeaderObject = OpenAPIV3.HeaderObject;
+export type MediaTypeObject = OpenAPIV3.MediaTypeObject;
 
 export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
 
@@ -25,6 +26,7 @@ export interface ApiResponse {
   default: boolean;
   status?: number;
   headers: { name: string; type: AnyType }[];
+  bodyAlternatives: { mimeType: string; type: AnyType }[];
 }
 
 export interface Operation {
