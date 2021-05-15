@@ -5,7 +5,7 @@ import { format, resolveConfig } from 'prettier';
 import { groupBy } from 'ramda';
 import dedent from 'ts-dedent';
 import { parse } from 'yaml';
-import { Operation } from './common';
+import { Operation, ReferenceParam, Schema } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 
 function generateOerationSource(api: ApiData, operation: Operation) {

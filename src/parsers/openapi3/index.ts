@@ -10,6 +10,7 @@ import {
   Schema,
   getParamKind,
   isDefined,
+  topoSort,
 } from '../../common';
 import {
   HeaderObject,
@@ -231,8 +232,14 @@ export interface ApiData {
 export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
   invariant('openapi' in bundledDoc); // make sure it's an openapi3 thing
+
   const schemas = getSchemas(bundledDoc);
   const parameters = getParameters(bundledDoc);
   const operations = getOperations(bundledDoc, parameters);
-  return { parameters, schemas, operations };
+
+  return {
+    parameters: topoSort(parameters),
+    schemas: topoSort(schemas),
+    operations,
+  };
 }
