@@ -7,6 +7,7 @@ import {
   Operation,
   Param,
   ReferenceParam,
+  Schema,
   getParamKind,
   isDefined,
 } from '../../common';
@@ -47,7 +48,7 @@ function parseParameter(
       kind: existingParam.kind,
       name: existingParam.name,
       required: existingParam.required,
-      type: { kind: 'named', name: existingParam.runtypeName },
+      type: { kind: 'named', name: existingParam.typeName },
     };
   }
 }
@@ -189,30 +190,26 @@ function getParameters(doc: OpenAPIV3.Document): ReferenceParam[] {
     return {
       ...p,
       ref,
-      runtypeName: `${name}Parameter`,
+      typeName: `${name}Parameter`,
     };
   });
 
   return parameters;
 }
 
-function getSchemas(doc: OpenAPIV3.Document) {
-  const schemas = Object.entries(doc.components?.schemas ?? {}).map(
+function getSchemas(doc: OpenAPIV3.Document): Schema[] {
+  return Object.entries(doc.components?.schemas ?? {}).map<Schema>(
     ([name, schema]) => {
       invariant(isSchemaObject(schema), 'should be schema!');
       const ref = `#/components/schemas/${name}`;
       return {
-        kind: 'schema',
         name,
         ref,
-        runtype: schemaToType(schema),
-        runtypeName: `${name}Schema`,
-        schema,
+        type: schemaToType(schema),
+        typeName: `${name}Schema`,
       };
     },
   );
-
-  return schemas;
 }
 
 function getOperations(
@@ -225,13 +222,17 @@ function getOperations(
   });
 }
 
-export async function parseOpenApi3(doc: OpenAPIV3.Document) {
+export interface ApiData {
+  schemas: Schema[];
+  parameters: ReferenceParam[];
+  operations: Operation[];
+}
+
+export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
   invariant('openapi' in bundledDoc); // make sure it's an openapi3 thing
-
   const schemas = getSchemas(bundledDoc);
-  const parameterRefs = getParameters(bundledDoc);
-  const operations = getOperations(bundledDoc, parameterRefs);
-
-  console.log(JSON.stringify({ parameterRefs, schemas, operations }, null, 2));
+  const parameters = getParameters(bundledDoc);
+  const operations = getOperations(bundledDoc, parameters);
+  return { parameters, schemas, operations };
 }

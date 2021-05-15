@@ -12,7 +12,14 @@ export interface Param {
 
 export interface ReferenceParam extends Param {
   ref: string;
-  runtypeName: string;
+  typeName: string;
+}
+
+export interface Schema {
+  name: string;
+  ref: string;
+  type: AnyType;
+  typeName: string;
 }
 
 export interface ApiResponse {
