@@ -53,13 +53,13 @@ async function main() {
 
   const operations = await parseOpenApi3(parsed);
 
-  const operationStrings = operations.map(emitOperation);
+  // const operationStrings = operations.map(emitOperation);
 
-  const prettierConfig = await resolveConfig('./lol.ts');
-  const formatted = format(
-    operationStrings.join('\n\n'),
-    prettierConfig ?? undefined,
-  );
+  // const prettierConfig = await resolveConfig('./lol.ts');
+  // const formatted = format(
+  //   operationStrings.join('\n\n'),
+  //   prettierConfig ?? undefined,
+  // );
 
   // console.log(formatted);
 

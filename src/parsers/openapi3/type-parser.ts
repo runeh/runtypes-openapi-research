@@ -7,9 +7,11 @@ import {
 import invariant from 'ts-invariant';
 import {
   NonArraySchemaObject,
+  ReferenceObject,
   SchemaObject,
   isAllOfSchemaObject,
   isRecordType,
+  isReferenceObject,
   isSchemaObject,
 } from './common';
 
@@ -21,7 +23,7 @@ import {
  * @returns
  */
 function parseString(t: NonArraySchemaObject): AnyType {
-  invariant(t.type === 'string');
+  invariant(t.type === 'string', 'should be string');
 
   if (t.enum) {
     return {
@@ -42,13 +44,12 @@ function parseObject(t: NonArraySchemaObject): RecordType {
       .flatMap((e) => e.fields);
     return { kind: 'record', fields: fields };
   } else {
-    invariant(t.properties);
+    invariant(t.properties, 'no properties');
 
     const requiredFields = t.required ?? [];
     const pairs = Object.entries(t.properties);
 
     const fields = pairs.map<RecordField>(([name, entry]) => {
-      invariant(isSchemaObject(entry));
       return {
         name,
         nullable: requiredFields.includes(name),
@@ -60,7 +61,25 @@ function parseObject(t: NonArraySchemaObject): RecordType {
   }
 }
 
-export function schemaToType(t: SchemaObject): AnyType {
+function titleCase(str: string) {
+  return str[0].toLocaleUpperCase() + str.slice(1);
+}
+
+export function refToName(ref: ReferenceObject | string) {
+  const refName = typeof ref === 'string' ? ref : ref.$ref;
+  const match = /#\/components\/(.*)s\/(\w+)/.exec(refName);
+  invariant(match != null, `Couldn't parse ref name "${refName}"`);
+
+  const [, kind, name] = match;
+
+  return `${name}${titleCase(kind)}`;
+}
+
+export function schemaToType(t: SchemaObject | ReferenceObject): AnyType {
+  if (isReferenceObject(t)) {
+    return { kind: 'named', name: refToName(t) };
+  }
+
   switch (t.type) {
     // fixme: check spec for difference
     case 'number':
@@ -74,8 +93,6 @@ export function schemaToType(t: SchemaObject): AnyType {
       return parseString(t);
 
     case 'array': {
-      // fixme: util for this?
-      invariant(!('$ref' in t.items));
       return { kind: 'array', type: schemaToType(t.items) };
     }
 
