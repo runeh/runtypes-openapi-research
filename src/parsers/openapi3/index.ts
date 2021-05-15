@@ -3,27 +3,27 @@ import { OpenAPIV3 } from 'openapi-types';
 import { dereference } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import {
+  ApiResponse,
+  Operation,
   Param,
   getParamKind,
-  ApiResponse,
   isDefined,
-  Operation,
 } from '../../common';
 import {
-  ParameterObject,
-  isSchemaObject,
-  RequestBodyObject,
-  ResponsesObject,
-  isResponseObject,
-  ReferenceObject,
   HeaderObject,
-  isHeaderObject,
   MediaTypeObject,
-  ResponseObject,
   OperationObject,
+  ParameterObject,
+  PathItemObject,
+  ReferenceObject,
+  RequestBodyObject,
+  ResponseObject,
+  ResponsesObject,
+  isHeaderObject,
   isParameterObject,
   isRequestBodyObject,
-  PathItemObject,
+  isResponseObject,
+  isSchemaObject,
 } from './common';
 import { schemaToType } from './type-parser';
 
