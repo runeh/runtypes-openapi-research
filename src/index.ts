@@ -5,7 +5,7 @@ import { format, resolveConfig } from 'prettier';
 import { groupBy } from 'ramda';
 import dedent from 'ts-dedent';
 import { parse } from 'yaml';
-import { Operation, ReferenceParam, Schema } from './common';
+import { Operation } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 
 function generateOerationSource(api: ApiData, operation: Operation) {
@@ -21,9 +21,9 @@ function generateOerationSource(api: ApiData, operation: Operation) {
     let path = operation.path;
     path = '`' + path + '`';
     for (const param of inputKinds.path) {
-      path = path.replace(`{${param.name}}`, `\${params.${param.name}}`);
+      path = path.replace(`{${param.name}}`, `\${args.${param.name}}`);
     }
-    getPath = `(params) => ${path}`;
+    getPath = `(args) => ${path}`;
   } else {
     getPath = `'${operation.path}'`;
   }
@@ -43,7 +43,7 @@ function generateOerationSource(api: ApiData, operation: Operation) {
 }
 
 function generateApiSource(api: ApiData) {
-  const { parameters, schemas, operations } = api;
+  const { parameters, schemas } = api;
 
   const namedTypes = [...parameters, ...schemas].map<RootType>((e) => ({
     name: e.typeName,
@@ -60,7 +60,14 @@ function generateApiSource(api: ApiData) {
     .map((e) => generateOerationSource(api, e))
     .join('\n\n');
 
-  return typesSource + operationsSource;
+  return dedent`
+      import * as rt from 'runtypes';
+      import { buildCall } from 'typical-fetch';
+
+      ${typesSource}
+      
+      ${operationsSource}
+    `;
 }
 
 async function main() {
