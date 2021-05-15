@@ -65,7 +65,7 @@ function titleCase(str: string) {
   return str[0].toLocaleUpperCase() + str.slice(1);
 }
 
-export function refToName(ref: ReferenceObject | string) {
+export function refToName(ref: ReferenceObject | string): string {
   const refName = typeof ref === 'string' ? ref : ref.$ref;
   const match = /#\/components\/(.*)s\/(\w+)/.exec(refName);
   invariant(match != null, `Couldn't parse ref name "${refName}"`);

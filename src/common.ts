@@ -10,6 +10,11 @@ export interface Param {
   type: AnyType;
 }
 
+export interface ReferenceParam extends Param {
+  ref: string;
+  runtypeName: string;
+}
+
 export interface ApiResponse {
   default: boolean;
   status?: number;

@@ -6,6 +6,7 @@ import {
   ApiResponse,
   Operation,
   Param,
+  ReferenceParam,
   getParamKind,
   isDefined,
 } from '../../common';
@@ -27,14 +28,28 @@ import {
 } from './common';
 import { schemaToType } from './type-parser';
 
-function parseParameter(param: ParameterObject): Param {
-  invariant(isSchemaObject(param.schema), 'Not schema in parseParameter');
-  return {
-    name: param.name,
-    kind: getParamKind(param.in),
-    type: schemaToType(param.schema),
-    required: param.required ?? false,
-  };
+function parseParameter(
+  parameterRefs: ReferenceParam[],
+  param: ParameterObject | ReferenceObject,
+): Param | ReferenceParam {
+  if (isParameterObject(param)) {
+    invariant(param.schema != null, 'wat. cant be null');
+    return {
+      name: param.name,
+      kind: getParamKind(param.in),
+      type: schemaToType(param.schema),
+      required: param.required ?? false,
+    };
+  } else {
+    const existingParam = parameterRefs.find((e) => e.ref === param.$ref);
+    invariant(existingParam != null);
+    return {
+      kind: existingParam.kind,
+      name: existingParam.name,
+      required: existingParam.required,
+      type: { kind: 'named', name: existingParam.runtypeName },
+    };
+  }
 }
 
 function parseRequestBodyParameter(body: RequestBodyObject): Param {
@@ -97,6 +112,7 @@ function parseResponse(
 }
 
 function parseOperation(
+  parameterRefs: ReferenceParam[],
   operation: OperationObject,
 ): Omit<Operation, 'method' | 'path'> {
   const {
@@ -117,7 +133,7 @@ function parseOperation(
     description,
     summary,
     deprecated: deprecated ?? false,
-    params: (parameters || []).filter(isParameterObject).map(parseParameter),
+    params: (parameters || []).map((e) => parseParameter(parameterRefs, e)),
     responses,
   };
 
@@ -134,16 +150,20 @@ function parseOperation(
   return ret;
 }
 
-function parsePath(path: string, item: PathItemObject): Operation[] {
+function parsePath(
+  parameterRefs: ReferenceParam[],
+  path: string,
+  item: PathItemObject,
+): Operation[] {
   const paramsForPath = (item.parameters ?? [])
     .filter(isParameterObject)
-    .map(parseParameter);
+    .map((e) => parseParameter(parameterRefs, e));
 
   const operations = Object.values(OpenAPIV3.HttpMethods)
     .map<Operation | undefined>((method) => {
       const operation = item[method];
       if (operation) {
-        const op = parseOperation(operation);
+        const op = parseOperation(parameterRefs, operation);
         return {
           path,
           method,
@@ -157,6 +177,23 @@ function parsePath(path: string, item: PathItemObject): Operation[] {
     .filter(isDefined);
 
   return operations;
+}
+
+function getParameters(doc: OpenAPIV3.Document): ReferenceParam[] {
+  const parameters = Object.entries(
+    doc.components?.parameters ?? {},
+  ).map<ReferenceParam>(([name, rawParameter]) => {
+    invariant(isParameterObject(rawParameter), 'should be parameter!');
+    const p = parseParameter([], rawParameter);
+    const ref = `#/components/parameters/${name}`;
+    return {
+      ...p,
+      ref,
+      runtypeName: `${name}Parameter`,
+    };
+  });
+
+  return parameters;
 }
 
 async function getComponents(doc: OpenAPIV3.Document) {
@@ -175,30 +212,16 @@ async function getComponents(doc: OpenAPIV3.Document) {
     },
   );
 
-  const parameters = Object.entries(doc.components?.parameters ?? {}).map(
-    ([name, rawParameter]) => {
-      invariant(isParameterObject(rawParameter), 'should be parameter!');
-      const p = parseParameter(rawParameter);
-
-      const ref = `#/components/parameters/${name}`;
-      return {
-        kind: 'parameter',
-        name,
-        ref,
-        type: p.type,
-        runtypeName: `${name}Parameter`,
-        schema: rawParameter,
-      };
-    },
-  );
-
-  return { schemas, parameters };
+  return { schemas };
 }
 
-function getOperations(doc: OpenAPIV3.Document) {
+function getOperations(
+  doc: OpenAPIV3.Document,
+  parameterRefs: ReferenceParam[],
+) {
   return Object.entries(doc.paths).flatMap(([path, item]) => {
     invariant(item != null, 'Must be a thing');
-    return parsePath(path, item);
+    return parsePath(parameterRefs, path, item);
   });
 }
 
@@ -206,13 +229,14 @@ export async function parseOpenApi3(doc: OpenAPIV3.Document) {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
   invariant('openapi' in bundledDoc); // make sure it's an openapi3 thing
 
-  const { parameters, schemas } = await getComponents(bundledDoc);
-  const operations = getOperations(bundledDoc);
+  const { schemas } = await getComponents(bundledDoc);
+  const parameterRefs = getParameters(bundledDoc);
+  const operations = getOperations(bundledDoc, parameterRefs);
   // const dereffed = await dereference(doc);
   // const operations = Object.entries(dereffed.paths).flatMap(([path, item]) =>
   //   parsePath(path, item),
   // );
   // return operations;
 
-  console.log(JSON.stringify({ parameters, schemas, operations }, null, 2));
+  console.log(JSON.stringify({ parameterRefs, schemas, operations }, null, 2));
 }
