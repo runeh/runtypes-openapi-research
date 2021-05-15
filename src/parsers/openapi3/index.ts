@@ -155,9 +155,9 @@ function parsePath(
   path: string,
   item: PathItemObject,
 ): Operation[] {
-  const paramsForPath = (item.parameters ?? [])
-    .filter(isParameterObject)
-    .map((e) => parseParameter(parameterRefs, e));
+  const paramsForPath = (item.parameters ?? []).map((e) =>
+    parseParameter(parameterRefs, e),
+  );
 
   const operations = Object.values(OpenAPIV3.HttpMethods)
     .map<Operation | undefined>((method) => {
@@ -196,7 +196,7 @@ function getParameters(doc: OpenAPIV3.Document): ReferenceParam[] {
   return parameters;
 }
 
-async function getComponents(doc: OpenAPIV3.Document) {
+function getSchemas(doc: OpenAPIV3.Document) {
   const schemas = Object.entries(doc.components?.schemas ?? {}).map(
     ([name, schema]) => {
       invariant(isSchemaObject(schema), 'should be schema!');
@@ -212,7 +212,7 @@ async function getComponents(doc: OpenAPIV3.Document) {
     },
   );
 
-  return { schemas };
+  return schemas;
 }
 
 function getOperations(
@@ -229,14 +229,9 @@ export async function parseOpenApi3(doc: OpenAPIV3.Document) {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
   invariant('openapi' in bundledDoc); // make sure it's an openapi3 thing
 
-  const { schemas } = await getComponents(bundledDoc);
+  const schemas = getSchemas(bundledDoc);
   const parameterRefs = getParameters(bundledDoc);
   const operations = getOperations(bundledDoc, parameterRefs);
-  // const dereffed = await dereference(doc);
-  // const operations = Object.entries(dereffed.paths).flatMap(([path, item]) =>
-  //   parsePath(path, item),
-  // );
-  // return operations;
 
   console.log(JSON.stringify({ parameterRefs, schemas, operations }, null, 2));
 }
