@@ -7,6 +7,7 @@ import dedent from 'ts-dedent';
 import { parse } from 'yaml';
 import { Operation, isDefined } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
+import wrap from 'word-wrap';
 
 const utilsForGenerated = dedent`
   function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
@@ -69,10 +70,20 @@ function getJsonBodyRuntype(
     return jsonResponse.type.name;
   } else {
     return undefined;
+    // fixme!
     // throw new Error(
     //   `Don't know how to deal with "${jsonResponse.type.kind}" response yet`,
     // );
   }
+}
+
+function getOperationComment(operation: Operation) {
+  const raw = dedent`
+    operation ID: ${operation.operationId}
+    \`${operation.method.toUpperCase()}: ${operation.path}\`
+    ${operation.description?.split('\n').join(' ')}
+    `;
+  return `/**\n${wrap(raw, { indent: ' * ', trim: true, width: 60 })}\n */`;
 }
 
 function generateOperationSource(api: ApiData, operation: Operation) {
@@ -94,6 +105,7 @@ function generateOperationSource(api: ApiData, operation: Operation) {
   }
 
   const builderParts: (string | undefined)[] = [
+    getOperationComment(operation),
     `export const ${operation.operationId} = buildCall() //`,
   ];
 

@@ -39,6 +39,7 @@
     "swagger-parser": "^10.0.2",
     "ts-dedent": "^2.1.1",
     "ts-invariant": "^0.7.3",
+    "word-wrap": "^1.2.3",
     "yaml": "^1.10.2"
   }
 }
