@@ -5,7 +5,7 @@ import { format, resolveConfig } from 'prettier';
 import { groupBy } from 'ramda';
 import dedent from 'ts-dedent';
 import { parse } from 'yaml';
-import { isDefined, Operation } from './common';
+import { Operation, isDefined } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 
 function argsToRootType(operation: Operation) {
@@ -51,11 +51,27 @@ function generateOperationSource(api: ApiData, operation: Operation) {
     builderParts.push(`.args<rt.Static<typeof ${argsRootType.name}>>()`);
   }
 
-  builderParts.push(
-    `.method('${operation.method}')`,
-    `.path(${getPath})`,
-    `.build()`,
-  );
+  builderParts.push(`.method('${operation.method}')`, `.path(${getPath})`);
+
+  if (inputKinds.query && inputKinds.query.length > 0) {
+    const names = inputKinds.query.map((e) => `'${e.name}'`).join(', ');
+    const getQuery = dedent`
+      .query(args => {
+        const urlSearchParams = new URLSearchParams()
+        const queryNames = [${names}];
+        for (const name of queryNames) {
+          if (args[name] !== undefined) {
+            urlSearchParams.append(name, args[name])
+          }
+        }
+        return urlSearchParams;
+      })
+      
+    `;
+    builderParts.push(getQuery);
+  }
+
+  builderParts.push(`.build()`);
 
   const argsTypeSource =
     operation.params.length > 0
