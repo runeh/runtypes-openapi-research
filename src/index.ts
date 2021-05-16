@@ -81,11 +81,10 @@ function getJsonResponseBodyRuntype(
   if (jsonResponse.type.kind === 'named') {
     return jsonResponse.type.name;
   } else {
-    return undefined;
-    // fixme!
-    // throw new Error(
-    //   `Don't know how to deal with "${jsonResponse.type.kind}" response yet`,
-    // );
+    return {
+      name: `${operation.operationId}ResponseBody`,
+      type: jsonResponse.type,
+    };
   }
 }
 
@@ -141,7 +140,10 @@ function generateOperationSource(api: ApiData, operation: Operation) {
 
   if (typeof jsonResponseBodyRuntype === 'string') {
     builderParts.push(`.parseJson(withRuntype(${jsonResponseBodyRuntype}))`);
-    // fixme: throw otherwise
+  } else if (jsonResponseBodyRuntype != null) {
+    builderParts.push(
+      `.parseJson(withRuntype(${jsonResponseBodyRuntype.name}))`,
+    );
   }
 
   builderParts.push(`.build()`);
@@ -154,9 +156,23 @@ function generateOperationSource(api: ApiData, operation: Operation) {
       })
     : '';
 
+  const responseTypeSource =
+    jsonResponseBodyRuntype != null &&
+    typeof jsonResponseBodyRuntype !== 'string'
+      ? generateRuntypes(jsonResponseBodyRuntype, {
+          format: false,
+          includeImport: false,
+          includeTypes: false,
+        })
+      : '';
+
   const def = dedent`
+  // Operation: ${operation.operationId}
+
   ${argsTypeSource}
 
+  ${responseTypeSource}
+  
   ${builderParts.filter(isDefined).join('\n')}
 
   `;
