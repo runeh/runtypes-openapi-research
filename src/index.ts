@@ -5,16 +5,31 @@ import { format, resolveConfig } from 'prettier';
 import { groupBy } from 'ramda';
 import dedent from 'ts-dedent';
 import { parse } from 'yaml';
-import { Operation } from './common';
+import { isDefined, Operation } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 
-function generateOerationSource(api: ApiData, operation: Operation) {
-  const allArgs = operation.params.map((e) => ({ name: e.name }));
+function argsToRootType(operation: Operation) {
+  const name = `${operation.operationId}Args`;
+  const rootType: RootType = {
+    name,
+    type: {
+      kind: 'record',
+      fields: operation.params.map((e) => ({
+        name: e.name,
+        type: e.type,
+        nullable: !e.required,
+        readonly: true,
+      })),
+    },
+  };
 
-  const inputArgs = `{ ${allArgs.map((e) => `${e.name}: unknown`)} }`;
+  return rootType;
+}
+
+function generateOperationSource(api: ApiData, operation: Operation) {
+  const argsRootType = argsToRootType(operation);
 
   const inputKinds = groupBy((e) => e.kind, operation.params);
-
   let getPath: string | undefined = undefined;
 
   if (inputKinds.path) {
@@ -28,17 +43,36 @@ function generateOerationSource(api: ApiData, operation: Operation) {
     getPath = `'${operation.path}'`;
   }
 
-  // if (inputKinds.query) {
-  //   console.log(JSON.stringify(inputKinds.query, null, 2));
-  // }
+  const builderParts: (string | undefined)[] = [
+    `const ${operation.operationId} = buildCall() //`,
+  ];
+
+  if (operation.params.length !== 0) {
+    builderParts.push(`.args<rt.Static<typeof ${argsRootType.name}>>()`);
+  }
+
+  builderParts.push(
+    `.method('${operation.method}')`,
+    `.path(${getPath})`,
+    `.build()`,
+  );
+
+  const argsTypeSource =
+    operation.params.length > 0
+      ? generateRuntypes(argsRootType, {
+          format: false,
+          includeImport: false,
+          includeTypes: false,
+        })
+      : '';
 
   const def = dedent`
-    const ${operation.operationId} = buildCall() //
-      .args<${inputArgs}>()
-      .method('${operation.method}')
-      .path(${getPath})
-      .build()
+  ${argsTypeSource}
+
+  ${builderParts.filter(isDefined).join('\n')}
+
   `;
+
   return def;
 }
 
@@ -57,7 +91,7 @@ function generateApiSource(api: ApiData) {
   });
 
   const operationsSource = api.operations
-    .map((e) => generateOerationSource(api, e))
+    .map((e) => generateOperationSource(api, e))
     .join('\n\n');
 
   return dedent`
@@ -85,6 +119,10 @@ async function main() {
   const prettierConfig = await resolveConfig('./lol.ts');
   const formatted = format(source, prettierConfig ?? undefined);
 
+  // const lal = apiData.operations.find(
+  //   (e) => e.path === '/companies/{companySlug}/invoices',
+  // );
+  // console.log(JSON.stringify(lal));
   console.log(formatted);
 
   // console.log(JSON.stringify(operations, null, 2));
