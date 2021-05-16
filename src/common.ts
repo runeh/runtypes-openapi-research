@@ -9,6 +9,7 @@ export interface Param {
   name: string;
   required: boolean;
   type: AnyType;
+  description?: string;
 }
 
 export interface ReferenceParam extends Param {
@@ -21,6 +22,7 @@ export interface Schema {
   ref: string;
   type: AnyType;
   typeName: string;
+  description?: string;
 }
 
 export interface ApiResponse {

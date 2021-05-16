@@ -5,7 +5,7 @@ import { format, resolveConfig } from 'prettier';
 import { groupBy, prop } from 'ramda';
 import dedent from 'ts-dedent';
 import { parse } from 'yaml';
-import { Operation, isDefined } from './common';
+import { Operation, isDefined, Schema } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 import wrap from 'word-wrap';
 
@@ -77,7 +77,7 @@ function getJsonBodyRuntype(
   }
 }
 
-function getOperationComment(operation: Operation) {
+function getOperationComment(operation: Operation): string {
   const raw = dedent`
     operation ID: ${operation.operationId}
     \`${operation.method.toUpperCase()}: ${operation.path}\`

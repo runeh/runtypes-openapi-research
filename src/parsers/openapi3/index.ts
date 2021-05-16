@@ -41,6 +41,7 @@ function parseParameter(
       kind: getParamKind(param.in),
       type: schemaToType(param.schema),
       required: param.required ?? false,
+      description: param.description,
     };
   } else {
     const existingParam = parameterRefs.find((e) => e.ref === param.$ref);
@@ -50,6 +51,7 @@ function parseParameter(
       name: existingParam.name,
       required: existingParam.required,
       type: { kind: 'named', name: existingParam.typeName },
+      description: existingParam.description,
     };
   }
 }
@@ -208,6 +210,7 @@ function getSchemas(doc: OpenAPIV3.Document): Schema[] {
         ref,
         type: schemaToType(schema),
         typeName: `${name}Schema`,
+        description: schema.description,
       };
     },
   );
