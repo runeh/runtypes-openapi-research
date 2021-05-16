@@ -9,7 +9,7 @@ import { Operation, isDefined } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 
 const utilsForGenerated = dedent`
-  function pickPairs<T extends Record<string, unknown>, K extends keyof T>(
+  function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
     subject: T,
     ...keys: K[]
   ): [key: string, val: string][] {
@@ -18,9 +18,20 @@ const utilsForGenerated = dedent`
       .filter(([, val]) => val !== undefined)
       .map(([key, val]) => [key.toString(), val.toString()]);
   }
+
+  function withRuntype<T>(validator: rt.Runtype<T>) {
+    return (data: unknown) => {
+      return validator.check(data);
+    };
+  }
+
 `;
 
-function argsToRootType(operation: Operation) {
+function getArgsRuntype(operation: Operation): RootType | undefined {
+  if (operation.params.length === 0) {
+    return undefined;
+  }
+
   const name = `${operation.operationId}Args`;
   const rootType: RootType = {
     name,
@@ -38,8 +49,35 @@ function argsToRootType(operation: Operation) {
   return rootType;
 }
 
+function getJsonBodyRuntype(
+  operation: Operation,
+): RootType | string | undefined {
+  const okResponse = operation.responses.find((e) => e.status === 200);
+  if (!okResponse) {
+    return undefined;
+  }
+
+  const jsonResponse = okResponse.bodyAlternatives.find(
+    (e) => e.mimeType === 'application/json',
+  );
+
+  if (!jsonResponse) {
+    return undefined;
+  }
+
+  if (jsonResponse.type.kind === 'named') {
+    return jsonResponse.type.name;
+  } else {
+    return undefined;
+    // throw new Error(
+    //   `Don't know how to deal with "${jsonResponse.type.kind}" response yet`,
+    // );
+  }
+}
+
 function generateOperationSource(api: ApiData, operation: Operation) {
-  const argsRootType = argsToRootType(operation);
+  const argsRootType = getArgsRuntype(operation);
+  const jsonBodyRuntype = getJsonBodyRuntype(operation);
 
   const inputKinds = groupBy((e) => e.kind, operation.params);
   let getPath: string | undefined = undefined;
@@ -56,10 +94,10 @@ function generateOperationSource(api: ApiData, operation: Operation) {
   }
 
   const builderParts: (string | undefined)[] = [
-    `const ${operation.operationId} = buildCall() //`,
+    `export const ${operation.operationId} = buildCall() //`,
   ];
 
-  if (operation.params.length !== 0) {
+  if (argsRootType) {
     builderParts.push(`.args<rt.Static<typeof ${argsRootType.name}>>()`);
   }
 
@@ -72,22 +110,24 @@ function generateOperationSource(api: ApiData, operation: Operation) {
       .join(', ');
 
     const getQuery = dedent`
-      .query((args) =>
-        new URLSearchParams(pickPairs(args, ${names}))
-      )`;
+      .query((args) =>new URLSearchParams(pickQueryValues(args, ${names})))`;
+
     builderParts.push(getQuery);
+  }
+
+  if (typeof jsonBodyRuntype === 'string') {
+    builderParts.push(`.parseJson(withRuntype(${jsonBodyRuntype}))`);
   }
 
   builderParts.push(`.build()`);
 
-  const argsTypeSource =
-    operation.params.length > 0
-      ? generateRuntypes(argsRootType, {
-          format: false,
-          includeImport: false,
-          includeTypes: false,
-        })
-      : '';
+  const argsTypeSource = argsRootType
+    ? generateRuntypes(argsRootType, {
+        format: false,
+        includeImport: false,
+        includeTypes: false,
+      })
+    : '';
 
   const def = dedent`
   ${argsTypeSource}
@@ -144,13 +184,7 @@ async function main() {
   const prettierConfig = await resolveConfig('./lol.ts');
   const formatted = format(source, prettierConfig ?? undefined);
 
-  // const lal = apiData.operations.find(
-  //   (e) => e.path === '/companies/{companySlug}/invoices',
-  // );
-  // console.log(JSON.stringify(lal));
   console.log(formatted);
-
-  // console.log(JSON.stringify(operations, null, 2));
 }
 
 main();
