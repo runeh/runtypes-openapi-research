@@ -2,11 +2,23 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { RootType, generateRuntypes } from 'generate-runtypes';
 import { format, resolveConfig } from 'prettier';
-import { groupBy } from 'ramda';
+import { groupBy, prop } from 'ramda';
 import dedent from 'ts-dedent';
 import { parse } from 'yaml';
 import { Operation, isDefined } from './common';
 import { ApiData, parseOpenApi3 } from './parsers/openapi3';
+
+const utilsForGenerated = dedent`
+  function pickPairs<T extends Record<string, unknown>, K extends keyof T>(
+    subject: T,
+    ...keys: K[]
+  ): [key: string, val: string][] {
+    return keys
+      .map((key) => [key, subject[key]])
+      .filter(([, val]) => val !== undefined)
+      .map(([key, val]) => [key.toString(), val.toString()]);
+  }
+`;
 
 function argsToRootType(operation: Operation) {
   const name = `${operation.operationId}Args`;
@@ -54,20 +66,15 @@ function generateOperationSource(api: ApiData, operation: Operation) {
   builderParts.push(`.method('${operation.method}')`, `.path(${getPath})`);
 
   if (inputKinds.query && inputKinds.query.length > 0) {
-    const names = inputKinds.query.map((e) => `'${e.name}'`).join(', ');
+    const names = inputKinds.query
+      .map(prop('name'))
+      .map((e) => `'${e}'`)
+      .join(', ');
+
     const getQuery = dedent`
-      .query(args => {
-        const urlSearchParams = new URLSearchParams()
-        const queryNames = [${names}];
-        for (const name of queryNames) {
-          if (args[name] !== undefined) {
-            urlSearchParams.append(name, args[name])
-          }
-        }
-        return urlSearchParams;
-      })
-      
-    `;
+      .query((args) =>
+        new URLSearchParams(pickPairs(args, ${names}))
+      )`;
     builderParts.push(getQuery);
   }
 
@@ -113,6 +120,8 @@ function generateApiSource(api: ApiData) {
   return dedent`
       import * as rt from 'runtypes';
       import { buildCall } from 'typical-fetch';
+
+      ${utilsForGenerated}
 
       ${typesSource}
       
