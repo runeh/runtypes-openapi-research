@@ -4,6 +4,7 @@ import { HttpMethods } from './parsers/openapi3/common';
 
 export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
 
+// fixme: this needs content type
 export interface Param {
   kind: ParamKind;
   name: string;

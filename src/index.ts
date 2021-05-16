@@ -4,10 +4,10 @@ import { RootType, generateRuntypes } from 'generate-runtypes';
 import { format, resolveConfig } from 'prettier';
 import { groupBy, prop } from 'ramda';
 import dedent from 'ts-dedent';
-import { parse } from 'yaml';
-import { Operation, isDefined, Schema } from './common';
-import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 import wrap from 'word-wrap';
+import { parse } from 'yaml';
+import { Operation, isDefined } from './common';
+import { ApiData, parseOpenApi3 } from './parsers/openapi3';
 
 const utilsForGenerated = dedent`
   function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
@@ -19,6 +19,18 @@ const utilsForGenerated = dedent`
       .filter(([, val]) => val !== undefined)
       .map(([key, val]) => [key.toString(), val.toString()]);
   }
+
+  function pickFromObject<T extends Record<string, unknown>, K extends keyof T>(
+    subject: T,
+    ...keys: K[]
+  ): Pick<T, K> {
+    const pairs = keys
+      .map((key) => [key, subject[key]])
+      .filter(([, val]) => val !== undefined)
+      .map(([key, val]) => [key, val]);
+    return Object.fromEntries(pairs);
+  }
+  
 
   function withRuntype<T>(validator: rt.Runtype<T>) {
     return (data: unknown) => {
@@ -50,7 +62,7 @@ function getArgsRuntype(operation: Operation): RootType | undefined {
   return rootType;
 }
 
-function getJsonBodyRuntype(
+function getJsonResponseBodyRuntype(
   operation: Operation,
 ): RootType | string | undefined {
   const okResponse = operation.responses.find((e) => e.status === 200);
@@ -88,7 +100,7 @@ function getOperationComment(operation: Operation): string {
 
 function generateOperationSource(api: ApiData, operation: Operation) {
   const argsRootType = getArgsRuntype(operation);
-  const jsonBodyRuntype = getJsonBodyRuntype(operation);
+  const jsonResponseBodyRuntype = getJsonResponseBodyRuntype(operation);
 
   const inputKinds = groupBy((e) => e.kind, operation.params);
   let getPath: string | undefined = undefined;
@@ -127,8 +139,9 @@ function generateOperationSource(api: ApiData, operation: Operation) {
     builderParts.push(getQuery);
   }
 
-  if (typeof jsonBodyRuntype === 'string') {
-    builderParts.push(`.parseJson(withRuntype(${jsonBodyRuntype}))`);
+  if (typeof jsonResponseBodyRuntype === 'string') {
+    builderParts.push(`.parseJson(withRuntype(${jsonResponseBodyRuntype}))`);
+    // fixme: throw otherwise
   }
 
   builderParts.push(`.build()`);
@@ -192,7 +205,6 @@ async function main() {
 
   const apiData = await parseOpenApi3(parsed);
   const source = generateApiSource(apiData);
-
   const prettierConfig = await resolveConfig('./lol.ts');
   const formatted = format(source, prettierConfig ?? undefined);
 
