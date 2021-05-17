@@ -1,5 +1,6 @@
 import { AnyType } from 'generate-runtypes';
 import { OpenAPIV3 } from 'openapi-types';
+import { propEq } from 'ramda';
 import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import {
@@ -44,7 +45,7 @@ function parseParameter(
       description: param.description,
     };
   } else {
-    const existingParam = parameterRefs.find((e) => e.ref === param.$ref);
+    const existingParam = parameterRefs.find(propEq('ref', param.$ref));
     invariant(existingParam != null);
     return {
       kind: existingParam.kind,

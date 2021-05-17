@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { RootType, generateRuntypes } from 'generate-runtypes';
 import { format, resolveConfig } from 'prettier';
-import { groupBy, prop } from 'ramda';
+import { groupBy, prop, propEq } from 'ramda';
 import dedent from 'ts-dedent';
 import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
@@ -72,7 +72,7 @@ function getJsonResponseBodyRuntype(
   }
 
   const jsonResponse = okResponse.bodyAlternatives.find(
-    (e) => e.mimeType === 'application/json',
+    propEq('mimeType', 'application/json'),
   );
 
   if (!jsonResponse) {
