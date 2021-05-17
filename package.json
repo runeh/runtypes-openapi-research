@@ -27,7 +27,7 @@
     "runtypes": "^6.3.0",
     "ts-jest": "^26.5.4",
     "typescript": "^4.2.3",
-    "typical-fetch": "^1.0.0"
+    "typical-fetch": "^1.0.2"
   },
   "dependencies": {
     "generate-runtypes": "^2.1.0",

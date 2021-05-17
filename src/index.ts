@@ -4,6 +4,7 @@ import { RootType, generateRuntypes } from 'generate-runtypes';
 import { format, resolveConfig } from 'prettier';
 import { groupBy, prop } from 'ramda';
 import dedent from 'ts-dedent';
+import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
 import { parse } from 'yaml';
 import { Operation, isDefined } from './common';
@@ -136,6 +137,15 @@ function generateOperationSource(api: ApiData, operation: Operation) {
       .query((args) =>new URLSearchParams(pickQueryValues(args, ${names})))`;
 
     builderParts.push(getQuery);
+  }
+
+  if (inputKinds.body && inputKinds.body.length > 0) {
+    invariant(
+      inputKinds.body.length === 1,
+      "Don't know how to deal with multiple input bodies",
+    );
+    const arg = inputKinds.body[0];
+    builderParts.push(`.body((args) => args.${arg.name})`);
   }
 
   if (typeof jsonResponseBodyRuntype === 'string') {

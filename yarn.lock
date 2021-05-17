@@ -658,6 +658,19 @@
   resolved "https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
+"@types/mime@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.3.tgz#c893b73721db73699943bfc3653b1deb7faa4a3a"
+  integrity sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==
+
+"@types/node-fetch@^2.5.10":
+  version "2.5.10"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.5.10.tgz#9b4d4a0425562f9fcea70b12cb3fcdd946ca8132"
+  integrity sha512-IpkX0AasN44hgEad0gEF/V6EgR5n69VEqPEgnmoM8GsIGro3PowbWs4tR6IhxUTyPLpOn+fiGG6nrQhcmoCuIQ==
+  dependencies:
+    "@types/node" "*"
+    form-data "^3.0.0"
+
 "@types/node@*", "@types/node@~14.14.37":
   version "14.14.37"
   resolved "https://registry.npmjs.org/@types/node/-/node-14.14.37.tgz"
@@ -2063,6 +2076,15 @@ forever-agent@~0.6.1:
   version "0.6.1"
   resolved "https://registry.npmjs.org/forever-agent/-/forever-agent-0.6.1.tgz"
   integrity sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=
+
+form-data@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
+  integrity sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
+    mime-types "^2.1.12"
 
 form-data@^4.0.0:
   version "4.0.0"
@@ -4777,11 +4799,13 @@ typescript@~4.1.3:
   resolved "https://registry.npmjs.org/typescript/-/typescript-4.1.5.tgz"
   integrity sha512-6OSu9PTIzmn9TCDiovULTnET6BgXtDYL4Gg4szY+cGsc3JP1dQL8qvE8kShTRx1NIw4Q9IBHlwODjkjWEtMUyA==
 
-typical-fetch@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/typical-fetch/-/typical-fetch-1.0.0.tgz#43b5e04e86efcbfeb8a42f2a1f1ccd07235e81f3"
-  integrity sha512-uVJb/h35kMbYS0KsTnPqDM7VjqEzhOgXqCNHMG42XI59okxRfYIYM3VZesKzChB1avFHblK1xgmCzOozpgygcg==
+typical-fetch@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/typical-fetch/-/typical-fetch-1.0.2.tgz#d6a8b461250aa852aad9449322b92a35b697bb15"
+  integrity sha512-CoyGM4xa3jNTNn1yB5nNEbOqGEYiT3JoXVUidf2LkepLQ1/kHScrYL+G2XXpPaiwCCOnsyBojsd2kYJNz93L8A==
   dependencies:
+    "@types/mime" "^2.0.3"
+    "@types/node-fetch" "^2.5.10"
     form-data "^4.0.0"
     node-fetch "^2.6.1"
     ts-invariant "^0.7.3"
