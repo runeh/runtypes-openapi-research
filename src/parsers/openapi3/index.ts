@@ -4,6 +4,7 @@ import { propEq } from 'ramda';
 import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import {
+  ApiData,
   ApiResponse,
   Operation,
   Param,
@@ -225,12 +226,6 @@ function getOperations(
     invariant(item != null, 'Must be a thing');
     return parsePath(parameterRefs, path, item);
   });
-}
-
-export interface ApiData {
-  schemas: Schema[];
-  parameters: ReferenceParam[];
-  operations: Operation[];
 }
 
 export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {

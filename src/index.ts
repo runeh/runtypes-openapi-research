@@ -7,8 +7,8 @@ import dedent from 'ts-dedent';
 import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
 import { parse } from 'yaml';
-import { Operation, isDefined } from './common';
-import { ApiData, parseOpenApi3 } from './parsers/openapi3';
+import { ApiData, Operation, isDefined } from './common';
+import { parseOpenApi3 } from './parsers/openapi3';
 
 const utilsForGenerated = dedent`
   function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(

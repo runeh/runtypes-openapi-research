@@ -44,6 +44,12 @@ export interface Operation {
   summary?: string;
 }
 
+export interface ApiData {
+  schemas: Schema[];
+  parameters: ReferenceParam[];
+  operations: Operation[];
+}
+
 export function isDefined<T>(value: T | undefined | null): value is T {
   return value !== undefined && value !== null;
 }
