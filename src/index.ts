@@ -9,6 +9,7 @@ import wrap from 'word-wrap';
 import { parse } from 'yaml';
 import { ApiData, Operation, isDefined } from './common';
 import { parseOpenApi3 } from './parsers/openapi3';
+import { parseOpenApi2 } from './parsers/swagger2';
 
 const utilsForGenerated = dedent`
   function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
@@ -220,7 +221,7 @@ function generateApiSource(api: ApiData) {
     `;
 }
 
-async function main() {
+async function main2() {
   // const definitionPath = resolve(__dirname, '../resources/tripletex.json');
   const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
   const raw = await readFile(definitionPath, 'utf-8');
