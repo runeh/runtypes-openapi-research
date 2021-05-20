@@ -237,4 +237,13 @@ async function main() {
   console.log(formatted);
 }
 
+async function main() {
+  const definitionPath = resolve(__dirname, '../resources/tripletex.json');
+  const raw = await readFile(definitionPath, 'utf-8');
+  const parsed = await parse(raw);
+
+  const apiData = await parseOpenApi2(parsed);
+  console.log(apiData);
+}
+
 main();
