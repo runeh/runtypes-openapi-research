@@ -1,0 +1,3842 @@
+import * as rt from 'runtypes';
+import { buildCall } from 'typical-fetch';
+
+function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
+  subject: T,
+  ...keys: K[]
+): [key: string, val: string][] {
+  return keys
+    .map((key) => [key, subject[key]])
+    .filter(([, val]) => val !== undefined)
+    .map(([key, val]) => [key.toString(), val.toString()]);
+}
+
+function pickFromObject<T extends Record<string, unknown>, K extends keyof T>(
+  subject: T,
+  ...keys: K[]
+): Pick<T, K> {
+  const pairs = keys
+    .map((key) => [key, subject[key]])
+    .filter(([, val]) => val !== undefined)
+    .map(([key, val]) => [key, val]);
+  return Object.fromEntries(pairs);
+}
+
+function withRuntype<T>(validator: rt.Runtype<T>) {
+  return (data: unknown) => {
+    return validator.check(data);
+  };
+}
+
+const draftIdParameter = rt.Number;
+
+const invoiceIdParameter = rt.Number;
+
+const purchaseIdParameter = rt.Number;
+
+const projectIdParameter = rt.Number;
+
+const companySlugParameter = rt.String;
+
+const journalEntryIdParameter = rt.Number;
+
+const saleIdParameter = rt.Number;
+
+const paymentIdParameter = rt.Number;
+
+const accountCodeParameter = rt.String;
+
+const pageParameter = rt.Number;
+
+const pageSizeParameter = rt.Number;
+
+const fieldParameter = rt.String;
+
+const collectionParameter = rt.String;
+
+const queryParameter = rt.String;
+
+const fromAccountParameter = rt.Number;
+
+const toAccountParameter = rt.Number;
+
+const dateParameter = rt.String;
+
+const createdDateParameter = rt.String;
+
+const issueDateParameter = rt.String;
+
+const dateLeParameter = rt.String;
+
+const issueDateLeParameter = rt.String;
+
+const dateLtParameter = rt.String;
+
+const issueDateLtParameter = rt.String;
+
+const dateGeParameter = rt.String;
+
+const issueDateGeParameter = rt.String;
+
+const dateGtParameter = rt.String;
+
+const issueDateGtParameter = rt.String;
+
+const lastModifiedParameter = rt.String;
+
+const lastModifiedLeParameter = rt.String;
+
+const lastModifiedLtParameter = rt.String;
+
+const lastModifiedGeParameter = rt.String;
+
+const lastModifiedGtParameter = rt.String;
+
+const inboxDocumentIdParameter = rt.Number;
+
+const accountBalanceSchema = rt.Record({ balance: rt.Number });
+
+const accountSchema = rt.Record({ code: rt.String, name: rt.String });
+
+const addressSchema = rt.Intersect(
+  rt.Record({ streetAddressLine2: rt.String }),
+  rt
+    .Record({
+      streetAddress: rt.String,
+      city: rt.String,
+      postCode: rt.String,
+      country: rt.String,
+    })
+    .asPartial(),
+);
+
+const attachmentSchema = rt.Record({
+  identifier: rt.String,
+  downloadUrl: rt.String,
+  downloadUrlWithFikenNormalUserCredentials: rt.String,
+  comment: rt.String,
+  type: rt.Union(rt.Literal('invoice'), rt.Literal('reminder')),
+});
+
+const bankAccountRequestSchema = rt.Intersect(
+  rt.Record({
+    bic: rt.String,
+    iban: rt.String,
+    foreignService: rt.String,
+    inactive: rt.Boolean,
+  }),
+  rt
+    .Record({
+      name: rt.String,
+      bankAccountNumber: rt.String,
+      type: rt.Union(
+        rt.Literal('normal'),
+        rt.Literal('tax_deduction'),
+        rt.Literal('foreign'),
+        rt.Literal('credit_card'),
+      ),
+    })
+    .asPartial(),
+);
+
+const bankAccountResultSchema = rt.Record({
+  name: rt.String,
+  accountCode: rt.String,
+  bankAccountNumber: rt.String,
+  iban: rt.String,
+  bic: rt.String,
+  foreignService: rt.String,
+  type: rt.Union(
+    rt.Literal('normal'),
+    rt.Literal('tax_deduction'),
+    rt.Literal('foreign'),
+    rt.Literal('credit_card'),
+  ),
+  reconciledBalance: rt.Number,
+  reconciledDate: rt.String,
+});
+
+const companySchema = rt.Record({
+  name: rt.String,
+  slug: rt.String,
+  organizationNumber: rt.String,
+  vatType: rt.Union(
+    rt.Literal('no'),
+    rt.Literal('yearly'),
+    rt.Literal('monthly'),
+    rt.Literal('bi-monthly'),
+  ),
+  address: addressSchema,
+  phoneNumber: rt.String,
+  email: rt.String,
+  creationDate: rt.String,
+  hasApiAccess: rt.Boolean,
+  testCompany: rt.Boolean,
+  accountingStartDate: rt.String,
+});
+
+const contactPersonSchema = rt.Intersect(
+  rt.Record({
+    contactPersonId: rt.Number,
+    phoneNumber: rt.String,
+    address: addressSchema,
+  }),
+  rt.Record({ name: rt.String, email: rt.String }).asPartial(),
+);
+
+const contactSchema = rt.Intersect(
+  rt.Record({
+    contactId: rt.Number,
+    lastModifiedDate: rt.String,
+    email: rt.String,
+    organizationNumber: rt.String,
+    customerNumber: rt.Number,
+    customerAccountCode: rt.String,
+    phoneNumber: rt.String,
+    memberNumber: rt.Number,
+    supplierNumber: rt.Number,
+    supplierAccountCode: rt.String,
+    customer: rt.Boolean,
+    supplier: rt.Boolean,
+    contactPerson: rt.Array(contactPersonSchema),
+    currency: rt.String,
+    language: rt.String,
+    inactive: rt.Boolean,
+    daysUntilInvoicingDueDate: rt.Number,
+    address: addressSchema,
+    groups: rt.Array(rt.String),
+  }),
+  rt.Record({ name: rt.String }).asPartial(),
+);
+
+const creditNoteLineResultSchema = rt.Intersect(
+  rt.Record({
+    incomeAccount: rt.String,
+    vatType: rt.String,
+    discount: rt.Number,
+    productId: rt.Number,
+    description: rt.String,
+    comment: rt.String,
+  }),
+  rt.Record({ unitPrice: rt.Number, quantity: rt.Number }).asPartial(),
+);
+
+const invoiceLineResultSchema = rt.Record({
+  net: rt.Number,
+  vat: rt.Number,
+  vatType: rt.String,
+  gross: rt.Number,
+  netInNok: rt.Number,
+  vatInNok: rt.Number,
+  grossInNok: rt.Number,
+  vatInPercent: rt.Number,
+  unitPrice: rt.Number,
+  quantity: rt.Number,
+  discount: rt.Number,
+  productId: rt.Number,
+  productName: rt.String,
+  description: rt.String,
+  comment: rt.String,
+  incomeAccount: rt.String,
+});
+
+const projectResultSchema = rt.Record({
+  projectId: rt.Number,
+  number: rt.String,
+  name: rt.String,
+  description: rt.String,
+  startDate: rt.String,
+  endDate: rt.String,
+  contact: contactSchema,
+  completed: rt.Boolean,
+});
+
+const creditNoteResultSchema = rt.Intersect(
+  rt.Record({
+    kid: rt.String,
+    creditNoteText: rt.String,
+    yourReference: rt.String,
+    ourReference: rt.String,
+    orderReference: rt.String,
+    lines: rt.Array(invoiceLineResultSchema),
+    currency: rt.String,
+    issueDate: rt.String,
+    settled: rt.Boolean,
+    associatedInvoiceId: rt.Number,
+    creditNotePdf: attachmentSchema,
+    project: projectResultSchema,
+  }),
+  rt
+    .Record({
+      creditNoteId: rt.Number,
+      creditNoteNumber: rt.Number,
+      customer: contactSchema,
+      net: rt.Number,
+      vat: rt.Number,
+      gross: rt.Number,
+      netInNok: rt.Number,
+      vatInNok: rt.Number,
+      grossInNok: rt.Number,
+      address: addressSchema,
+    })
+    .asPartial(),
+);
+
+const draftLineRequestSchema = rt.Intersect(
+  rt.Record({ projectId: rt.Number }),
+  rt
+    .Record({
+      text: rt.String,
+      vatType: rt.String,
+      incomeAccount: rt.String,
+      net: rt.Number,
+      gross: rt.Number,
+    })
+    .asPartial(),
+);
+
+const draftLineResultSchema = rt.Record({
+  text: rt.String,
+  vatType: rt.String,
+  incomeAccount: rt.String,
+  net: rt.Number,
+  gross: rt.Number,
+  project: projectResultSchema,
+});
+
+const paymentSchema = rt.Intersect(
+  rt.Record({
+    paymentId: rt.Number,
+    amountInNok: rt.Number,
+    currency: rt.String,
+    fee: rt.Number,
+  }),
+  rt
+    .Record({ date: rt.String, account: rt.String, amount: rt.Number })
+    .asPartial(),
+);
+
+const draftRequestSchema = rt.Intersect(
+  rt.Record({
+    invoiceIssueDate: rt.String,
+    dueDate: rt.String,
+    invoiceNumber: rt.String,
+    contactId: rt.Number,
+    projectId: rt.Number,
+    currency: rt.String,
+    kid: rt.String,
+    paid: rt.Boolean,
+    payments: rt.Array(paymentSchema),
+  }),
+  rt
+    .Record({ cash: rt.Boolean, lines: rt.Array(draftLineRequestSchema) })
+    .asPartial(),
+);
+
+const draftResultSchema = rt.Record({
+  draftId: rt.Number,
+  uuid: rt.String,
+  invoiceIssueDate: rt.String,
+  dueDate: rt.String,
+  invoiceNumber: rt.String,
+  contact: contactSchema,
+  project: projectResultSchema,
+  cash: rt.Boolean,
+  currency: rt.String,
+  kid: rt.String,
+  paid: rt.Boolean,
+  attachments: rt.Array(attachmentSchema),
+  payments: rt.Array(paymentSchema),
+  lines: rt.Array(draftLineResultSchema),
+});
+
+const fullCreditNoteRequestSchema = rt.Intersect(
+  rt.Record({ creditNoteText: rt.String }),
+  rt.Record({ issueDate: rt.String, invoiceId: rt.Number }).asPartial(),
+);
+
+const journalEntryLineSchema = rt.Intersect(
+  rt.Record({
+    account: rt.String,
+    vatCode: rt.String,
+    debitAccount: rt.String,
+    debitVatCode: rt.Number,
+    creditAccount: rt.String,
+    creditVatCode: rt.Number,
+  }),
+  rt.Record({ amount: rt.Number }).asPartial(),
+);
+
+const journalEntrySchema = rt.Intersect(
+  rt.Record({
+    journalEntryId: rt.Number,
+    transactionId: rt.Number,
+    journalEntryNumber: rt.Number,
+    attachments: rt.Array(attachmentSchema),
+  }),
+  rt
+    .Record({
+      description: rt.String,
+      date: rt.String,
+      lines: rt.Array(journalEntryLineSchema),
+    })
+    .asPartial(),
+);
+
+const generalJournalEntryRequestSchema = rt.Intersect(
+  rt.Record({ description: rt.String }),
+  rt.Record({ journalEntries: rt.Array(journalEntrySchema) }).asPartial(),
+);
+
+const inboxResultSchema = rt.Record({
+  documentId: rt.Number,
+  name: rt.String,
+  description: rt.String,
+  filename: rt.String,
+  status: rt.Boolean,
+  createdAt: rt.String,
+});
+
+const invoiceishDraftLineSchema = rt.Intersect(
+  rt.Record({
+    productId: rt.Number,
+    description: rt.String,
+    unitPrice: rt.Number,
+    vatType: rt.String,
+    discount: rt.Number,
+    comment: rt.String,
+    incomeAccount: rt.String,
+  }),
+  rt.Record({ quantity: rt.Number }).asPartial(),
+);
+
+const invoiceishDraftRequestSchema = rt.Intersect(
+  rt.Record({
+    uuid: rt.String,
+    issueDate: rt.String,
+    invoiceText: rt.String,
+    yourReference: rt.String,
+    ourReference: rt.String,
+    orderReference: rt.String,
+    lines: rt.Array(invoiceishDraftLineSchema),
+    currency: rt.String,
+    bankAccountNumber: rt.String,
+    iban: rt.String,
+    bic: rt.String,
+    paymentAccount: rt.String,
+    contactPersonId: rt.Number,
+    projectId: rt.Number,
+  }),
+  rt
+    .Record({
+      type: rt.Union(
+        rt.Literal('invoice'),
+        rt.Literal('cash_invoice'),
+        rt.Literal('offer'),
+        rt.Literal('order_confirmation'),
+        rt.Literal('credit_note'),
+      ),
+      daysUntilDueDate: rt.Number,
+      customerId: rt.Number,
+    })
+    .asPartial(),
+);
+
+const invoiceishDraftResultSchema = rt.Record({
+  draftId: rt.Number,
+  uuid: rt.String,
+  type: rt.Union(
+    rt.Literal('invoice'),
+    rt.Literal('cash_invoice'),
+    rt.Literal('offer'),
+    rt.Literal('order_confirmation'),
+    rt.Literal('credit_note'),
+    rt.Literal('repeating_invoice'),
+  ),
+  issueDate: rt.String,
+  daysUntilDueDate: rt.Number,
+  invoiceText: rt.String,
+  currency: rt.String,
+  yourReference: rt.String,
+  ourReference: rt.String,
+  orderReference: rt.String,
+  lines: rt.Array(invoiceishDraftLineSchema),
+  bankAccountNumber: rt.String,
+  iban: rt.String,
+  bic: rt.String,
+  paymentAccount: rt.String,
+  customers: rt.Array(contactSchema),
+  attachments: rt.Array(attachmentSchema),
+  createdFromInvoiceId: rt.Number,
+  projectId: rt.Number,
+});
+
+const invoiceLineRequestSchema = rt.Intersect(
+  rt.Record({
+    net: rt.Number,
+    vat: rt.Number,
+    vatType: rt.String,
+    gross: rt.Number,
+    vatInPercent: rt.Number,
+    unitPrice: rt.Number,
+    discount: rt.Number,
+    productName: rt.String,
+    productId: rt.Number,
+    description: rt.String,
+    comment: rt.String,
+    incomeAccount: rt.String,
+  }),
+  rt.Record({ quantity: rt.Number }).asPartial(),
+);
+
+const invoiceRequestSchema = rt.Intersect(
+  rt.Record({
+    uuid: rt.String,
+    ourReference: rt.String,
+    yourReference: rt.String,
+    orderReference: rt.String,
+    contactPersonId: rt.Number,
+    currency: rt.String,
+    invoiceText: rt.String,
+    paymentAccount: rt.String,
+    projectId: rt.Number,
+  }),
+  rt
+    .Record({
+      issueDate: rt.String,
+      dueDate: rt.String,
+      lines: rt.Array(invoiceLineRequestSchema),
+      customerId: rt.Number,
+      bankAccountCode: rt.String,
+      cash: rt.Boolean,
+    })
+    .asPartial(),
+);
+
+const orderLineSchema = rt.Intersect(
+  rt.Record({
+    description: rt.String,
+    netPrice: rt.Number,
+    vat: rt.Number,
+    account: rt.String,
+    netPriceInCurrency: rt.Number,
+    vatInCurrency: rt.Number,
+    projectId: rt.Number,
+  }),
+  rt.Record({ vatType: rt.String }).asPartial(),
+);
+
+const saleResultSchema = rt.Record({
+  saleId: rt.Number,
+  transactionId: rt.Number,
+  saleNumber: rt.String,
+  date: rt.String,
+  kind: rt.Union(
+    rt.Literal('cash_sale'),
+    rt.Literal('invoice'),
+    rt.Literal('external_invoice'),
+  ),
+  netAmount: rt.Number,
+  vatAmount: rt.Number,
+  settled: rt.Boolean,
+  writeOff: rt.Boolean,
+  totalPaid: rt.Number,
+  totalPaidInCurrency: rt.Number,
+  outstandingBalance: rt.Number,
+  lines: rt.Array(orderLineSchema),
+  customer: contactSchema,
+  currency: rt.String,
+  dueDate: rt.String,
+  kid: rt.String,
+  paymentAccount: rt.String,
+  salePayments: rt.Array(paymentSchema),
+  saleAttachments: rt.Array(attachmentSchema),
+  paymentDate: rt.String,
+  project: projectResultSchema,
+  deleted: rt.Boolean,
+});
+
+const invoiceResultSchema = rt.Record({
+  invoiceId: rt.Number,
+  invoiceNumber: rt.Number,
+  kid: rt.String,
+  issueDate: rt.String,
+  dueDate: rt.String,
+  originalDueDate: rt.String,
+  net: rt.Number,
+  vat: rt.Number,
+  gross: rt.Number,
+  netInNok: rt.Number,
+  vatInNok: rt.Number,
+  grossInNok: rt.Number,
+  cash: rt.Boolean,
+  invoiceText: rt.String,
+  yourReference: rt.String,
+  ourReference: rt.String,
+  orderReference: rt.String,
+  address: addressSchema,
+  lines: rt.Array(invoiceLineResultSchema),
+  currency: rt.String,
+  bankAccountNumber: rt.String,
+  sentManually: rt.Boolean,
+  invoicePdf: attachmentSchema,
+  associatedCreditNotes: rt.Array(rt.Number),
+  attachments: rt.Array(attachmentSchema),
+  customer: contactSchema,
+  sale: saleResultSchema,
+  project: projectResultSchema,
+});
+
+const offerSchema = rt.Record({
+  offerId: rt.Number,
+  offerDraftUuid: rt.String,
+  date: rt.String,
+  offerNumber: rt.Number,
+  net: rt.Number,
+  vat: rt.Number,
+  gross: rt.Number,
+  comment: rt.String,
+  yourReference: rt.String,
+  ourReference: rt.String,
+  orderReference: rt.String,
+  discount: rt.Number,
+  address: addressSchema,
+  lines: rt.Array(invoiceLineResultSchema),
+  currency: rt.String,
+  contactId: rt.Number,
+  contactPersonId: rt.Number,
+  projectId: rt.Number,
+});
+
+const orderConfirmationSchema = rt.Record({
+  confirmationId: rt.Number,
+  confirmationDraftUuid: rt.String,
+  date: rt.String,
+  confirmationNumber: rt.Number,
+  net: rt.Number,
+  vat: rt.Number,
+  gross: rt.Number,
+  comment: rt.String,
+  yourReference: rt.String,
+  ourReference: rt.String,
+  orderReference: rt.String,
+  discount: rt.Number,
+  address: addressSchema,
+  lines: rt.Array(invoiceLineResultSchema),
+  currency: rt.String,
+  contactId: rt.Number,
+  contactPersonId: rt.Number,
+  projectId: rt.Number,
+});
+
+const partialCreditNoteRequestSchema = rt.Intersect(
+  rt.Record({
+    ourReference: rt.String,
+    yourReference: rt.String,
+    orderReference: rt.String,
+    project: rt.Number,
+    currency: rt.String,
+    invoiceId: rt.Number,
+    contactId: rt.Number,
+    contactPersonId: rt.Number,
+    creditNoteText: rt.String,
+  }),
+  rt
+    .Record({
+      issueDate: rt.String,
+      lines: rt.Array(creditNoteLineResultSchema),
+    })
+    .asPartial(),
+);
+
+const productSchema = rt.Intersect(
+  rt.Record({
+    productId: rt.Number,
+    createdDate: rt.String,
+    lastModifiedDate: rt.String,
+    unitPrice: rt.Number,
+    incomeAccount: rt.String,
+    productNumber: rt.String,
+    stock: rt.Number,
+    note: rt.String,
+  }),
+  rt
+    .Record({ name: rt.String, vatType: rt.String, active: rt.Boolean })
+    .asPartial(),
+);
+
+const productSalesLineInfoSchema = rt.Record({
+  count: rt.Number,
+  sales: rt.Number,
+  netAmount: rt.Number,
+  vatAmount: rt.Number,
+  grossAmount: rt.Number,
+});
+
+const productSalesReportRequestSchema = rt
+  .Record({ from: rt.String, to: rt.String })
+  .asPartial();
+
+const productSalesReportResultSchema = rt.Record({
+  product: productSchema,
+  sold: productSalesLineInfoSchema,
+  credited: productSalesLineInfoSchema,
+  sum: productSalesLineInfoSchema,
+});
+
+const projectRequestSchema = rt.Intersect(
+  rt.Record({
+    number: rt.String,
+    name: rt.String,
+    description: rt.String,
+    endDate: rt.String,
+    contactId: rt.Number,
+    completed: rt.Boolean,
+  }),
+  rt.Record({ startDate: rt.String }).asPartial(),
+);
+
+const purchaseRequestSchema = rt.Intersect(
+  rt.Record({
+    transactionId: rt.Number,
+    identifier: rt.String,
+    dueDate: rt.String,
+    supplierId: rt.Number,
+    paymentAccount: rt.String,
+    paymentDate: rt.String,
+    kid: rt.String,
+    projectId: rt.Number,
+  }),
+  rt
+    .Record({
+      date: rt.String,
+      kind: rt.Union(rt.Literal('cash_purchase'), rt.Literal('supplier')),
+      lines: rt.Array(orderLineSchema),
+      currency: rt.String,
+    })
+    .asPartial(),
+);
+
+const purchaseResultSchema = rt.Intersect(
+  rt.Record({
+    purchaseId: rt.Number,
+    transactionId: rt.Number,
+    identifier: rt.String,
+    dueDate: rt.String,
+    supplier: contactSchema,
+    paymentAccount: rt.String,
+    paymentDate: rt.String,
+    payments: rt.Array(paymentSchema),
+    purchaseAttachments: rt.Array(attachmentSchema),
+    kid: rt.String,
+    project: rt.Array(projectResultSchema),
+    deleted: rt.Boolean,
+  }),
+  rt
+    .Record({
+      date: rt.String,
+      kind: rt.Union(rt.Literal('cash_purchase'), rt.Literal('supplier')),
+      paid: rt.Boolean,
+      lines: rt.Array(orderLineSchema),
+      currency: rt.String,
+    })
+    .asPartial(),
+);
+
+const saleRequestSchema = rt.Intersect(
+  rt.Record({
+    saleNumber: rt.String,
+    settled: rt.Boolean,
+    totalPaid: rt.Number,
+    totalPaidInCurrency: rt.Number,
+    outstandingBalance: rt.Number,
+    customerId: rt.Number,
+    dueDate: rt.String,
+    kid: rt.String,
+    paymentAccount: rt.String,
+    paymentDate: rt.String,
+    paymentFee: rt.Number,
+    projectId: rt.Number,
+  }),
+  rt
+    .Record({
+      date: rt.String,
+      kind: rt.Union(
+        rt.Literal('cash_sale'),
+        rt.Literal('invoice'),
+        rt.Literal('external_invoice'),
+      ),
+      lines: rt.Array(orderLineSchema),
+      currency: rt.String,
+    })
+    .asPartial(),
+);
+
+const sendFakturaisjRequestSchema = rt.Intersect(
+  rt.Record({
+    recipientName: rt.String,
+    recipientEmail: rt.String,
+    message: rt.String,
+    emailSendOption: rt.Union(
+      rt.Literal('document_link'),
+      rt.Literal('attachment'),
+      rt.Literal('auto'),
+    ),
+    organizationNumber: rt.String,
+    mobileNumber: rt.String,
+  }),
+  rt
+    .Record({
+      method: rt.Array(
+        rt.Union(
+          rt.Literal('email'),
+          rt.Literal('ehf'),
+          rt.Literal('vipps'),
+          rt.Literal('sms'),
+          rt.Literal('auto'),
+        ),
+      ),
+      includeDocumentAttachments: rt.Boolean,
+    })
+    .asPartial(),
+);
+
+const sendCreditNoteRequestSchema = rt
+  .Record({ creditNoteId: rt.Number })
+  .asPartial();
+
+const sendInvoiceRequestSchema = rt
+  .Record({ invoiceId: rt.Number })
+  .asPartial();
+
+const transactionSchema = rt.Record({
+  transactionId: rt.Number,
+  description: rt.String,
+  type: rt.String,
+  entries: rt.Array(journalEntrySchema),
+});
+
+const updateInvoiceRequestSchema = rt.Intersect(
+  rt.Record({ newDueDate: rt.String }),
+  rt.Record({ sentManually: rt.Boolean }).asPartial(),
+);
+
+const updateProjectRequestSchema = rt.Record({
+  name: rt.String,
+  description: rt.String,
+  startDate: rt.String,
+  endDate: rt.String,
+  contactId: rt.Number,
+  completed: rt.Boolean,
+});
+
+const userinfoSchema = rt.Record({ name: rt.String, email: rt.String });
+
+// Operation: getUser
+
+/**
+ * operation ID: getUser
+ * `GET: /user`
+ * Returns information about the user
+ */
+export const getUser = buildCall() //
+  .method('get')
+  .path('/user')
+  .parseJson(withRuntype(userinfoSchema))
+  .build();
+
+// Operation: getCompanies
+
+const getCompaniesArgs = rt
+  .Record({
+    page: pageParameter,
+    pageSize: pageSizeParameter,
+    sortBy: rt.Union(
+      rt.Literal('createdDate asc'),
+      rt.Literal('createdDate desc'),
+      rt.Literal('name asc'),
+      rt.Literal('name desc'),
+      rt.Literal('organizationNumber asc'),
+      rt.Literal('organizationNumber desc'),
+    ),
+  })
+  .asPartial()
+  .asReadonly();
+
+const getCompaniesResponseBody = rt.Array(companySchema);
+
+/**
+ * operation ID: getCompanies
+ * `GET: /companies`
+ * Returns all companies from the system that the user has
+ * access to
+ */
+export const getCompanies = buildCall() //
+  .args<rt.Static<typeof getCompaniesArgs>>()
+  .method('get')
+  .path('/companies')
+  .query(
+    (args) =>
+      new URLSearchParams(pickQueryValues(args, 'page', 'pageSize', 'sortBy')),
+  )
+  .parseJson(withRuntype(getCompaniesResponseBody))
+  .build();
+
+// Operation: getCompany
+
+const getCompanyArgs = rt
+  .Record({ companySlug: companySlugParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getCompany
+ * `GET: /companies/{companySlug}`
+ * Returns company associated with slug.
+ */
+export const getCompany = buildCall() //
+  .args<rt.Static<typeof getCompanyArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}`)
+  .parseJson(withRuntype(companySchema))
+  .build();
+
+// Operation: getAccounts
+
+const getAccountsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      fromAccount: fromAccountParameter,
+      toAccount: toAccountParameter,
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getAccountsResponseBody = rt.Array(accountSchema);
+
+/**
+ * operation ID: getAccounts
+ * `GET: /companies/{companySlug}/accounts`
+ * Retrieves the bookkeeping accounts for the current year
+ */
+export const getAccounts = buildCall() //
+  .args<rt.Static<typeof getAccountsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/accounts`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'fromAccount', 'toAccount', 'page', 'pageSize'),
+      ),
+  )
+  .parseJson(withRuntype(getAccountsResponseBody))
+  .build();
+
+// Operation: getAccount
+
+const getAccountArgs = rt
+  .Record({ companySlug: companySlugParameter, accountCode: rt.String })
+  .asReadonly();
+
+/**
+ * operation ID: getAccount
+ * `GET: /companies/{companySlug}/accounts/{accountCode}`
+ * Retrieves the specified bookkeping account. An account is a
+ * string with either four digits, or four digits, a colon and
+ * five digits ("reskontro").       Examples:       3020 and
+ * 1500:10001
+ */
+export const getAccount = buildCall() //
+  .args<rt.Static<typeof getAccountArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/accounts/${args.accountCode}`)
+  .parseJson(withRuntype(accountSchema))
+  .build();
+
+// Operation: getAccountBalances
+
+const getAccountBalancesArgs = rt.Intersect(
+  rt
+    .Record({ date: rt.String, companySlug: companySlugParameter })
+    .asReadonly(),
+  rt
+    .Record({
+      fromAccount: fromAccountParameter,
+      toAccount: toAccountParameter,
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getAccountBalancesResponseBody = rt.Array(accountBalanceSchema);
+
+/**
+ * operation ID: getAccountBalances
+ * `GET: /companies/{companySlug}/accountBalances`
+ * Retrieves the bookkeeping accounts and balances for a given
+ * date. An account is a string with either four digits, or
+ * four digits, a colon and five digits ("reskontro").
+ * Examples: 3020 and 1500:10001
+ */
+export const getAccountBalances = buildCall() //
+  .args<rt.Static<typeof getAccountBalancesArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/accountBalances`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'fromAccount',
+          'toAccount',
+          'page',
+          'pageSize',
+          'date',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getAccountBalancesResponseBody))
+  .build();
+
+// Operation: getAccountBalance
+
+const getAccountBalanceArgs = rt
+  .Record({
+    date: rt.String,
+    companySlug: companySlugParameter,
+    accountCode: rt.String,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getAccountBalance
+ * `GET:
+ * /companies/{companySlug}/accountBalances/{accountCode}`
+ * Retrieves the specified bookkeping account and balance for a
+ * given date.
+ */
+export const getAccountBalance = buildCall() //
+  .args<rt.Static<typeof getAccountBalanceArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/accountBalances/${args.accountCode}`,
+  )
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'date')))
+  .parseJson(withRuntype(accountBalanceSchema))
+  .build();
+
+// Operation: getBankAccounts
+
+const getBankAccountsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getBankAccountsResponseBody = rt.Array(bankAccountResultSchema);
+
+/**
+ * operation ID: getBankAccounts
+ * `GET: /companies/{companySlug}/bankAccounts`
+ * Retrieves all bank accounts associated with the company.
+ */
+export const getBankAccounts = buildCall() //
+  .args<rt.Static<typeof getBankAccountsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/bankAccounts`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getBankAccountsResponseBody))
+  .build();
+
+// Operation: createBankAccount
+
+const createBankAccountArgs = rt
+  .Record({
+    requestBody: bankAccountRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createBankAccount
+ * `POST: /companies/{companySlug}/bankAccounts`
+ * Creates a new bank account. The Location response header
+ * returns the URL of the newly created bank account. Possible
+ * types of bank accounts are NORMAL, TAX_DEDUCTION, FOREIGN,
+ * and CREDIT_CARD. The field "foreignService" should only be
+ * filled out for accounts of type FOREIGN.
+ */
+export const createBankAccount = buildCall() //
+  .args<rt.Static<typeof createBankAccountArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/bankAccounts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getBankAccount
+
+const getBankAccountArgs = rt
+  .Record({ companySlug: companySlugParameter, bankAccountId: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: getBankAccount
+ * `GET: /companies/{companySlug}/bankAccounts/{bankAccountId}`
+ * Retrieves specified bank account.
+ */
+export const getBankAccount = buildCall() //
+  .args<rt.Static<typeof getBankAccountArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/bankAccounts/${args.bankAccountId}`,
+  )
+  .parseJson(withRuntype(bankAccountResultSchema))
+  .build();
+
+// Operation: getContacts
+
+const getContactsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      lastModified: lastModifiedParameter,
+      lastModifiedLe: lastModifiedLeParameter,
+      lastModifiedLt: lastModifiedLtParameter,
+      lastModifiedGe: lastModifiedGeParameter,
+      lastModifiedGt: lastModifiedGtParameter,
+      supplierNumber: rt.Number,
+      customerNumber: rt.Number,
+      memberNumber: rt.Number,
+      name: rt.String,
+      organizationNumber: rt.String,
+      email: rt.String,
+      customer: rt.Boolean,
+      supplier: rt.Boolean,
+      inactive: rt.Boolean,
+      group: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getContactsResponseBody = rt.Array(contactSchema);
+
+/**
+ * operation ID: getContacts
+ * `GET: /companies/{companySlug}/contacts`
+ * Retrieves all contacts for the specified company.
+ */
+export const getContacts = buildCall() //
+  .args<rt.Static<typeof getContactsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/contacts`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'page',
+          'pageSize',
+          'lastModified',
+          'lastModifiedLe',
+          'lastModifiedLt',
+          'lastModifiedGe',
+          'lastModifiedGt',
+          'supplierNumber',
+          'customerNumber',
+          'memberNumber',
+          'name',
+          'organizationNumber',
+          'email',
+          'customer',
+          'supplier',
+          'inactive',
+          'group',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getContactsResponseBody))
+  .build();
+
+// Operation: createContact
+
+const createContactArgs = rt
+  .Record({ requestBody: contactSchema, companySlug: companySlugParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createContact
+ * `POST: /companies/{companySlug}/contacts`
+ * Creates a new contact. The Location response header returns
+ * the URL of the newly created contact.
+ */
+export const createContact = buildCall() //
+  .args<rt.Static<typeof createContactArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/contacts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getContact
+
+const getContactArgs = rt
+  .Record({ companySlug: companySlugParameter, contactId: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: getContact
+ * `GET: /companies/{companySlug}/contacts/{contactId}`
+ * Retrieves specified contact. ContactId is returned with a
+ * GET contacts call as the first returned field. ContactId is
+ * returned in the Location response header for POST contact.
+ */
+export const getContact = buildCall() //
+  .args<rt.Static<typeof getContactArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/contacts/${args.contactId}`)
+  .parseJson(withRuntype(contactSchema))
+  .build();
+
+// Operation: updateContact
+
+const updateContactArgs = rt
+  .Record({
+    requestBody: contactSchema,
+    companySlug: companySlugParameter,
+    contactId: rt.Number,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateContact
+ * `PUT: /companies/{companySlug}/contacts/{contactId}`
+ * Updates an existing contact.
+ */
+export const updateContact = buildCall() //
+  .args<rt.Static<typeof updateContactArgs>>()
+  .method('put')
+  .path((args) => `/companies/${args.companySlug}/contacts/${args.contactId}`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getContactContactPerson
+
+const getContactContactPersonArgs = rt
+  .Record({ companySlug: companySlugParameter, contactId: rt.Number })
+  .asReadonly();
+
+const getContactContactPersonResponseBody = rt.Array(contactPersonSchema);
+
+/**
+ * operation ID: getContactContactPerson
+ * `GET:
+ * /companies/{companySlug}/contacts/{contactId}/contactPerson`
+ * Retrieves contact person(s) for a specified contact.
+ */
+export const getContactContactPerson = buildCall() //
+  .args<rt.Static<typeof getContactContactPersonArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson`,
+  )
+  .parseJson(withRuntype(getContactContactPersonResponseBody))
+  .build();
+
+// Operation: addContactPersonToContact
+
+const addContactPersonToContactArgs = rt
+  .Record({
+    requestBody: contactPersonSchema,
+    companySlug: companySlugParameter,
+    contactId: rt.Number,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: addContactPersonToContact
+ * `POST:
+ * /companies/{companySlug}/contacts/{contactId}/contactPerson`
+ * Adds a new contact person to a contact
+ */
+export const addContactPersonToContact = buildCall() //
+  .args<rt.Static<typeof addContactPersonToContactArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getContactPerson
+
+const getContactPersonArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    contactId: rt.Number,
+    contactPersonId: rt.Number,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getContactPerson
+ * `GET:
+ * /companies/{companySlug}/contacts/{contactId}/contactPerson/{contactPersonId}`
+ * Retrieves specified contact person
+ */
+export const getContactPerson = buildCall() //
+  .args<rt.Static<typeof getContactPersonArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson/${args.contactPersonId}`,
+  )
+  .parseJson(withRuntype(contactPersonSchema))
+  .build();
+
+// Operation: updateContactContactPerson
+
+const updateContactContactPersonArgs = rt
+  .Record({
+    requestBody: contactPersonSchema,
+    companySlug: companySlugParameter,
+    contactId: rt.Number,
+    contactPersonId: rt.Number,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateContactContactPerson
+ * `PUT:
+ * /companies/{companySlug}/contacts/{contactId}/contactPerson/{contactPersonId}`
+ * Updates an existing contact person.
+ */
+export const updateContactContactPerson = buildCall() //
+  .args<rt.Static<typeof updateContactContactPersonArgs>>()
+  .method('put')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson/${args.contactPersonId}`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteContactContactPerson
+
+const deleteContactContactPersonArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    contactId: rt.Number,
+    contactPersonId: rt.Number,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: deleteContactContactPerson
+ * `DELETE:
+ * /companies/{companySlug}/contacts/{contactId}/contactPerson/{contactPersonId}`
+ * Delete a contact's contact person.
+ */
+export const deleteContactContactPerson = buildCall() //
+  .args<rt.Static<typeof deleteContactContactPersonArgs>>()
+  .method('delete')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson/${args.contactPersonId}`,
+  )
+  .build();
+
+// Operation: createProductSalesReport
+
+const createProductSalesReportArgs = rt
+  .Record({
+    requestBody: productSalesReportRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+const createProductSalesReportResponseBody = rt.Array(
+  productSalesReportResultSchema,
+);
+
+/**
+ * operation ID: createProductSalesReport
+ * `POST: /companies/{companySlug}/products/salesReport`
+ * Creates a report based on provided specifications.
+ */
+export const createProductSalesReport = buildCall() //
+  .args<rt.Static<typeof createProductSalesReportArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/products/salesReport`)
+  .body((args) => args.requestBody)
+  .parseJson(withRuntype(createProductSalesReportResponseBody))
+  .build();
+
+// Operation: getJournalEntries
+
+const getJournalEntriesArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      date: dateParameter,
+      dateLe: dateLeParameter,
+      dateLt: dateLtParameter,
+      dateGe: dateGeParameter,
+      dateGt: dateGtParameter,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getJournalEntriesResponseBody = rt.Array(journalEntrySchema);
+
+/**
+ * operation ID: getJournalEntries
+ * `GET: /companies/{companySlug}/journalEntries`
+ * Returns all general journal entries (posteringer) for the
+ * specified company.
+ */
+export const getJournalEntries = buildCall() //
+  .args<rt.Static<typeof getJournalEntriesArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/journalEntries`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'page',
+          'pageSize',
+          'date',
+          'dateLe',
+          'dateLt',
+          'dateGe',
+          'dateGt',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getJournalEntriesResponseBody))
+  .build();
+
+// Operation: createGeneralJournalEntry
+
+const createGeneralJournalEntryArgs = rt
+  .Record({
+    requestBody: generalJournalEntryRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createGeneralJournalEntry
+ * `POST: /companies/{companySlug}/generalJournalEntries`
+ * Creates a new general journal entry (fri postering).
+ */
+export const createGeneralJournalEntry = buildCall() //
+  .args<rt.Static<typeof createGeneralJournalEntryArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/generalJournalEntries`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getJournalEntry
+
+const getJournalEntryArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    journalEntryId: journalEntryIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getJournalEntry
+ * `GET:
+ * /companies/{companySlug}/journalEntries/{journalEntryId}`
+ * Returns all journal entries within a given company's Journal
+ * Entry Service
+ */
+export const getJournalEntry = buildCall() //
+  .args<rt.Static<typeof getJournalEntryArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/journalEntries/${args.journalEntryId}`,
+  )
+  .parseJson(withRuntype(journalEntrySchema))
+  .build();
+
+// Operation: getJournalEntryAttachments
+
+const getJournalEntryAttachmentsArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    journalEntryId: journalEntryIdParameter,
+  })
+  .asReadonly();
+
+const getJournalEntryAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getJournalEntryAttachments
+ * `GET:
+ * /companies/{companySlug}/journalEntries/{journalEntryId}/attachments`
+ * Returns all attachments for a given Journal Entry
+ */
+export const getJournalEntryAttachments = buildCall() //
+  .args<rt.Static<typeof getJournalEntryAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/journalEntries/${args.journalEntryId}/attachments`,
+  )
+  .parseJson(withRuntype(getJournalEntryAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToJournalEntry
+
+const addAttachmentToJournalEntryArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    journalEntryId: journalEntryIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToJournalEntry
+ * `POST:
+ * /companies/{companySlug}/journalEntries/{journalEntryId}/attachments`
+ * Creates and adds a new attachment to a Journal Entry
+ */
+export const addAttachmentToJournalEntry = buildCall() //
+  .args<rt.Static<typeof addAttachmentToJournalEntryArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/journalEntries/${args.journalEntryId}/attachments`,
+  )
+  .build();
+
+// Operation: getTransaction
+
+const getTransactionArgs = rt
+  .Record({ companySlug: companySlugParameter, transactionId: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: getTransaction
+ * `GET: /companies/{companySlug}/transactions/{transactionId}`
+ * Returns given transaction with associated id. Transaction id
+ * is returned in GET calls for sales, purchases, and journal
+ * entries.
+ */
+export const getTransaction = buildCall() //
+  .args<rt.Static<typeof getTransactionArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/transactions/${args.transactionId}`,
+  )
+  .parseJson(withRuntype(transactionSchema))
+  .build();
+
+// Operation: getInvoices
+
+const getInvoicesArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      issueDate: issueDateParameter,
+      issueDateLe: issueDateLeParameter,
+      issueDateLt: issueDateLtParameter,
+      issueDateGe: issueDateGeParameter,
+      issueDateGt: issueDateGtParameter,
+      lastModified: lastModifiedParameter,
+      lastModifiedLe: lastModifiedLeParameter,
+      lastModifiedLt: lastModifiedLtParameter,
+      lastModifiedGe: lastModifiedGeParameter,
+      lastModifiedGt: lastModifiedGtParameter,
+      customerId: rt.Number,
+      settled: rt.Boolean,
+      orderReference: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getInvoicesResponseBody = rt.Array(invoiceResultSchema);
+
+/**
+ * operation ID: getInvoices
+ * `GET: /companies/{companySlug}/invoices`
+ * Returns all invoices for given company. You can filter based
+ * on issue date, last modified date, customer ID, and if the
+ * invoice is settled or not.
+ */
+export const getInvoices = buildCall() //
+  .args<rt.Static<typeof getInvoicesArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/invoices`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'page',
+          'pageSize',
+          'issueDate',
+          'issueDateLe',
+          'issueDateLt',
+          'issueDateGe',
+          'issueDateGt',
+          'lastModified',
+          'lastModifiedLe',
+          'lastModifiedLt',
+          'lastModifiedGe',
+          'lastModifiedGt',
+          'customerId',
+          'settled',
+          'orderReference',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getInvoicesResponseBody))
+  .build();
+
+// Operation: createInvoice
+
+const createInvoiceArgs = rt
+  .Record({
+    requestBody: invoiceRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createInvoice
+ * `POST: /companies/{companySlug}/invoices`
+ * Creates an invoice. There are two types of invoice lines
+ * that can be added to an invoice line: product line or free
+ * text line. Provide a product Id if you are invoicing a
+ * product. All information regarding the price and VAT for
+ * this product will be added to the invoice. It is however
+ * also possible to override the unit amount by sending
+ * information in both fields "productId" and "unitAmount". An
+ * invoice line can also be a free text line meaning that no
+ * existing product will be associated with the invoiced line.
+ * In this case all information regarding the price and VAT of
+ * the product or service to be invoiced must be provided.
+ */
+export const createInvoice = buildCall() //
+  .args<rt.Static<typeof createInvoiceArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/invoices`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getInvoice
+
+const getInvoiceArgs = rt
+  .Record({ companySlug: companySlugParameter, invoiceId: invoiceIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getInvoice
+ * `GET: /companies/{companySlug}/invoices/{invoiceId}`
+ * Returns invoice with specified id.
+ */
+export const getInvoice = buildCall() //
+  .args<rt.Static<typeof getInvoiceArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/invoices/${args.invoiceId}`)
+  .parseJson(withRuntype(invoiceResultSchema))
+  .build();
+
+// Operation: updateInvoice
+
+const updateInvoiceArgs = rt
+  .Record({
+    requestBody: updateInvoiceRequestSchema,
+    companySlug: companySlugParameter,
+    invoiceId: invoiceIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateInvoice
+ * `PATCH: /companies/{companySlug}/invoices/{invoiceId}`
+ * Updates invoice with provided id. It is possible to update
+ * the due date of an invoice as well as if the invoice was
+ * sent manually, outside of Fiken.
+ */
+export const updateInvoice = buildCall() //
+  .args<rt.Static<typeof updateInvoiceArgs>>()
+  .method('patch')
+  .path((args) => `/companies/${args.companySlug}/invoices/${args.invoiceId}`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getInvoiceAttachments
+
+const getInvoiceAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, invoiceId: invoiceIdParameter })
+  .asReadonly();
+
+const getInvoiceAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getInvoiceAttachments
+ * `GET:
+ * /companies/{companySlug}/invoices/{invoiceId}/attachments`
+ * Returns all attachments for a given Invoice
+ */
+export const getInvoiceAttachments = buildCall() //
+  .args<rt.Static<typeof getInvoiceAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/invoices/${args.invoiceId}/attachments`,
+  )
+  .parseJson(withRuntype(getInvoiceAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToInvoice
+
+const addAttachmentToInvoiceArgs = rt
+  .Record({ companySlug: companySlugParameter, invoiceId: invoiceIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToInvoice
+ * `POST:
+ * /companies/{companySlug}/invoices/{invoiceId}/attachments`
+ * Creates and adds a new attachment to an Invoice
+ */
+export const addAttachmentToInvoice = buildCall() //
+  .args<rt.Static<typeof addAttachmentToInvoiceArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/invoices/${args.invoiceId}/attachments`,
+  )
+  .build();
+
+// Operation: sendInvoice
+
+const sendInvoiceArgs = rt
+  .Record({
+    requestBody: sendInvoiceRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: sendInvoice
+ * `POST: /companies/{companySlug}/invoices/send`
+ * Sends the specified document
+ */
+export const sendInvoice = buildCall() //
+  .args<rt.Static<typeof sendInvoiceArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/invoices/send`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getInvoiceDrafts
+
+const getInvoiceDraftsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      orderReference: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getInvoiceDraftsResponseBody = rt.Array(invoiceishDraftResultSchema);
+
+/**
+ * operation ID: getInvoiceDrafts
+ * `GET: /companies/{companySlug}/invoices/drafts`
+ * Returns all invoice drafts for given company.
+ */
+export const getInvoiceDrafts = buildCall() //
+  .args<rt.Static<typeof getInvoiceDraftsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/invoices/drafts`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'page', 'pageSize', 'orderReference'),
+      ),
+  )
+  .parseJson(withRuntype(getInvoiceDraftsResponseBody))
+  .build();
+
+// Operation: createInvoiceDraft
+
+const createInvoiceDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createInvoiceDraft
+ * `POST: /companies/{companySlug}/invoices/drafts`
+ * Creates an invoice draft.
+ */
+export const createInvoiceDraft = buildCall() //
+  .args<rt.Static<typeof createInvoiceDraftArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/invoices/drafts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getInvoiceDraft
+
+const getInvoiceDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getInvoiceDraft
+ * `GET: /companies/{companySlug}/invoices/drafts/{draftId}`
+ * Returns invoice draft with specified id.
+ */
+export const getInvoiceDraft = buildCall() //
+  .args<rt.Static<typeof getInvoiceDraftArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/invoices/drafts/${args.draftId}`,
+  )
+  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .build();
+
+// Operation: updateInvoiceDraft
+
+const updateInvoiceDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+    draftId: draftIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateInvoiceDraft
+ * `PUT: /companies/{companySlug}/invoices/drafts/{draftId}`
+ * Updates invoice draft with provided id.
+ */
+export const updateInvoiceDraft = buildCall() //
+  .args<rt.Static<typeof updateInvoiceDraftArgs>>()
+  .method('put')
+  .path(
+    (args) => `/companies/${args.companySlug}/invoices/drafts/${args.draftId}`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteInvoiceDraft
+
+const deleteInvoiceDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deleteInvoiceDraft
+ * `DELETE: /companies/{companySlug}/invoices/drafts/{draftId}`
+ * Delete invoice draft with specified id.
+ */
+export const deleteInvoiceDraft = buildCall() //
+  .args<rt.Static<typeof deleteInvoiceDraftArgs>>()
+  .method('delete')
+  .path(
+    (args) => `/companies/${args.companySlug}/invoices/drafts/${args.draftId}`,
+  )
+  .build();
+
+// Operation: getInvoiceDraftAttachments
+
+const getInvoiceDraftAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+const getInvoiceDraftAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getInvoiceDraftAttachments
+ * `GET:
+ * /companies/{companySlug}/invoices/drafts/{draftId}/attachments`
+ * Returns all attachments for specified draft.
+ */
+export const getInvoiceDraftAttachments = buildCall() //
+  .args<rt.Static<typeof getInvoiceDraftAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/invoices/drafts/${args.draftId}/attachments`,
+  )
+  .parseJson(withRuntype(getInvoiceDraftAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToInvoiceDraft
+
+const addAttachmentToInvoiceDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToInvoiceDraft
+ * `POST:
+ * /companies/{companySlug}/invoices/drafts/{draftId}/attachments`
+ * Creates and adds a new attachment to an invoice draft
+ */
+export const addAttachmentToInvoiceDraft = buildCall() //
+  .args<rt.Static<typeof addAttachmentToInvoiceDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/invoices/drafts/${args.draftId}/attachments`,
+  )
+  .build();
+
+// Operation: createInvoiceFromDraft
+
+const createInvoiceFromDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createInvoiceFromDraft
+ * `POST:
+ * /companies/{companySlug}/invoices/drafts/{draftId}/createInvoice`
+ * Creates an invoice from an already created draft.
+ */
+export const createInvoiceFromDraft = buildCall() //
+  .args<rt.Static<typeof createInvoiceFromDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/invoices/drafts/${args.draftId}/createInvoice`,
+  )
+  .build();
+
+// Operation: getCreditNotes
+
+const getCreditNotesArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      issueDate: issueDateParameter,
+      issueDateLe: issueDateLeParameter,
+      issueDateLt: issueDateLtParameter,
+      issueDateGe: issueDateGeParameter,
+      issueDateGt: issueDateGtParameter,
+      customerId: rt.Number,
+      settled: rt.Boolean,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getCreditNotesResponseBody = rt.Array(creditNoteResultSchema);
+
+/**
+ * operation ID: getCreditNotes
+ * `GET: /companies/{companySlug}/creditNotes`
+ * Returns all credit notes for given company
+ */
+export const getCreditNotes = buildCall() //
+  .args<rt.Static<typeof getCreditNotesArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/creditNotes`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'page',
+          'pageSize',
+          'issueDate',
+          'issueDateLe',
+          'issueDateLt',
+          'issueDateGe',
+          'issueDateGt',
+          'customerId',
+          'settled',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getCreditNotesResponseBody))
+  .build();
+
+// Operation: createFullCreditNote
+
+const createFullCreditNoteArgs = rt
+  .Record({
+    requestBody: fullCreditNoteRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createFullCreditNote
+ * `POST: /companies/{companySlug}/creditNotes/full`
+ * Creates a new credit note.
+ */
+export const createFullCreditNote = buildCall() //
+  .args<rt.Static<typeof createFullCreditNoteArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/creditNotes/full`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: createPartialCreditNote
+
+const createPartialCreditNoteArgs = rt
+  .Record({
+    requestBody: partialCreditNoteRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createPartialCreditNote
+ * `POST: /companies/{companySlug}/creditNotes/partial`
+ * Creates a new credit note.
+ */
+export const createPartialCreditNote = buildCall() //
+  .args<rt.Static<typeof createPartialCreditNoteArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/creditNotes/partial`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getCreditNote
+
+const getCreditNoteArgs = rt
+  .Record({ companySlug: companySlugParameter, creditNoteId: rt.String })
+  .asReadonly();
+
+/**
+ * operation ID: getCreditNote
+ * `GET: /companies/{companySlug}/creditNotes/{creditNoteId}`
+ * Returns credit note with specified id.
+ */
+export const getCreditNote = buildCall() //
+  .args<rt.Static<typeof getCreditNoteArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/creditNotes/${args.creditNoteId}`,
+  )
+  .parseJson(withRuntype(creditNoteResultSchema))
+  .build();
+
+// Operation: sendCreditNote
+
+const sendCreditNoteArgs = rt
+  .Record({
+    requestBody: sendCreditNoteRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: sendCreditNote
+ * `POST: /companies/{companySlug}/creditNotes/send`
+ * Sends the specified document
+ */
+export const sendCreditNote = buildCall() //
+  .args<rt.Static<typeof sendCreditNoteArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/creditNotes/send`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getCreditNoteDrafts
+
+const getCreditNoteDraftsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getCreditNoteDraftsResponseBody = rt.Array(invoiceishDraftResultSchema);
+
+/**
+ * operation ID: getCreditNoteDrafts
+ * `GET: /companies/{companySlug}/creditNotes/drafts`
+ * Returns all credit note drafts for given company.
+ */
+export const getCreditNoteDrafts = buildCall() //
+  .args<rt.Static<typeof getCreditNoteDraftsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/creditNotes/drafts`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getCreditNoteDraftsResponseBody))
+  .build();
+
+// Operation: createCreditNoteDraft
+
+const createCreditNoteDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createCreditNoteDraft
+ * `POST: /companies/{companySlug}/creditNotes/drafts`
+ * Creates a credit note draft.
+ */
+export const createCreditNoteDraft = buildCall() //
+  .args<rt.Static<typeof createCreditNoteDraftArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/creditNotes/drafts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getCreditNoteDraft
+
+const getCreditNoteDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getCreditNoteDraft
+ * `GET: /companies/{companySlug}/creditNotes/drafts/{draftId}`
+ * Returns credit note draft with specified id.
+ */
+export const getCreditNoteDraft = buildCall() //
+  .args<rt.Static<typeof getCreditNoteDraftArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}`,
+  )
+  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .build();
+
+// Operation: updateCreditNoteDraft
+
+const updateCreditNoteDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+    draftId: draftIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateCreditNoteDraft
+ * `PUT: /companies/{companySlug}/creditNotes/drafts/{draftId}`
+ * Updates credit note draft with provided id.
+ */
+export const updateCreditNoteDraft = buildCall() //
+  .args<rt.Static<typeof updateCreditNoteDraftArgs>>()
+  .method('put')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteCreditNoteDraft
+
+const deleteCreditNoteDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deleteCreditNoteDraft
+ * `DELETE:
+ * /companies/{companySlug}/creditNotes/drafts/{draftId}`
+ * Delete credit note draft with specified id.
+ */
+export const deleteCreditNoteDraft = buildCall() //
+  .args<rt.Static<typeof deleteCreditNoteDraftArgs>>()
+  .method('delete')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}`,
+  )
+  .build();
+
+// Operation: getCreditNoteDraftAttachments
+
+const getCreditNoteDraftAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+const getCreditNoteDraftAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getCreditNoteDraftAttachments
+ * `GET:
+ * /companies/{companySlug}/creditNotes/drafts/{draftId}/attachments`
+ * Returns all attachments for specified draft.
+ */
+export const getCreditNoteDraftAttachments = buildCall() //
+  .args<rt.Static<typeof getCreditNoteDraftAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}/attachments`,
+  )
+  .parseJson(withRuntype(getCreditNoteDraftAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToCreditNoteDraft
+
+const addAttachmentToCreditNoteDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToCreditNoteDraft
+ * `POST:
+ * /companies/{companySlug}/creditNotes/drafts/{draftId}/attachments`
+ * Creates and adds a new attachment to a credit note draft
+ */
+export const addAttachmentToCreditNoteDraft = buildCall() //
+  .args<rt.Static<typeof addAttachmentToCreditNoteDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}/attachments`,
+  )
+  .build();
+
+// Operation: createCreditNoteFromDraft
+
+const createCreditNoteFromDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createCreditNoteFromDraft
+ * `POST:
+ * /companies/{companySlug}/creditNotes/drafts/{draftId}/createCreditNote`
+ * Creates a credit note from an already created draft.
+ */
+export const createCreditNoteFromDraft = buildCall() //
+  .args<rt.Static<typeof createCreditNoteFromDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}/createCreditNote`,
+  )
+  .build();
+
+// Operation: getOffers
+
+const getOffersArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getOffersResponseBody = rt.Array(offerSchema);
+
+/**
+ * operation ID: getOffers
+ * `GET: /companies/{companySlug}/offers`
+ * Returns all offers for given company
+ */
+export const getOffers = buildCall() //
+  .args<rt.Static<typeof getOffersArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/offers`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getOffersResponseBody))
+  .build();
+
+// Operation: getOffer
+
+const getOfferArgs = rt
+  .Record({ companySlug: companySlugParameter, offerId: rt.String })
+  .asReadonly();
+
+/**
+ * operation ID: getOffer
+ * `GET: /companies/{companySlug}/offers/{offerId}`
+ * Returns offer with specified id.
+ */
+export const getOffer = buildCall() //
+  .args<rt.Static<typeof getOfferArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/offers/${args.offerId}`)
+  .parseJson(withRuntype(offerSchema))
+  .build();
+
+// Operation: getOfferDrafts
+
+const getOfferDraftsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getOfferDraftsResponseBody = rt.Array(invoiceishDraftResultSchema);
+
+/**
+ * operation ID: getOfferDrafts
+ * `GET: /companies/{companySlug}/offers/drafts`
+ * Returns all offer drafts for given company.
+ */
+export const getOfferDrafts = buildCall() //
+  .args<rt.Static<typeof getOfferDraftsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/offers/drafts`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getOfferDraftsResponseBody))
+  .build();
+
+// Operation: createOfferDraft
+
+const createOfferDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createOfferDraft
+ * `POST: /companies/{companySlug}/offers/drafts`
+ * Creates an offer draft.
+ */
+export const createOfferDraft = buildCall() //
+  .args<rt.Static<typeof createOfferDraftArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/offers/drafts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getOfferDraft
+
+const getOfferDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getOfferDraft
+ * `GET: /companies/{companySlug}/offers/drafts/{draftId}`
+ * Returns offer draft with specified id.
+ */
+export const getOfferDraft = buildCall() //
+  .args<rt.Static<typeof getOfferDraftArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/offers/drafts/${args.draftId}`,
+  )
+  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .build();
+
+// Operation: updateOfferDraft
+
+const updateOfferDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+    draftId: draftIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateOfferDraft
+ * `PUT: /companies/{companySlug}/offers/drafts/{draftId}`
+ * Updates offer draft with provided id.
+ */
+export const updateOfferDraft = buildCall() //
+  .args<rt.Static<typeof updateOfferDraftArgs>>()
+  .method('put')
+  .path(
+    (args) => `/companies/${args.companySlug}/offers/drafts/${args.draftId}`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteOfferDraft
+
+const deleteOfferDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deleteOfferDraft
+ * `DELETE: /companies/{companySlug}/offers/drafts/{draftId}`
+ * Delete offer draft with specified id.
+ */
+export const deleteOfferDraft = buildCall() //
+  .args<rt.Static<typeof deleteOfferDraftArgs>>()
+  .method('delete')
+  .path(
+    (args) => `/companies/${args.companySlug}/offers/drafts/${args.draftId}`,
+  )
+  .build();
+
+// Operation: getOfferDraftAttachments
+
+const getOfferDraftAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+const getOfferDraftAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getOfferDraftAttachments
+ * `GET:
+ * /companies/{companySlug}/offers/drafts/{draftId}/attachments`
+ * Returns all attachments for specified draft.
+ */
+export const getOfferDraftAttachments = buildCall() //
+  .args<rt.Static<typeof getOfferDraftAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/offers/drafts/${args.draftId}/attachments`,
+  )
+  .parseJson(withRuntype(getOfferDraftAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToOfferDraft
+
+const addAttachmentToOfferDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToOfferDraft
+ * `POST:
+ * /companies/{companySlug}/offers/drafts/{draftId}/attachments`
+ * Creates and adds a new attachment to an offer draft
+ */
+export const addAttachmentToOfferDraft = buildCall() //
+  .args<rt.Static<typeof addAttachmentToOfferDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/offers/drafts/${args.draftId}/attachments`,
+  )
+  .build();
+
+// Operation: createOfferFromDraft
+
+const createOfferFromDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createOfferFromDraft
+ * `POST:
+ * /companies/{companySlug}/offers/drafts/{draftId}/createOffer`
+ * Creates an offer from an already created draft.
+ */
+export const createOfferFromDraft = buildCall() //
+  .args<rt.Static<typeof createOfferFromDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/offers/drafts/${args.draftId}/createOffer`,
+  )
+  .build();
+
+// Operation: getOrderConfirmations
+
+const getOrderConfirmationsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getOrderConfirmationsResponseBody = rt.Array(orderConfirmationSchema);
+
+/**
+ * operation ID: getOrderConfirmations
+ * `GET: /companies/{companySlug}/orderConfirmations`
+ * Returns all order confirmations for given company
+ */
+export const getOrderConfirmations = buildCall() //
+  .args<rt.Static<typeof getOrderConfirmationsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/orderConfirmations`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getOrderConfirmationsResponseBody))
+  .build();
+
+// Operation: getOrderConfirmation
+
+const getOrderConfirmationArgs = rt
+  .Record({ companySlug: companySlugParameter, confirmationId: rt.String })
+  .asReadonly();
+
+/**
+ * operation ID: getOrderConfirmation
+ * `GET:
+ * /companies/{companySlug}/orderConfirmations/{confirmationId}`
+ * Returns order confirmation with specified id.
+ */
+export const getOrderConfirmation = buildCall() //
+  .args<rt.Static<typeof getOrderConfirmationArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/${args.confirmationId}`,
+  )
+  .parseJson(withRuntype(orderConfirmationSchema))
+  .build();
+
+// Operation: getOrderConfirmationDrafts
+
+const getOrderConfirmationDraftsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getOrderConfirmationDraftsResponseBody = rt.Array(
+  invoiceishDraftResultSchema,
+);
+
+/**
+ * operation ID: getOrderConfirmationDrafts
+ * `GET: /companies/{companySlug}/orderConfirmations/drafts`
+ * Returns all order confirmation drafts for given company.
+ */
+export const getOrderConfirmationDrafts = buildCall() //
+  .args<rt.Static<typeof getOrderConfirmationDraftsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/orderConfirmations/drafts`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getOrderConfirmationDraftsResponseBody))
+  .build();
+
+// Operation: createOrderConfirmationDraft
+
+const createOrderConfirmationDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createOrderConfirmationDraft
+ * `POST: /companies/{companySlug}/orderConfirmations/drafts`
+ * Creates an order confirmation draft.
+ */
+export const createOrderConfirmationDraft = buildCall() //
+  .args<rt.Static<typeof createOrderConfirmationDraftArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/orderConfirmations/drafts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getOrderConfirmationDraft
+
+const getOrderConfirmationDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getOrderConfirmationDraft
+ * `GET:
+ * /companies/{companySlug}/orderConfirmations/drafts/{draftId}`
+ * Returns order confirmation draft with specified id.
+ */
+export const getOrderConfirmationDraft = buildCall() //
+  .args<rt.Static<typeof getOrderConfirmationDraftArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}`,
+  )
+  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .build();
+
+// Operation: updateOrderConfirmationDraft
+
+const updateOrderConfirmationDraftArgs = rt
+  .Record({
+    requestBody: invoiceishDraftRequestSchema,
+    companySlug: companySlugParameter,
+    draftId: draftIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateOrderConfirmationDraft
+ * `PUT:
+ * /companies/{companySlug}/orderConfirmations/drafts/{draftId}`
+ * Updates order confirmation draft with provided id.
+ */
+export const updateOrderConfirmationDraft = buildCall() //
+  .args<rt.Static<typeof updateOrderConfirmationDraftArgs>>()
+  .method('put')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteOrderConfirmationDraft
+
+const deleteOrderConfirmationDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deleteOrderConfirmationDraft
+ * `DELETE:
+ * /companies/{companySlug}/orderConfirmations/drafts/{draftId}`
+ * Delete order confirmation draft with specified id.
+ */
+export const deleteOrderConfirmationDraft = buildCall() //
+  .args<rt.Static<typeof deleteOrderConfirmationDraftArgs>>()
+  .method('delete')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}`,
+  )
+  .build();
+
+// Operation: getOrderConfirmationDraftAttachments
+
+const getOrderConfirmationDraftAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+const getOrderConfirmationDraftAttachmentsResponseBody = rt.Array(
+  attachmentSchema,
+);
+
+/**
+ * operation ID: getOrderConfirmationDraftAttachments
+ * `GET:
+ * /companies/{companySlug}/orderConfirmations/drafts/{draftId}/attachments`
+ * Returns all attachments for specified draft.
+ */
+export const getOrderConfirmationDraftAttachments = buildCall() //
+  .args<rt.Static<typeof getOrderConfirmationDraftAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}/attachments`,
+  )
+  .parseJson(withRuntype(getOrderConfirmationDraftAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToOrderConfirmationDraft
+
+const addAttachmentToOrderConfirmationDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToOrderConfirmationDraft
+ * `POST:
+ * /companies/{companySlug}/orderConfirmations/drafts/{draftId}/attachments`
+ * Creates and adds a new attachment to an order confirmation
+ * draft
+ */
+export const addAttachmentToOrderConfirmationDraft = buildCall() //
+  .args<rt.Static<typeof addAttachmentToOrderConfirmationDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}/attachments`,
+  )
+  .build();
+
+// Operation: createOrderConfirmationFromDraft
+
+const createOrderConfirmationFromDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createOrderConfirmationFromDraft
+ * `POST:
+ * /companies/{companySlug}/orderConfirmations/drafts/{draftId}/createOrderConfirmation`
+ * Creates an order confirmation from an already created draft.
+ */
+export const createOrderConfirmationFromDraft = buildCall() //
+  .args<rt.Static<typeof createOrderConfirmationFromDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}/createOrderConfirmation`,
+  )
+  .build();
+
+// Operation: getProducts
+
+const getProductsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      createdDate: createdDateParameter,
+      lastModified: lastModifiedParameter,
+      name: rt.String,
+      productNumber: rt.String,
+      active: rt.Boolean,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getProductsResponseBody = rt.Array(productSchema);
+
+/**
+ * operation ID: getProducts
+ * `GET: /companies/{companySlug}/products`
+ * Returns all products for given company
+ */
+export const getProducts = buildCall() //
+  .args<rt.Static<typeof getProductsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/products`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'page',
+          'pageSize',
+          'createdDate',
+          'lastModified',
+          'name',
+          'productNumber',
+          'active',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getProductsResponseBody))
+  .build();
+
+// Operation: createProduct
+
+const createProductArgs = rt
+  .Record({ requestBody: productSchema, companySlug: companySlugParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createProduct
+ * `POST: /companies/{companySlug}/products`
+ * Creates a new product.
+ */
+export const createProduct = buildCall() //
+  .args<rt.Static<typeof createProductArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/products`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getProduct
+
+const getProductArgs = rt
+  .Record({ companySlug: companySlugParameter, productId: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: getProduct
+ * `GET: /companies/{companySlug}/products/{productId}`
+ * Returns product with specified id.
+ */
+export const getProduct = buildCall() //
+  .args<rt.Static<typeof getProductArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/products/${args.productId}`)
+  .parseJson(withRuntype(productSchema))
+  .build();
+
+// Operation: updateProduct
+
+const updateProductArgs = rt
+  .Record({
+    requestBody: productSchema,
+    companySlug: companySlugParameter,
+    productId: rt.Number,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateProduct
+ * `PUT: /companies/{companySlug}/products/{productId}`
+ * Updates an existing product.
+ */
+export const updateProduct = buildCall() //
+  .args<rt.Static<typeof updateProductArgs>>()
+  .method('put')
+  .path((args) => `/companies/${args.companySlug}/products/${args.productId}`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteProduct
+
+const deleteProductArgs = rt
+  .Record({ companySlug: companySlugParameter, productId: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: deleteProduct
+ * `DELETE: /companies/{companySlug}/products/{productId}`
+ * Delete product with specified id.
+ */
+export const deleteProduct = buildCall() //
+  .args<rt.Static<typeof deleteProductArgs>>()
+  .method('delete')
+  .path((args) => `/companies/${args.companySlug}/products/${args.productId}`)
+  .build();
+
+// Operation: getSales
+
+const getSalesArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      lastModified: lastModifiedParameter,
+      lastModifiedLe: lastModifiedLeParameter,
+      lastModifiedLt: lastModifiedLtParameter,
+      lastModifiedGe: lastModifiedGeParameter,
+      lastModifiedGt: lastModifiedGtParameter,
+      saleNumber: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getSalesResponseBody = rt.Array(saleResultSchema);
+
+/**
+ * operation ID: getSales
+ * `GET: /companies/{companySlug}/sales`
+ * Returns all sales for given company
+ */
+export const getSales = buildCall() //
+  .args<rt.Static<typeof getSalesArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/sales`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'page',
+          'pageSize',
+          'lastModified',
+          'lastModifiedLe',
+          'lastModifiedLt',
+          'lastModifiedGe',
+          'lastModifiedGt',
+          'saleNumber',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(getSalesResponseBody))
+  .build();
+
+// Operation: createSale
+
+const createSaleArgs = rt
+  .Record({ requestBody: saleRequestSchema, companySlug: companySlugParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createSale
+ * `POST: /companies/{companySlug}/sales`
+ * Creates a new sale.
+ */
+export const createSale = buildCall() //
+  .args<rt.Static<typeof createSaleArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/sales`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getSale
+
+const getSaleArgs = rt
+  .Record({ companySlug: companySlugParameter, saleId: saleIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getSale
+ * `GET: /companies/{companySlug}/sales/{saleId}`
+ * Returns sale with specified id.
+ */
+export const getSale = buildCall() //
+  .args<rt.Static<typeof getSaleArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/sales/${args.saleId}`)
+  .parseJson(withRuntype(saleResultSchema))
+  .build();
+
+// Operation: deleteSale
+
+const deleteSaleArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    saleId: saleIdParameter,
+    description: rt.String,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: deleteSale
+ * `PATCH: /companies/{companySlug}/sales/{saleId}/delete`
+ * Sets the deleted flag for a sale. The sale is not deleted,
+ * but a reverse transaction is created and the "deleted"
+ * property is set to true.
+ */
+export const deleteSale = buildCall() //
+  .args<rt.Static<typeof deleteSaleArgs>>()
+  .method('patch')
+  .path((args) => `/companies/${args.companySlug}/sales/${args.saleId}/delete`)
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'description')))
+  .parseJson(withRuntype(saleResultSchema))
+  .build();
+
+// Operation: getSaleAttachments
+
+const getSaleAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, saleId: saleIdParameter })
+  .asReadonly();
+
+const getSaleAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getSaleAttachments
+ * `GET: /companies/{companySlug}/sales/{saleId}/attachments`
+ * Returns all attachments for specified sale.
+ */
+export const getSaleAttachments = buildCall() //
+  .args<rt.Static<typeof getSaleAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/sales/${args.saleId}/attachments`,
+  )
+  .parseJson(withRuntype(getSaleAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToSale
+
+const addAttachmentToSaleArgs = rt
+  .Record({ companySlug: companySlugParameter, saleId: saleIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToSale
+ * `POST: /companies/{companySlug}/sales/{saleId}/attachments`
+ * Creates and adds a new attachment to a Sale
+ */
+export const addAttachmentToSale = buildCall() //
+  .args<rt.Static<typeof addAttachmentToSaleArgs>>()
+  .method('post')
+  .path(
+    (args) => `/companies/${args.companySlug}/sales/${args.saleId}/attachments`,
+  )
+  .build();
+
+// Operation: getSalePayments
+
+const getSalePaymentsArgs = rt
+  .Record({ companySlug: companySlugParameter, saleId: saleIdParameter })
+  .asReadonly();
+
+const getSalePaymentsResponseBody = rt.Array(paymentSchema);
+
+/**
+ * operation ID: getSalePayments
+ * `GET: /companies/{companySlug}/sales/{saleId}/payments`
+ * Returns all payments for given sale
+ */
+export const getSalePayments = buildCall() //
+  .args<rt.Static<typeof getSalePaymentsArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/sales/${args.saleId}/payments`,
+  )
+  .parseJson(withRuntype(getSalePaymentsResponseBody))
+  .build();
+
+// Operation: createSalePayment
+
+const createSalePaymentArgs = rt
+  .Record({
+    requestBody: paymentSchema,
+    companySlug: companySlugParameter,
+    saleId: saleIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createSalePayment
+ * `POST: /companies/{companySlug}/sales/{saleId}/payments`
+ * Creates a new payment for a given sale.
+ */
+export const createSalePayment = buildCall() //
+  .args<rt.Static<typeof createSalePaymentArgs>>()
+  .method('post')
+  .path(
+    (args) => `/companies/${args.companySlug}/sales/${args.saleId}/payments`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getSalePayment
+
+const getSalePaymentArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    saleId: saleIdParameter,
+    paymentId: paymentIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getSalePayment
+ * `GET:
+ * /companies/{companySlug}/sales/{saleId}/payments/{paymentId}`
+ * Returns payment with specified id.
+ */
+export const getSalePayment = buildCall() //
+  .args<rt.Static<typeof getSalePaymentArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/sales/${args.saleId}/payments/${args.paymentId}`,
+  )
+  .parseJson(withRuntype(paymentSchema))
+  .build();
+
+// Operation: getSaleDrafts
+
+const getSaleDraftsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getSaleDraftsResponseBody = rt.Array(draftResultSchema);
+
+/**
+ * operation ID: getSaleDrafts
+ * `GET: /companies/{companySlug}/sales/drafts`
+ * Returns all sale drafts for given company.
+ */
+export const getSaleDrafts = buildCall() //
+  .args<rt.Static<typeof getSaleDraftsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/sales/drafts`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getSaleDraftsResponseBody))
+  .build();
+
+// Operation: createSaleDraft
+
+const createSaleDraftArgs = rt
+  .Record({
+    requestBody: draftRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createSaleDraft
+ * `POST: /companies/{companySlug}/sales/drafts`
+ * Creates a sale draft.
+ */
+export const createSaleDraft = buildCall() //
+  .args<rt.Static<typeof createSaleDraftArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/sales/drafts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getSaleDraft
+
+const getSaleDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getSaleDraft
+ * `GET: /companies/{companySlug}/sales/drafts/{draftId}`
+ * Returns draft with specified id.
+ */
+export const getSaleDraft = buildCall() //
+  .args<rt.Static<typeof getSaleDraftArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/sales/drafts/${args.draftId}`)
+  .parseJson(withRuntype(draftResultSchema))
+  .build();
+
+// Operation: updateSaleDraft
+
+const updateSaleDraftArgs = rt
+  .Record({
+    requestBody: draftRequestSchema,
+    companySlug: companySlugParameter,
+    draftId: draftIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateSaleDraft
+ * `PUT: /companies/{companySlug}/sales/drafts/{draftId}`
+ * Updates draft with provided id.
+ */
+export const updateSaleDraft = buildCall() //
+  .args<rt.Static<typeof updateSaleDraftArgs>>()
+  .method('put')
+  .path((args) => `/companies/${args.companySlug}/sales/drafts/${args.draftId}`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deleteSaleDraft
+
+const deleteSaleDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deleteSaleDraft
+ * `DELETE: /companies/{companySlug}/sales/drafts/{draftId}`
+ * Delete draft with specified id.
+ */
+export const deleteSaleDraft = buildCall() //
+  .args<rt.Static<typeof deleteSaleDraftArgs>>()
+  .method('delete')
+  .path((args) => `/companies/${args.companySlug}/sales/drafts/${args.draftId}`)
+  .build();
+
+// Operation: getSaleDraftAttachments
+
+const getSaleDraftAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+const getSaleDraftAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getSaleDraftAttachments
+ * `GET:
+ * /companies/{companySlug}/sales/drafts/{draftId}/attachments`
+ * Returns all attachments for specified draft.
+ */
+export const getSaleDraftAttachments = buildCall() //
+  .args<rt.Static<typeof getSaleDraftAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/sales/drafts/${args.draftId}/attachments`,
+  )
+  .parseJson(withRuntype(getSaleDraftAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToSaleDraft
+
+const addAttachmentToSaleDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToSaleDraft
+ * `POST:
+ * /companies/{companySlug}/sales/drafts/{draftId}/attachments`
+ * Creates and adds a new attachment to a draft
+ */
+export const addAttachmentToSaleDraft = buildCall() //
+  .args<rt.Static<typeof addAttachmentToSaleDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/sales/drafts/${args.draftId}/attachments`,
+  )
+  .build();
+
+// Operation: createSaleFromDraft
+
+const createSaleFromDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createSaleFromDraft
+ * `POST:
+ * /companies/{companySlug}/sales/drafts/{draftId}/createSale`
+ * Creates a sale from an already created draft.
+ */
+export const createSaleFromDraft = buildCall() //
+  .args<rt.Static<typeof createSaleFromDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/sales/drafts/${args.draftId}/createSale`,
+  )
+  .build();
+
+// Operation: getPurchases
+
+const getPurchasesArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      sortBy: rt.Union(rt.Literal('date asc'), rt.Literal('date desc')),
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getPurchasesResponseBody = rt.Array(purchaseResultSchema);
+
+/**
+ * operation ID: getPurchases
+ * `GET: /companies/{companySlug}/purchases`
+ * Returns all purchases for given company
+ */
+export const getPurchases = buildCall() //
+  .args<rt.Static<typeof getPurchasesArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/purchases`)
+  .query(
+    (args) =>
+      new URLSearchParams(pickQueryValues(args, 'page', 'pageSize', 'sortBy')),
+  )
+  .parseJson(withRuntype(getPurchasesResponseBody))
+  .build();
+
+// Operation: createPurchase
+
+const createPurchaseArgs = rt
+  .Record({
+    requestBody: purchaseRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createPurchase
+ * `POST: /companies/{companySlug}/purchases`
+ * Creates a new purchase.
+ */
+export const createPurchase = buildCall() //
+  .args<rt.Static<typeof createPurchaseArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/purchases`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getPurchase
+
+const getPurchaseArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getPurchase
+ * `GET: /companies/{companySlug}/purchases/{purchaseId}`
+ * Returns purchase with specified id.
+ */
+export const getPurchase = buildCall() //
+  .args<rt.Static<typeof getPurchaseArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/purchases/${args.purchaseId}`)
+  .parseJson(withRuntype(purchaseResultSchema))
+  .build();
+
+// Operation: deletePurchase
+
+const deletePurchaseArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+    description: rt.String,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: deletePurchase
+ * `PATCH:
+ * /companies/{companySlug}/purchases/{purchaseId}/delete`
+ * Sets the deleted flag for a purchase. The purchase is not
+ * deleted, but a reverse transaction is created and the
+ * "deleted" property is set to true.
+ */
+export const deletePurchase = buildCall() //
+  .args<rt.Static<typeof deletePurchaseArgs>>()
+  .method('patch')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/${args.purchaseId}/delete`,
+  )
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'description')))
+  .parseJson(withRuntype(purchaseResultSchema))
+  .build();
+
+// Operation: getPurchaseAttachments
+
+const getPurchaseAttachmentsArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+  })
+  .asReadonly();
+
+const getPurchaseAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getPurchaseAttachments
+ * `GET:
+ * /companies/{companySlug}/purchases/{purchaseId}/attachments`
+ * Returns all attachments for specified purchase.
+ */
+export const getPurchaseAttachments = buildCall() //
+  .args<rt.Static<typeof getPurchaseAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/${args.purchaseId}/attachments`,
+  )
+  .parseJson(withRuntype(getPurchaseAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToPurchase
+
+const addAttachmentToPurchaseArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToPurchase
+ * `POST:
+ * /companies/{companySlug}/purchases/{purchaseId}/attachments`
+ * Creates and adds a new attachment to a Purchase
+ */
+export const addAttachmentToPurchase = buildCall() //
+  .args<rt.Static<typeof addAttachmentToPurchaseArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/${args.purchaseId}/attachments`,
+  )
+  .build();
+
+// Operation: getPurchasePayments
+
+const getPurchasePaymentsArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+  })
+  .asReadonly();
+
+const getPurchasePaymentsResponseBody = rt.Array(paymentSchema);
+
+/**
+ * operation ID: getPurchasePayments
+ * `GET:
+ * /companies/{companySlug}/purchases/{purchaseId}/payments`
+ * Returns all purchases for given company
+ */
+export const getPurchasePayments = buildCall() //
+  .args<rt.Static<typeof getPurchasePaymentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/${args.purchaseId}/payments`,
+  )
+  .parseJson(withRuntype(getPurchasePaymentsResponseBody))
+  .build();
+
+// Operation: createPurchasePayment
+
+const createPurchasePaymentArgs = rt
+  .Record({
+    requestBody: paymentSchema,
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createPurchasePayment
+ * `POST:
+ * /companies/{companySlug}/purchases/{purchaseId}/payments`
+ * Creates a new payment for a purchase
+ */
+export const createPurchasePayment = buildCall() //
+  .args<rt.Static<typeof createPurchasePaymentArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/${args.purchaseId}/payments`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getPurchasePayment
+
+const getPurchasePaymentArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    purchaseId: purchaseIdParameter,
+    paymentId: paymentIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getPurchasePayment
+ * `GET:
+ * /companies/{companySlug}/purchases/{purchaseId}/payments/{paymentId}`
+ * Returns given payment for specified purchase
+ */
+export const getPurchasePayment = buildCall() //
+  .args<rt.Static<typeof getPurchasePaymentArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/${args.purchaseId}/payments/${args.paymentId}`,
+  )
+  .parseJson(withRuntype(paymentSchema))
+  .build();
+
+// Operation: getPurchaseDrafts
+
+const getPurchaseDraftsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({ page: pageParameter, pageSize: pageSizeParameter })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getPurchaseDraftsResponseBody = rt.Array(draftResultSchema);
+
+/**
+ * operation ID: getPurchaseDrafts
+ * `GET: /companies/{companySlug}/purchases/drafts`
+ * Returns all purchase drafts for given company.
+ */
+export const getPurchaseDrafts = buildCall() //
+  .args<rt.Static<typeof getPurchaseDraftsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/purchases/drafts`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
+  )
+  .parseJson(withRuntype(getPurchaseDraftsResponseBody))
+  .build();
+
+// Operation: createPurchaseDraft
+
+const createPurchaseDraftArgs = rt
+  .Record({
+    requestBody: draftRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createPurchaseDraft
+ * `POST: /companies/{companySlug}/purchases/drafts`
+ * Creates a purchase draft.
+ */
+export const createPurchaseDraft = buildCall() //
+  .args<rt.Static<typeof createPurchaseDraftArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/purchases/drafts`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getPurchaseDraft
+
+const getPurchaseDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getPurchaseDraft
+ * `GET: /companies/{companySlug}/purchases/drafts/{draftId}`
+ * Returns draft with specified id.
+ */
+export const getPurchaseDraft = buildCall() //
+  .args<rt.Static<typeof getPurchaseDraftArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/purchases/drafts/${args.draftId}`,
+  )
+  .parseJson(withRuntype(draftResultSchema))
+  .build();
+
+// Operation: updatePurchaseDraft
+
+const updatePurchaseDraftArgs = rt
+  .Record({
+    requestBody: draftRequestSchema,
+    companySlug: companySlugParameter,
+    draftId: draftIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updatePurchaseDraft
+ * `PUT: /companies/{companySlug}/purchases/drafts/{draftId}`
+ * Updates draft with provided id.
+ */
+export const updatePurchaseDraft = buildCall() //
+  .args<rt.Static<typeof updatePurchaseDraftArgs>>()
+  .method('put')
+  .path(
+    (args) => `/companies/${args.companySlug}/purchases/drafts/${args.draftId}`,
+  )
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: deletePurchaseDraft
+
+const deletePurchaseDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deletePurchaseDraft
+ * `DELETE:
+ * /companies/{companySlug}/purchases/drafts/{draftId}`
+ * Delete draft with specified id.
+ */
+export const deletePurchaseDraft = buildCall() //
+  .args<rt.Static<typeof deletePurchaseDraftArgs>>()
+  .method('delete')
+  .path(
+    (args) => `/companies/${args.companySlug}/purchases/drafts/${args.draftId}`,
+  )
+  .build();
+
+// Operation: getPurchaseDraftAttachments
+
+const getPurchaseDraftAttachmentsArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+const getPurchaseDraftAttachmentsResponseBody = rt.Array(attachmentSchema);
+
+/**
+ * operation ID: getPurchaseDraftAttachments
+ * `GET:
+ * /companies/{companySlug}/purchases/drafts/{draftId}/attachments`
+ * Returns all attachments for specified draft.
+ */
+export const getPurchaseDraftAttachments = buildCall() //
+  .args<rt.Static<typeof getPurchaseDraftAttachmentsArgs>>()
+  .method('get')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/drafts/${args.draftId}/attachments`,
+  )
+  .parseJson(withRuntype(getPurchaseDraftAttachmentsResponseBody))
+  .build();
+
+// Operation: addAttachmentToPurchaseDraft
+
+const addAttachmentToPurchaseDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToPurchaseDraft
+ * `POST:
+ * /companies/{companySlug}/purchases/drafts/{draftId}/attachments`
+ * Creates and adds a new attachment to a draft
+ */
+export const addAttachmentToPurchaseDraft = buildCall() //
+  .args<rt.Static<typeof addAttachmentToPurchaseDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/drafts/${args.draftId}/attachments`,
+  )
+  .build();
+
+// Operation: createPurchaseFromDraft
+
+const createPurchaseFromDraftArgs = rt
+  .Record({ companySlug: companySlugParameter, draftId: draftIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createPurchaseFromDraft
+ * `POST:
+ * /companies/{companySlug}/purchases/drafts/{draftId}/createPurchase`
+ * Creates a purchase from an already created draft.
+ */
+export const createPurchaseFromDraft = buildCall() //
+  .args<rt.Static<typeof createPurchaseFromDraftArgs>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/purchases/drafts/${args.draftId}/createPurchase`,
+  )
+  .build();
+
+// Operation: getInbox
+
+const getInboxArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      sortBy: rt.Union(
+        rt.Literal('createdDate asc'),
+        rt.Literal('createdDate desc'),
+        rt.Literal('name asc'),
+        rt.Literal('name desc'),
+      ),
+      status: rt.Union(
+        rt.Literal('all'),
+        rt.Literal('unused'),
+        rt.Literal('used'),
+      ),
+      name: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getInboxResponseBody = rt.Array(inboxResultSchema);
+
+/**
+ * operation ID: getInbox
+ * `GET: /companies/{companySlug}/inbox`
+ * Returns the contents of the inbox for given company.
+ */
+export const getInbox = buildCall() //
+  .args<rt.Static<typeof getInboxArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/inbox`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'page', 'pageSize', 'sortBy', 'status', 'name'),
+      ),
+  )
+  .parseJson(withRuntype(getInboxResponseBody))
+  .build();
+
+// Operation: createInboxDocument
+
+const createInboxDocumentArgs = rt
+  .Record({ companySlug: companySlugParameter })
+  .asReadonly();
+
+/**
+ * operation ID: createInboxDocument
+ * `POST: /companies/{companySlug}/inbox`
+ * Upload a document to the inbox
+ */
+export const createInboxDocument = buildCall() //
+  .args<rt.Static<typeof createInboxDocumentArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/inbox`)
+  .build();
+
+// Operation: getInboxDocument
+
+const getInboxDocumentArgs = rt
+  .Record({
+    companySlug: companySlugParameter,
+    inboxDocumentId: inboxDocumentIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: getInboxDocument
+ * `GET: /companies/{companySlug}/inbox/{inboxDocumentId}`
+ * Returns the inbox document with specified id
+ */
+export const getInboxDocument = buildCall() //
+  .args<rt.Static<typeof getInboxDocumentArgs>>()
+  .method('get')
+  .path(
+    (args) => `/companies/${args.companySlug}/inbox/${args.inboxDocumentId}`,
+  )
+  .parseJson(withRuntype(inboxResultSchema))
+  .build();
+
+// Operation: getProjects
+
+const getProjectsArgs = rt.Intersect(
+  rt.Record({ companySlug: companySlugParameter }).asReadonly(),
+  rt
+    .Record({
+      page: pageParameter,
+      pageSize: pageSizeParameter,
+      completed: rt.Boolean,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+const getProjectsResponseBody = rt.Array(projectResultSchema);
+
+/**
+ * operation ID: getProjects
+ * `GET: /companies/{companySlug}/projects`
+ * Returns all projects for given company
+ */
+export const getProjects = buildCall() //
+  .args<rt.Static<typeof getProjectsArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/projects`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'page', 'pageSize', 'completed'),
+      ),
+  )
+  .parseJson(withRuntype(getProjectsResponseBody))
+  .build();
+
+// Operation: createProject
+
+const createProjectArgs = rt
+  .Record({
+    requestBody: projectRequestSchema,
+    companySlug: companySlugParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: createProject
+ * `POST: /companies/{companySlug}/projects`
+ * Creates a new project
+ */
+export const createProject = buildCall() //
+  .args<rt.Static<typeof createProjectArgs>>()
+  .method('post')
+  .path((args) => `/companies/${args.companySlug}/projects`)
+  .body((args) => args.requestBody)
+  .build();
+
+// Operation: getProject
+
+const getProjectArgs = rt
+  .Record({ companySlug: companySlugParameter, projectId: projectIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: getProject
+ * `GET: /companies/{companySlug}/projects/{projectId}`
+ * Returns project with specified id.
+ */
+export const getProject = buildCall() //
+  .args<rt.Static<typeof getProjectArgs>>()
+  .method('get')
+  .path((args) => `/companies/${args.companySlug}/projects/${args.projectId}`)
+  .parseJson(withRuntype(projectResultSchema))
+  .build();
+
+// Operation: deleteProject
+
+const deleteProjectArgs = rt
+  .Record({ companySlug: companySlugParameter, projectId: projectIdParameter })
+  .asReadonly();
+
+/**
+ * operation ID: deleteProject
+ * `DELETE: /companies/{companySlug}/projects/{projectId}`
+ * Delete project with specified id.
+ */
+export const deleteProject = buildCall() //
+  .args<rt.Static<typeof deleteProjectArgs>>()
+  .method('delete')
+  .path((args) => `/companies/${args.companySlug}/projects/${args.projectId}`)
+  .build();
+
+// Operation: updateProject
+
+const updateProjectArgs = rt
+  .Record({
+    requestBody: updateProjectRequestSchema,
+    companySlug: companySlugParameter,
+    projectId: projectIdParameter,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: updateProject
+ * `PATCH: /companies/{companySlug}/projects/{projectId}`
+ * Updates project with provided id.
+ */
+export const updateProject = buildCall() //
+  .args<rt.Static<typeof updateProjectArgs>>()
+  .method('patch')
+  .path((args) => `/companies/${args.companySlug}/projects/${args.projectId}`)
+  .body((args) => args.requestBody)
+  .build();

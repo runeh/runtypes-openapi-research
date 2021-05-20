@@ -192,9 +192,9 @@ function generateOperationSource(api: ApiData, operation: Operation) {
 }
 
 function generateApiSource(api: ApiData) {
-  const { parameters, schemas } = api;
+  const { types } = api;
 
-  const namedTypes = [...parameters, ...schemas].map<RootType>((e) => ({
+  const namedTypes = types.map<RootType>((e) => ({
     name: e.typeName,
     type: e.type,
   }));
@@ -247,4 +247,4 @@ async function main() {
   console.log(apiData);
 }
 
-main();
+main2();

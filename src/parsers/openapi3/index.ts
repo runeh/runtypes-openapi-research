@@ -237,8 +237,7 @@ export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {
   const operations = getOperations(bundledDoc, parameters);
 
   return {
-    parameters: topoSort(parameters),
-    schemas: topoSort(schemas),
     operations,
+    types: topoSort([...parameters, ...schemas]),
   };
 }

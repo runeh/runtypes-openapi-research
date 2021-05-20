@@ -1,5 +1,5 @@
 import { AnyType, NamedType, RecordType } from 'generate-runtypes';
-import { map, prop } from 'ramda';
+import { prop } from 'ramda';
 import { HttpMethods } from './parsers/openapi3/common';
 
 export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
@@ -45,8 +45,7 @@ export interface Operation {
 }
 
 export interface ApiData {
-  schemas: Schema[];
-  parameters: ReferenceParam[];
+  types: (Schema | ReferenceParam)[];
   operations: Operation[];
 }
 
