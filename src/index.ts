@@ -8,8 +8,8 @@ import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
 import { parse } from 'yaml';
 import { ApiData, Operation, isDefined } from './common';
+import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi3 } from './parsers/openapi3';
-import { parseOpenApi2 } from './parsers/swagger2';
 
 const utilsForGenerated = dedent`
   function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
@@ -195,7 +195,7 @@ function generateApiSource(api: ApiData) {
   const { types } = api;
 
   const namedTypes = types.map<RootType>((e) => ({
-    name: e.typeName,
+    name: e.typeName + '____',
     type: e.type,
   }));
 
@@ -244,7 +244,12 @@ async function main() {
   const parsed = await parse(raw);
 
   const apiData = await parseOpenApi2(parsed);
-  console.log(apiData);
+  // console.log(JSON.stringify(apiData, null, 2));
+
+  const source = generateApiSource(apiData);
+  const prettierConfig = await resolveConfig('./lol.ts');
+  const formatted = format(source, prettierConfig ?? undefined);
+  console.log(formatted);
 }
 
-main2();
+main();

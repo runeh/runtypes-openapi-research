@@ -2,7 +2,7 @@ import { AnyType, LiteralType, RecordField } from 'generate-runtypes';
 import { OpenAPIV2 } from 'openapi-types';
 import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
-import { ApiData } from '../../common';
+import { ApiData, Schema } from '../../common';
 
 // function parseObject(t: NonArraySchemaObject): RecordType {
 //   if (isAllOfSchemaObject(t)) {
@@ -51,10 +51,12 @@ function parseString(t: OpenAPIV2.SchemaObject): AnyType {
 }
 
 function parseObject(t: OpenAPIV2.SchemaObject): AnyType {
-  invariant(t.type === 'object');
-  invariant(t.properties != null);
+  invariant(t.type === 'object', 'must be object');
+  if (t.properties == null) {
+    console.warn('properties is null for object');
+  }
 
-  const fields = Object.entries(t.properties).map<RecordField>(
+  const fields = Object.entries(t.properties ?? {}).map<RecordField>(
     ([name, value]) => {
       return {
         name,
@@ -68,7 +70,26 @@ function parseObject(t: OpenAPIV2.SchemaObject): AnyType {
   return { kind: 'record', fields };
 }
 
-export function schemaToType(t: OpenAPIV2.SchemaObject): AnyType {
+export function refToName(ref: OpenAPIV2.ReferenceObject): string {
+  const match = /#\/definitions\/(.*)$/.exec(ref.$ref);
+  invariant(match != null, `Couldn't parse ref name "${ref}"`);
+  const [, name] = match;
+  return name;
+}
+
+function isReferenceObject(
+  thing: OpenAPIV2.SchemaObject | OpenAPIV2.ItemsObject,
+): thing is OpenAPIV2.ReferenceObject {
+  return '$ref' in thing;
+}
+
+export function schemaToType(
+  t: OpenAPIV2.SchemaObject | OpenAPIV2.ItemsObject,
+): AnyType {
+  if (isReferenceObject(t)) {
+    return { kind: 'named', name: refToName(t) };
+  }
+
   switch (t.type) {
     // fixme: check spec for difference
     case 'number':
@@ -82,9 +103,8 @@ export function schemaToType(t: OpenAPIV2.SchemaObject): AnyType {
       return parseString(t);
 
     case 'array': {
-      invariant(t.properties);
-
-      return { kind: 'array', type: schemaToType(t.properties) };
+      invariant(t.items, 'are items?');
+      return { kind: 'array', type: schemaToType(t.items) };
     }
 
     case 'object':
@@ -92,13 +112,10 @@ export function schemaToType(t: OpenAPIV2.SchemaObject): AnyType {
   }
 
   // fixme: do things with oneOf / allOf etc
-
   throw new Error(`Unable to parse thing of type "${t.type}"`);
 }
 
-const lal: OpenAPIV2.SchemaObject = {};
-
-function getDefinitions(doc: OpenAPIV2.Document) {
+function getDefinitions(doc: OpenAPIV2.Document): Schema[] {
   // return {
   //   name: param.name,
   //   kind: getParamKind(param.in),
@@ -107,10 +124,11 @@ function getDefinitions(doc: OpenAPIV2.Document) {
   //   description: param.description,
   // };
 
-  const definitions = Object.entries(doc.definitions ?? {}).map(
+  const definitions = Object.entries(doc.definitions ?? {}).map<Schema>(
     ([name, def]) => {
       return {
         name,
+        typeName: name,
         description: def.description,
         ref: name,
         type: schemaToType(def),
@@ -118,8 +136,7 @@ function getDefinitions(doc: OpenAPIV2.Document) {
     },
   );
 
-  console.log(definitions);
-  return [];
+  return definitions;
 }
 
 // function getParameters(doc: OpenAPIV2.Document): ReferenceParam[] {
@@ -173,13 +190,13 @@ function getDefinitions(doc: OpenAPIV2.Document) {
 
 export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
-  invariant(!('openapi' in bundledDoc)); // make sure it's an openapi2 thing
+  invariant(!('openapi' in bundledDoc), 'waaaaatt'); // make sure it's an openapi2 thing
 
   // const schemas = getSchemas(bundledDoc);
   const definitions = getDefinitions(bundledDoc);
   // const operations = getOperations(bundledDoc, parameters);
 
-  return {} as any;
+  return { types: definitions, operations: [] };
 
   // return {
   //   parameters: topoSort(parameters),
