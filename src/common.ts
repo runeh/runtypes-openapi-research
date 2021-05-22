@@ -4,9 +4,23 @@ import { HttpMethods } from './parsers/openapi3/common';
 
 export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
 
+interface ReferenceType {
+  ref: string;
+  originalName: string;
+  typeName: string;
+  type: AnyType;
+}
+
+interface Parameter extends ReferenceType {
+  kind: 'parameter';
+  in: ParamKind;
+  required: boolean;
+  description?: string;
+}
+
 // fixme: this needs content type
 export interface Param {
-  kind: ParamKind;
+  in: ParamKind;
   name: string;
   required: boolean;
   type: AnyType;

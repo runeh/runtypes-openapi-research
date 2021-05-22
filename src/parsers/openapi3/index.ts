@@ -40,7 +40,7 @@ function parseParameter(
     invariant(param.schema != null, 'wat. cant be null');
     return {
       name: param.name,
-      kind: getParamKind(param.in),
+      in: getParamKind(param.in),
       type: schemaToType(param.schema),
       required: param.required ?? false,
       description: param.description,
@@ -49,7 +49,7 @@ function parseParameter(
     const existingParam = parameterRefs.find(propEq('ref', param.$ref));
     invariant(existingParam != null);
     return {
-      kind: existingParam.kind,
+      in: existingParam.in,
       name: existingParam.name,
       required: existingParam.required,
       type: { kind: 'named', name: existingParam.typeName },
@@ -68,7 +68,7 @@ function parseRequestBodyParameter(body: RequestBodyObject): Param {
 
   const ret: Param = {
     name: 'requestBody',
-    kind: 'body',
+    in: 'body',
     required: body.required ?? false,
     // fixme: description
     type,

@@ -103,7 +103,7 @@ function generateOperationSource(api: ApiData, operation: Operation) {
   const argsRootType = getArgsRuntype(operation);
   const jsonResponseBodyRuntype = getJsonResponseBodyRuntype(operation);
 
-  const inputKinds = groupBy((e) => e.kind, operation.params);
+  const inputKinds = groupBy((e) => e.in, operation.params);
   let getPath: string | undefined = undefined;
 
   if (inputKinds.path) {
