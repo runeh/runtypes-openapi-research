@@ -195,7 +195,7 @@ function generateApiSource(api: ApiData) {
   const { types } = api;
 
   const namedTypes = types.map<RootType>((e) => ({
-    name: e.typeName + '____',
+    name: e.typeName,
     type: e.type,
   }));
 
