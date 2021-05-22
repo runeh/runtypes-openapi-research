@@ -8,8 +8,8 @@ import {
   ApiResponse,
   Operation,
   Param,
-  ReferenceParam,
-  Schema,
+  ParamKind,
+  ReferenceType,
   getParamKind,
   isDefined,
   topoSort,
@@ -32,6 +32,12 @@ import {
 } from './common';
 import { schemaToType } from './type-parser';
 
+interface ReferenceParam extends ReferenceType {
+  in: ParamKind;
+  required: boolean;
+  description?: string;
+}
+
 function parseParameter(
   parameterRefs: ReferenceParam[],
   param: ParameterObject | ReferenceObject,
@@ -48,13 +54,7 @@ function parseParameter(
   } else {
     const existingParam = parameterRefs.find(propEq('ref', param.$ref));
     invariant(existingParam != null);
-    return {
-      in: existingParam.in,
-      name: existingParam.name,
-      required: existingParam.required,
-      type: { kind: 'named', name: existingParam.typeName },
-      description: existingParam.description,
-    };
+    return existingParam;
   }
 }
 
@@ -185,33 +185,37 @@ function parsePath(
   return operations;
 }
 
-function getParameters(doc: OpenAPIV3.Document): ReferenceParam[] {
+function getParameterReferences(doc: OpenAPIV3.Document): ReferenceParam[] {
   const parameters = Object.entries(
     doc.components?.parameters ?? {},
-  ).map<ReferenceParam>(([name, rawParameter]) => {
-    invariant(isParameterObject(rawParameter), 'should be parameter!');
-    const p = parseParameter([], rawParameter);
-    const ref = `#/components/parameters/${name}`;
+  ).map<ReferenceParam>(([name, param]) => {
+    invariant(isParameterObject(param), 'should be parameter!');
+    invariant(param.schema, 'Param must have schema');
     return {
-      ...p,
-      ref,
-      typeName: `${name}Parameter`,
+      ref: `#/components/parameters/${name}`,
+      name: name,
+      in: getParamKind(param.in),
+      type: schemaToType(param.schema),
+      required: param.required ?? false,
+      description: param.description,
     };
   });
 
   return parameters;
 }
 
-function getSchemas(doc: OpenAPIV3.Document): Schema[] {
+type Schema = ReferenceType;
+
+function getSchemaReferences(doc: OpenAPIV3.Document): Schema[] {
   return Object.entries(doc.components?.schemas ?? {}).map<Schema>(
     ([name, schema]) => {
       invariant(isSchemaObject(schema), 'should be schema!');
       const ref = `#/components/schemas/${name}`;
       return {
-        name,
+        // name,
         ref,
         type: schemaToType(schema),
-        typeName: `${name}Schema`,
+        name: `${name}Schema`,
         description: schema.description,
       };
     },
@@ -232,12 +236,12 @@ export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
   invariant('openapi' in bundledDoc); // make sure it's an openapi3 thing
 
-  const schemas = getSchemas(bundledDoc);
-  const parameters = getParameters(bundledDoc);
-  const operations = getOperations(bundledDoc, parameters);
+  const schemas = getSchemaReferences(bundledDoc);
+  const paramRefs = getParameterReferences(bundledDoc);
+  const operations = getOperations(bundledDoc, paramRefs);
 
   return {
     operations,
-    types: topoSort([...parameters, ...schemas]),
+    referenceTypes: topoSort(schemas),
   };
 }

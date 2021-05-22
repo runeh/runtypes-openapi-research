@@ -8,7 +8,7 @@ import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
 import { parse } from 'yaml';
 import { ApiData, Operation, isDefined } from './common';
-import { parseOpenApi2 } from './parsers/openapi2';
+// import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi3 } from './parsers/openapi3';
 
 const utilsForGenerated = dedent`
@@ -192,10 +192,10 @@ function generateOperationSource(api: ApiData, operation: Operation) {
 }
 
 function generateApiSource(api: ApiData) {
-  const { types } = api;
+  const { referenceTypes: types } = api;
 
   const namedTypes = types.map<RootType>((e) => ({
-    name: e.typeName,
+    name: e.name,
     type: e.type,
   }));
 
@@ -221,7 +221,7 @@ function generateApiSource(api: ApiData) {
     `;
 }
 
-async function main2() {
+async function main() {
   // const definitionPath = resolve(__dirname, '../resources/tripletex.json');
   const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
   const raw = await readFile(definitionPath, 'utf-8');
@@ -238,18 +238,18 @@ async function main2() {
   console.log(formatted);
 }
 
-async function main() {
-  const definitionPath = resolve(__dirname, '../resources/tripletex.json');
-  const raw = await readFile(definitionPath, 'utf-8');
-  const parsed = await parse(raw);
+// async function main() {
+//   const definitionPath = resolve(__dirname, '../resources/tripletex.json');
+//   const raw = await readFile(definitionPath, 'utf-8');
+//   const parsed = await parse(raw);
 
-  const apiData = await parseOpenApi2(parsed);
-  // console.log(JSON.stringify(apiData, null, 2));
+//   const apiData = await parseOpenApi2(parsed);
+//   // console.log(JSON.stringify(apiData, null, 2));
 
-  const source = generateApiSource(apiData);
-  const prettierConfig = await resolveConfig('./lol.ts');
-  const formatted = format(source, prettierConfig ?? undefined);
-  console.log(formatted);
-}
+//   const source = generateApiSource(apiData);
+//   const prettierConfig = await resolveConfig('./lol.ts');
+//   const formatted = format(source, prettierConfig ?? undefined);
+//   console.log(formatted);
+// }
 
 main();

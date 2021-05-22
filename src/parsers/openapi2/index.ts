@@ -2,7 +2,7 @@ import { AnyType, LiteralType, RecordField } from 'generate-runtypes';
 import { OpenAPIV2 } from 'openapi-types';
 import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
-import { ApiData, Schema } from '../../common';
+import { ApiData, ReferenceType } from '../../common';
 
 // function parseObject(t: NonArraySchemaObject): RecordType {
 //   if (isAllOfSchemaObject(t)) {
@@ -115,7 +115,7 @@ export function schemaToType(
   throw new Error(`Unable to parse thing of type "${t.type}"`);
 }
 
-function getDefinitions(doc: OpenAPIV2.Document): Schema[] {
+function getDefinitions(doc: OpenAPIV2.Document): ReferenceType[] {
   // return {
   //   name: param.name,
   //   kind: getParamKind(param.in),
@@ -124,7 +124,7 @@ function getDefinitions(doc: OpenAPIV2.Document): Schema[] {
   //   description: param.description,
   // };
 
-  const definitions = Object.entries(doc.definitions ?? {}).map<Schema>(
+  const definitions = Object.entries(doc.definitions ?? {}).map<ReferenceType>(
     ([name, def]) => {
       return {
         name,
@@ -196,7 +196,7 @@ export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const definitions = getDefinitions(bundledDoc);
   // const operations = getOperations(bundledDoc, parameters);
 
-  return { types: definitions, operations: [] };
+  return { referenceTypes: definitions, operations: [] };
 
   // return {
   //   parameters: topoSort(parameters),

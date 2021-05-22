@@ -4,18 +4,10 @@ import { HttpMethods } from './parsers/openapi3/common';
 
 export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
 
-interface ReferenceType {
+export interface ReferenceType {
   ref: string;
-  originalName: string;
-  typeName: string;
+  name: string;
   type: AnyType;
-}
-
-interface Parameter extends ReferenceType {
-  kind: 'parameter';
-  in: ParamKind;
-  required: boolean;
-  description?: string;
 }
 
 // fixme: this needs content type
@@ -27,18 +19,25 @@ export interface Param {
   description?: string;
 }
 
-export interface ReferenceParam extends Param {
-  ref: string;
-  typeName: string;
-}
+// export interface ReferenceParameter extends ReferenceType {
+//   kind: 'parameter';
+//   in: ParamKind;
+//   required: boolean;
+//   description?: string;
+// }
 
-export interface Schema {
-  name: string;
-  ref: string;
-  type: AnyType;
-  typeName: string;
-  description?: string;
-}
+// export interface ReferenceParam extends Param {
+//   ref: string;
+//   typeName: string;
+// }
+
+// export interface Schema {
+//   name: string;
+//   ref: string;
+//   type: AnyType;
+//   typeName: string;
+//   description?: string;
+// }
 
 export interface ApiResponse {
   default: boolean;
@@ -59,7 +58,7 @@ export interface Operation {
 }
 
 export interface ApiData {
-  types: (Schema | ReferenceParam)[];
+  referenceTypes: ReferenceType[];
   operations: Operation[];
 }
 
@@ -116,9 +115,7 @@ function getNamedTypes(t: AnyType): NamedType[] {
  * order. Adapted from
  * https://jeremyckahn.github.io/javascript-algorithms/graphs_others_topological-sort.js.html
  */
-export function topoSort<T extends { type: AnyType; typeName: string }>(
-  things: T[],
-): T[] {
+export function topoSort(things: ReferenceType[]): ReferenceType[] {
   const topologicalSortHelper = (
     node: string,
     visited: Record<string, boolean>,
@@ -144,11 +141,10 @@ export function topoSort<T extends { type: AnyType; typeName: string }>(
 
   const graph = Object.fromEntries(
     things.map((thing) => [
-      thing.typeName,
+      thing.name,
       getNamedTypes(thing.type).map(prop('name')),
     ]),
   );
-
   const result: string[] = [];
   const visited: Record<string, boolean> = {};
   const temp: Record<string, boolean> = {};
@@ -159,6 +155,6 @@ export function topoSort<T extends { type: AnyType; typeName: string }>(
   }
 
   return result
-    .map((e) => things.find((thing) => thing.typeName === e))
+    .map((e) => things.find((thing) => thing.name === e))
     .filter(isDefined);
 }
