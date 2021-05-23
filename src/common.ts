@@ -1,4 +1,4 @@
-import { AnyType, NamedType, RecordType } from 'generate-runtypes';
+import { AnyType, NamedType, RecordType, RootType } from 'generate-runtypes';
 import { prop } from 'ramda';
 import { HttpMethods } from './parsers/openapi3/common';
 
@@ -128,6 +128,7 @@ export function topoSort(things: ReferenceType[]): ReferenceType[] {
     for (let i = 0; i < neighbors.length; i += 1) {
       const n = neighbors[i];
       if (temp[n]) {
+        // console.log('arr', node, n);
         throw new Error('The graph is not a DAG');
       }
       if (!visited[n]) {
@@ -157,4 +158,54 @@ export function topoSort(things: ReferenceType[]): ReferenceType[] {
   return result
     .map((e) => things.find((thing) => thing.name === e))
     .filter(isDefined);
+}
+
+function anyTypeToTsType(type: AnyType): string {
+  switch (type.kind) {
+    case 'boolean':
+    case 'never':
+    case 'null':
+    case 'number':
+    case 'string':
+    case 'symbol':
+    case 'undefined':
+    case 'unknown':
+      return type.kind;
+
+    case 'array':
+      return `
+        ${type.readonly ? 'readonly ' : ''} (${anyTypeToTsType(type.type)})[];
+      `.trim();
+
+    case 'union':
+      return type.types.map(anyTypeToTsType).join(' | ');
+
+    case 'intersect':
+      return type.types.map(anyTypeToTsType).join(' & ');
+
+    case 'dictionary':
+      return `Dictionary<string, ${anyTypeToTsType(type.valueType)}>`;
+
+    case 'named':
+      return type.name;
+
+    case 'literal':
+      return String(type.value);
+
+    case 'function':
+      return `() => unknown`;
+
+    case 'record': {
+      const fields = type.fields.map((field) => {
+        return `${field.readonly ? 'readonly ' : ''}${field.name}${
+          field.nullable ? '?' : ''
+        }: ${anyTypeToTsType(field.type)}`;
+      });
+      return `{\n ${fields.join('\n')} \n}`;
+    }
+  }
+}
+
+export function rootToType(root: RootType): string {
+  return `type ${root.name} = ${anyTypeToTsType(root.type)}`;
 }

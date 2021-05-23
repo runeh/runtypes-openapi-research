@@ -2,7 +2,7 @@ import { AnyType, LiteralType, RecordField } from 'generate-runtypes';
 import { OpenAPIV2 } from 'openapi-types';
 import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
-import { ApiData, ReferenceType } from '../../common';
+import { ApiData, ReferenceType, topoSort } from '../../common';
 
 // function parseObject(t: NonArraySchemaObject): RecordType {
 //   if (isAllOfSchemaObject(t)) {
@@ -189,14 +189,15 @@ function getDefinitions(doc: OpenAPIV2.Document): ReferenceType[] {
 // }
 
 export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
-  const bundledDoc = await bundle(doc, { dereference: { circular: true } });
+  const bundledDoc = await bundle(doc, { dereference: { circular: false } });
   invariant(!('openapi' in bundledDoc), 'waaaaatt'); // make sure it's an openapi2 thing
 
+  // console.log(JSON.stringify(bundledDoc));
   // const schemas = getSchemas(bundledDoc);
   const definitions = getDefinitions(bundledDoc);
   // const operations = getOperations(bundledDoc, parameters);
 
-  return { referenceTypes: definitions, operations: [] };
+  return { referenceTypes: topoSort(definitions), operations: [] };
 
   // return {
   //   parameters: topoSort(parameters),

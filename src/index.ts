@@ -9,6 +9,7 @@ import wrap from 'word-wrap';
 import { parse } from 'yaml';
 import { ApiData, Operation, isDefined } from './common';
 // import { parseOpenApi2 } from './parsers/openapi2';
+import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi3 } from './parsers/openapi3';
 
 const utilsForGenerated = dedent`
@@ -192,6 +193,10 @@ function generateOperationSource(api: ApiData, operation: Operation) {
 }
 
 function generateApiSource(api: ApiData) {
+  // fixme: Here we need to look at the names and fields and make them safe.
+  // As in remove illegal chars, deal with reserved words, etc.
+  // currently the `formatRuntypeName` does this well enough.
+
   const { referenceTypes: types } = api;
 
   const namedTypes = types.map<RootType>((e) => ({
@@ -203,6 +208,7 @@ function generateApiSource(api: ApiData) {
     includeTypes: false,
     includeImport: false,
     format: false,
+    formatRuntypeName: (e) => e,
   });
 
   const operationsSource = api.operations
@@ -238,18 +244,32 @@ async function main() {
   console.log(formatted);
 }
 
-// async function main() {
-//   const definitionPath = resolve(__dirname, '../resources/tripletex.json');
-//   const raw = await readFile(definitionPath, 'utf-8');
-//   const parsed = await parse(raw);
+async function main2() {
+  const definitionPath = resolve(__dirname, '../resources/tripletex.json');
+  const raw = await readFile(definitionPath, 'utf-8');
+  const parsed = await parse(raw);
 
-//   const apiData = await parseOpenApi2(parsed);
-//   // console.log(JSON.stringify(apiData, null, 2));
+  const apiData = await parseOpenApi2(parsed);
+  // console.log(JSON.stringify(apiData, null, 2));
 
-//   const source = generateApiSource(apiData);
-//   const prettierConfig = await resolveConfig('./lol.ts');
-//   const formatted = format(source, prettierConfig ?? undefined);
-//   console.log(formatted);
-// }
+  const source = generateApiSource(apiData);
+  const prettierConfig = await resolveConfig('./lol.ts');
+  const formatted = format(source, prettierConfig ?? undefined);
+  console.log(formatted);
+}
 
-main();
+async function main3() {
+  const definitionPath = resolve(__dirname, '../resources/petstore.json');
+  const raw = await readFile(definitionPath, 'utf-8');
+  const parsed = await parse(raw);
+
+  const apiData = await parseOpenApi2(parsed);
+  // console.log(JSON.stringify(apiData, null, 2));
+
+  const source = generateApiSource(apiData);
+  const prettierConfig = await resolveConfig('./lol.ts');
+  const formatted = format(source, prettierConfig ?? undefined);
+  console.log(formatted);
+}
+
+main3();
