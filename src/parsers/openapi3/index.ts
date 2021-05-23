@@ -166,21 +166,18 @@ function parsePath(
   );
 
   const operations = Object.values(OpenAPIV3.HttpMethods)
-    .map<Operation | undefined>((method) => {
+    .map((method) => {
       const operation = item[method];
-      if (operation) {
-        const op = parseOperation(parameterRefs, operation);
-        return {
-          path,
-          method,
-          ...op,
-          params: [...op.params, ...paramsForPath],
-        };
-      } else {
-        return undefined;
-      }
+      return operation
+        ? { ...parseOperation(parameterRefs, operation), method }
+        : undefined;
     })
-    .filter(isDefined);
+    .filter(isDefined)
+    .map<Operation>((e) => ({
+      ...e,
+      path,
+      params: [...paramsForPath, ...e.params],
+    }));
 
   return operations;
 }

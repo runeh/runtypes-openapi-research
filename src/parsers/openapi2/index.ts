@@ -1,8 +1,18 @@
 import { AnyType, LiteralType, RecordField } from 'generate-runtypes';
 import { OpenAPIV2 } from 'openapi-types';
+import { propEq } from 'ramda';
 import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
-import { ApiData, ReferenceType, topoSort } from '../../common';
+import {
+  ApiData,
+  Operation,
+  Param,
+  ParamKind,
+  ReferenceType,
+  getParamKind,
+  isDefined,
+  topoSort,
+} from '../../common';
 
 /**
  * Parse a "string" schema type. Strings are either strings or
@@ -56,6 +66,12 @@ function isReferenceObject(
   thing: OpenAPIV2.SchemaObject | OpenAPIV2.ItemsObject,
 ): thing is OpenAPIV2.ReferenceObject {
   return '$ref' in thing;
+}
+
+function isNotReferenceObject<T>(
+  thing: T,
+): thing is Exclude<T, OpenAPIV2.ReferenceObject> {
+  return !thing || !('$ref' in thing);
 }
 
 export function schemaToType(
@@ -143,22 +159,160 @@ function getDefinitions(doc: OpenAPIV2.Document): ReferenceType[] {
 //   );
 // }
 
-// function getOperations(
-//   doc: OpenAPIV2.Document,
-//   parameterRefs: ReferenceParam[],
-// ) {
-//   return Object.entries(doc.paths).flatMap(([path, item]) => {
-//     invariant(item != null, 'Must be a thing');
-//     return parsePath(parameterRefs, path, item);
+interface ReferenceParam extends ReferenceType {
+  in: ParamKind;
+  required: boolean;
+  description?: string;
+}
+
+function getOperations(
+  doc: OpenAPIV2.Document,
+  parameterRefs: ReferenceParam[],
+) {
+  return Object.entries(doc.paths).flatMap(([path, item]) => {
+    invariant(item != null, 'Must be a thing');
+    return parsePath(parameterRefs, path, item);
+  });
+}
+
+function parsePath(
+  parameterRefs: ReferenceParam[],
+  path: string,
+  item: OpenAPIV2.PathItemObject,
+): Operation[] {
+  // const paramsForPath = (item.parameters ?? []).map((e) =>
+  //   parseParameter(parameterRefs, e),
+  // );
+
+  const operations = Object.values(OpenAPIV2.HttpMethods)
+    .map<Operation | undefined>((method) => {
+      const operation = item[method];
+      if (operation) {
+        const op = parseOperation(parameterRefs, operation);
+        return {
+          path,
+          method,
+          ...op,
+          params: [...op.params], //fixme:...paramsForPath],
+        };
+      } else {
+        return undefined;
+      }
+    })
+    .filter(isDefined);
+
+  return operations;
+}
+
+function parseOperation(
+  parameterRefs: ReferenceParam[],
+  operation: OpenAPIV2.OperationObject,
+): Omit<Operation, 'method' | 'path'> {
+  const {
+    deprecated,
+    description,
+    operationId,
+    parameters,
+    // consumes,
+    summary,
+  } = operation;
+
+  invariant(operationId);
+
+  // const responses = parseResponses(operation.responses ?? {});
+
+  const ret = {
+    operationId,
+    description,
+    summary,
+    deprecated: deprecated ?? false,
+    params: (parameters || []).map((e) => parseParameter(parameterRefs, e)),
+    responses: [],
+  };
+
+  // if (requestBody) {
+  //   invariant(isNotReferenceObject(requestBody), 'not da bod');
+
+  //   const hasJson = requestBody.content['application/json'];
+  //   if (hasJson) {
+  //     const requestParam = parseRequestBodyParameter(requestBody);
+  //     ret.params.push(requestParam);
+  //   }
+  //   // fixme: do something else here when other type
+  // }
+
+  return ret;
+}
+
+function parseParameter(
+  parameterRefs: ReferenceParam[],
+  param: OpenAPIV2.Parameter | OpenAPIV2.ReferenceObject,
+): Param | ReferenceParam {
+  if (isNotReferenceObject(param)) {
+    invariant(param.schema != null, 'wat. cant be null');
+    return {
+      name: param.name,
+      in: getParamKind(param.in),
+      type: schemaToType(param.schema),
+      required: param.required ?? false,
+      description: param.description,
+    };
+  } else {
+    const existingParam = parameterRefs.find(propEq('ref', param.$ref));
+    invariant(existingParam != null);
+    return existingParam;
+  }
+}
+
+// function parseResponses(responses: OpenAPIV2.ResponsesObject): ApiResponse[] {
+//   return Object.entries(responses).map(([status, response]) => {
+//     invariant(isResponseObject(response), 'not a response');
+//     return parseResponse(response, status ? Number(status) : 'default');
+//   });
+// }
+
+// function parseResponse(
+//   response: OpenAPIV2.ResponseObject,
+//   status: number | 'default',
+// ): ApiResponse {
+//   return {
+//     default: status === 'default',
+//     status: typeof status === 'number' ? status : undefined,
+//     headers: parseHeaders(response.headers),
+//     bodyAlternatives: parseBodies(response.content),
+//   };
+// }
+
+// function parseHeaders(
+//   headers:
+//     | Record<string, OpenAPIV2.ReferenceObject | OpenAPIV2.HeaderObject>
+//     | undefined,
+// ): { name: string; type: AnyType }[] {
+//   return Object.entries(headers ?? {})
+//     .map(([name, val]) => {
+//       return isHeaderObject(val)
+//         ? ({ name, type: { kind: 'never' } } as const) // fixme: use schema here
+//         : undefined;
+//     })
+//     .filter(isDefined);
+// }
+
+// function parseBodies(
+//   bodies: Record<string, MediaTypeObject> | undefined,
+// ): { mimeType: string; type: AnyType }[] {
+//   return Object.entries(bodies ?? {}).map(([mimeType, val]) => {
+//     invariant(val.schema != null, 'not a schema');
+//     return { mimeType, type: schemaToType(val.schema) };
 //   });
 // }
 
 export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: false } });
   invariant(!('openapi' in bundledDoc), 'waaaaatt'); // make sure it's an openapi2 thing
+  // need to do a `getParameters the same way as defs here.
 
   const definitions = getDefinitions(bundledDoc);
-  // const operations = getOperations(bundledDoc, parameters);
+  const operations = getOperations(bundledDoc, []);
 
   return { referenceTypes: topoSort(definitions), operations: [] };
 }

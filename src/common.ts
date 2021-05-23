@@ -67,6 +67,7 @@ export function isDefined<T>(value: T | undefined | null): value is T {
 }
 
 export function getParamKind(str: string): ParamKind {
+  // fixme: this'll throw a bit with oapi2?
   switch (str) {
     case 'body':
     case 'cookie':
