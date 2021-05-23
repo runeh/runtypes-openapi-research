@@ -8,7 +8,6 @@ import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
 import { parse } from 'yaml';
 import { ApiData, Operation, isDefined } from './common';
-// import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi3 } from './parsers/openapi3';
 

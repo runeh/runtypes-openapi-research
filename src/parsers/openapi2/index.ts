@@ -4,32 +4,6 @@ import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import { ApiData, ReferenceType, topoSort } from '../../common';
 
-// function parseObject(t: NonArraySchemaObject): RecordType {
-//   if (isAllOfSchemaObject(t)) {
-//     const fields = t.allOf
-//       .filter(isSchemaObject)
-//       .map(schemaToType)
-//       .filter(isRecordType)
-//       .flatMap((e) => e.fields);
-//     return { kind: 'record', fields: fields };
-//   } else {
-//     invariant(t.properties, 'no properties');
-
-//     const requiredFields = t.required ?? [];
-//     const pairs = Object.entries(t.properties);
-
-//     const fields = pairs.map<RecordField>(([name, entry]) => {
-//       return {
-//         name,
-//         nullable: requiredFields.includes(name),
-//         type: schemaToType(entry),
-//       };
-//     });
-
-//     return { kind: 'record', fields };
-//   }
-// }
-
 /**
  * Parse a "string" schema type. Strings are either strings or
  * a list of string literals
@@ -53,7 +27,8 @@ function parseString(t: OpenAPIV2.SchemaObject): AnyType {
 function parseObject(t: OpenAPIV2.SchemaObject): AnyType {
   invariant(t.type === 'object', 'must be object');
   if (t.properties == null) {
-    console.warn('properties is null for object');
+    // empty object, so just do a generic string,unknown map
+    return { kind: 'dictionary', valueType: { kind: 'unknown' } };
   }
 
   const fields = Object.entries(t.properties ?? {}).map<RecordField>(
@@ -116,15 +91,7 @@ export function schemaToType(
 }
 
 function getDefinitions(doc: OpenAPIV2.Document): ReferenceType[] {
-  // return {
-  //   name: param.name,
-  //   kind: getParamKind(param.in),
-  //   type: schemaToType(param.schema),
-  //   required: param.required ?? false,
-  //   description: param.description,
-  // };
-
-  const definitions = Object.entries(doc.definitions ?? {}).map<ReferenceType>(
+  return Object.entries(doc.definitions ?? {}).map<ReferenceType>(
     ([name, def]) => {
       return {
         name,
@@ -135,8 +102,6 @@ function getDefinitions(doc: OpenAPIV2.Document): ReferenceType[] {
       };
     },
   );
-
-  return definitions;
 }
 
 // function getParameters(doc: OpenAPIV2.Document): ReferenceParam[] {
@@ -192,16 +157,8 @@ export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: false } });
   invariant(!('openapi' in bundledDoc), 'waaaaatt'); // make sure it's an openapi2 thing
 
-  // console.log(JSON.stringify(bundledDoc));
-  // const schemas = getSchemas(bundledDoc);
   const definitions = getDefinitions(bundledDoc);
   // const operations = getOperations(bundledDoc, parameters);
 
   return { referenceTypes: topoSort(definitions), operations: [] };
-
-  // return {
-  //   parameters: topoSort(parameters),
-  //   schemas: topoSort(schemas),
-  //   operations,
-  // };
 }

@@ -128,7 +128,6 @@ export function topoSort(things: ReferenceType[]): ReferenceType[] {
     for (let i = 0; i < neighbors.length; i += 1) {
       const n = neighbors[i];
       if (temp[n]) {
-        // console.log('arr', node, n);
         throw new Error('The graph is not a DAG');
       }
       if (!visited[n]) {
