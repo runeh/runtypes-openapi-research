@@ -223,23 +223,21 @@ function parseOperation(
 
   invariant(operationId);
 
-  // const responses = parseResponses(operation.responses ?? {});
-
   const ret = {
     operationId,
     description,
     summary,
     deprecated: deprecated ?? false,
-    params: (parameters || []).map((e) => parseParameter(parameterRefs, e)),
+    params: parameters?.map((e) => parseParameter(parameterRefs, e)) ?? [],
     responses: [],
   };
 
-  // if (requestBody) {
-  //   invariant(isNotReferenceObject(requestBody), 'not da bod');
-
-  //   const hasJson = requestBody.content['application/json'];
+  // if (fileBody) {
+  //   // invariant(isNotReferenceObject(fileBody), "Can't be reference here");
+  //   // fileBody.
+  //   const hasJson = fileBody.content['application/json'];
   //   if (hasJson) {
-  //     const requestParam = parseRequestBodyParameter(requestBody);
+  //     const requestParam = parseRequestBodyParameter(fileBody);
   //     ret.params.push(requestParam);
   //   }
   //   // fixme: do something else here when other type
@@ -251,7 +249,7 @@ function parseOperation(
 function parseParameter(
   parameterRefs: ReferenceParam[],
   param: OpenAPIV2.Parameter | OpenAPIV2.ReferenceObject,
-): Param | ReferenceParam {
+): Param {
   if (isNotReferenceObject(param)) {
     return {
       name: param.name,
