@@ -1,7 +1,12 @@
-import { AnyType, NamedType, RecordType, RootType } from 'generate-runtypes';
+import { AnyType, NamedType, RecordType } from 'generate-runtypes';
+import { OpenAPIV3 } from 'openapi-types';
 import { prop } from 'ramda';
-import { HttpMethods } from './parsers/openapi3/common';
 
+type HttpMethods = OpenAPIV3.HttpMethods;
+
+/**
+ * The different values of the `in` field of parameters in OAPI 2 and 3
+ */
 export type ParamKind =
   | 'body'
   | 'cookie'
@@ -11,13 +16,18 @@ export type ParamKind =
   | 'path'
   | 'query';
 
+/**
+ * Describes a type that referenced by a `$ref` in OAPI. These will generally
+ * end up as named types in output.
+ */
 export interface ReferenceType {
   ref: string;
   name: string;
-  type: AnyType;
+  type: AnyType; // should support file here
 }
 
-// fixme: this needs content type
+// fixme: this needs content type (don't remember what this was about)
+// fixme: type should also allow `file`.
 export interface Param {
   in: ParamKind;
   name: string;
@@ -26,26 +36,9 @@ export interface Param {
   description?: string;
 }
 
-// export interface ReferenceParameter extends ReferenceType {
-//   kind: 'parameter';
-//   in: ParamKind;
-//   required: boolean;
-//   description?: string;
-// }
-
-// export interface ReferenceParam extends Param {
-//   ref: string;
-//   typeName: string;
-// }
-
-// export interface Schema {
-//   name: string;
-//   ref: string;
-//   type: AnyType;
-//   typeName: string;
-//   description?: string;
-// }
-
+/**
+ * Describes the response that can be received from an `Operation`.
+ */
 export interface ApiResponse {
   default: boolean;
   status?: number;
@@ -53,6 +46,9 @@ export interface ApiResponse {
   bodyAlternatives: { mimeType: string; type: AnyType }[];
 }
 
+/**
+ * Describes an operation in OpenApi.
+ */
 export interface Operation {
   operationId: string;
   method: HttpMethods;
@@ -64,17 +60,27 @@ export interface Operation {
   summary?: string;
 }
 
+/**
+ * Describes all the parsed contents of an API. This is what code generators
+ * should consume when generating clients.
+ */
 export interface ApiData {
   referenceTypes: ReferenceType[];
   operations: Operation[];
 }
 
+/**
+ * Type predicate to filter out null and undefined
+ */
 export function isDefined<T>(value: T | undefined | null): value is T {
   return value !== undefined && value !== null;
 }
 
+/**
+ * Get a type kind of a parameter, as they are represented as string in the
+ * OpenApi TS.
+ */
 export function getParamKind(str: string): ParamKind {
-  // fixme: this'll throw a bit with oapi2?
   switch (str) {
     case 'body':
     case 'cookie':
@@ -88,10 +94,9 @@ export function getParamKind(str: string): ParamKind {
   throw new Error(`Invalid param kind "${str}"`);
 }
 
-export function isRecordType(type: AnyType): type is RecordType {
-  return type.kind === 'record';
-}
-
+/**
+ * Get a list of all named named types references in a type and it's children
+ */
 function getNamedTypes(t: AnyType): NamedType[] {
   switch (t.kind) {
     case 'boolean':
@@ -167,54 +172,4 @@ export function topoSort(things: ReferenceType[]): ReferenceType[] {
   return result
     .map((e) => things.find((thing) => thing.name === e))
     .filter(isDefined);
-}
-
-function anyTypeToTsType(type: AnyType): string {
-  switch (type.kind) {
-    case 'boolean':
-    case 'never':
-    case 'null':
-    case 'number':
-    case 'string':
-    case 'symbol':
-    case 'undefined':
-    case 'unknown':
-      return type.kind;
-
-    case 'array':
-      return `
-        ${type.readonly ? 'readonly ' : ''} (${anyTypeToTsType(type.type)})[];
-      `.trim();
-
-    case 'union':
-      return type.types.map(anyTypeToTsType).join(' | ');
-
-    case 'intersect':
-      return type.types.map(anyTypeToTsType).join(' & ');
-
-    case 'dictionary':
-      return `Dictionary<string, ${anyTypeToTsType(type.valueType)}>`;
-
-    case 'named':
-      return type.name;
-
-    case 'literal':
-      return String(type.value);
-
-    case 'function':
-      return `() => unknown`;
-
-    case 'record': {
-      const fields = type.fields.map((field) => {
-        return `${field.readonly ? 'readonly ' : ''}${field.name}${
-          field.nullable ? '?' : ''
-        }: ${anyTypeToTsType(field.type)}`;
-      });
-      return `{\n ${fields.join('\n')} \n}`;
-    }
-  }
-}
-
-export function rootToType(root: RootType): string {
-  return `type ${root.name} = ${anyTypeToTsType(root.type)}`;
 }
