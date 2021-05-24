@@ -1,6 +1,6 @@
-import { AnyType, NamedType, RecordType } from 'generate-runtypes';
+import { AnyType, NamedType } from 'generate-runtypes';
 import { OpenAPIV3 } from 'openapi-types';
-import { prop } from 'ramda';
+import { prop, uniqBy } from 'ramda';
 
 type HttpMethods = OpenAPIV3.HttpMethods;
 
@@ -97,7 +97,7 @@ export function getParamKind(str: string): ParamKind {
 /**
  * Get a list of all named named types references in a type and it's children
  */
-function getNamedTypes(t: AnyType): NamedType[] {
+export function getNamedTypes(t: AnyType): NamedType[] {
   switch (t.kind) {
     case 'boolean':
     case 'function':
@@ -113,15 +113,18 @@ function getNamedTypes(t: AnyType): NamedType[] {
     case 'named':
       return [t];
     case 'array':
-      return getNamedTypes(t.type);
+      return uniqBy(prop('name'), getNamedTypes(t.type));
     case 'dictionary':
-      return getNamedTypes(t.valueType);
+      return uniqBy(prop('name'), getNamedTypes(t.valueType));
     case 'intersect':
-      return t.types.flatMap(getNamedTypes);
+      return uniqBy(prop('name'), t.types.flatMap(getNamedTypes));
     case 'record':
-      return t.fields.map(prop('type')).flatMap(getNamedTypes);
+      return uniqBy(
+        prop('name'),
+        t.fields.map(prop('type')).flatMap(getNamedTypes),
+      );
     case 'union':
-      return t.types.flatMap(getNamedTypes);
+      return uniqBy(prop('name'), t.types.flatMap(getNamedTypes));
   }
 }
 
