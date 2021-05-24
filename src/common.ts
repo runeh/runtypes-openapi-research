@@ -2,7 +2,14 @@ import { AnyType, NamedType, RecordType, RootType } from 'generate-runtypes';
 import { prop } from 'ramda';
 import { HttpMethods } from './parsers/openapi3/common';
 
-export type ParamKind = 'query' | 'header' | 'path' | 'cookie' | 'body';
+export type ParamKind =
+  | 'body'
+  | 'cookie'
+  | 'file'
+  | 'formData'
+  | 'header'
+  | 'path'
+  | 'query';
 
 export interface ReferenceType {
   ref: string;
@@ -71,6 +78,8 @@ export function getParamKind(str: string): ParamKind {
   switch (str) {
     case 'body':
     case 'cookie':
+    case 'file':
+    case 'formData':
     case 'header':
     case 'path':
     case 'query':
@@ -85,15 +94,15 @@ export function isRecordType(type: AnyType): type is RecordType {
 
 function getNamedTypes(t: AnyType): NamedType[] {
   switch (t.kind) {
-    case 'string':
-    case 'number':
     case 'boolean':
-    case 'symbol':
-    case 'undefined':
     case 'function':
     case 'literal':
     case 'never':
     case 'null':
+    case 'number':
+    case 'string':
+    case 'symbol':
+    case 'undefined':
     case 'unknown':
       return [];
     case 'named':

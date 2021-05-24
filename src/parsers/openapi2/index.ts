@@ -100,6 +100,10 @@ export function schemaToType(
 
     case 'object':
       return parseObject(t);
+
+    // fixme: need to deal with this somewhere else
+    case 'file':
+      return { kind: 'unknown' };
   }
 
   // fixme: do things with oneOf / allOf etc
@@ -180,9 +184,9 @@ function parsePath(
   path: string,
   item: OpenAPIV2.PathItemObject,
 ): Operation[] {
-  // const paramsForPath = (item.parameters ?? []).map((e) =>
-  //   parseParameter(parameterRefs, e),
-  // );
+  const paramsForPath = (item.parameters ?? []).map((e) =>
+    parseParameter(parameterRefs, e),
+  );
 
   const operations = Object.values(OpenAPIV2.HttpMethods)
     .map<Operation | undefined>((method) => {
@@ -193,7 +197,7 @@ function parsePath(
           path,
           method,
           ...op,
-          params: [...op.params], //fixme:...paramsForPath],
+          params: [...op.params, ...paramsForPath],
         };
       } else {
         return undefined;
@@ -249,11 +253,10 @@ function parseParameter(
   param: OpenAPIV2.Parameter | OpenAPIV2.ReferenceObject,
 ): Param | ReferenceParam {
   if (isNotReferenceObject(param)) {
-    invariant(param.schema != null, 'wat. cant be null');
     return {
       name: param.name,
       in: getParamKind(param.in),
-      type: schemaToType(param.schema),
+      type: schemaToType(param.schema ?? param),
       required: param.required ?? false,
       description: param.description,
     };
@@ -314,5 +317,5 @@ export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const definitions = getDefinitions(bundledDoc);
   const operations = getOperations(bundledDoc, []);
 
-  return { referenceTypes: topoSort(definitions), operations: [] };
+  return { referenceTypes: topoSort(definitions), operations };
 }
