@@ -1,5 +1,5 @@
 import { AnyType, NamedType } from 'generate-runtypes';
-import { OpenAPIV3 } from 'openapi-types';
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 import { prop, uniqBy } from 'ramda';
 
 type HttpMethods = OpenAPIV3.HttpMethods;
@@ -126,6 +126,18 @@ export function getNamedTypes(t: AnyType): NamedType[] {
     case 'union':
       return uniqBy(prop('name'), t.types.flatMap(getNamedTypes));
   }
+}
+
+export function isOpenApi2<T = {}>(
+  doc: OpenAPI.Document<T>,
+): doc is OpenAPIV2.Document<T> {
+  return 'swagger' in doc;
+}
+
+export function isOpenApi3<T = {}>(
+  doc: OpenAPI.Document<T>,
+): doc is OpenAPIV3.Document<T> {
+  return !isOpenApi2(doc);
 }
 
 /**

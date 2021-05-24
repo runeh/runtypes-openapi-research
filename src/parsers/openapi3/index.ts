@@ -12,6 +12,7 @@ import {
   ReferenceType,
   getParamKind,
   isDefined,
+  isOpenApi3,
   topoSort,
 } from '../../common';
 import {
@@ -209,7 +210,6 @@ function getSchemaReferences(doc: OpenAPIV3.Document): Schema[] {
       invariant(isSchemaObject(schema), 'should be schema!');
       const ref = `#/components/schemas/${name}`;
       return {
-        // name,
         ref,
         type: schemaToType(schema),
         name: `${name}Schema`,
@@ -231,7 +231,7 @@ function getOperations(
 
 export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: true } });
-  invariant('openapi' in bundledDoc); // make sure it's an openapi3 thing
+  invariant(isOpenApi3(bundledDoc));
 
   const schemas = getSchemaReferences(bundledDoc);
   const paramRefs = getParameterReferences(bundledDoc);

@@ -11,6 +11,7 @@ import {
   ReferenceType,
   getParamKind,
   isDefined,
+  isOpenApi2,
   topoSort,
 } from '../../common';
 
@@ -309,9 +310,9 @@ function parseParameter(
 
 export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: false } });
-  invariant(!('openapi' in bundledDoc), 'waaaaatt'); // make sure it's an openapi2 thing
-  // need to do a `getParameters the same way as defs here.
+  invariant(isOpenApi2(bundledDoc));
 
+  // need to do a `getParameters the same way as defs here.
   const definitions = getDefinitions(bundledDoc);
   const operations = getOperations(bundledDoc, []);
 

@@ -7,7 +7,7 @@ import dedent from 'ts-dedent';
 import invariant from 'ts-invariant';
 import wrap from 'word-wrap';
 import { parse } from 'yaml';
-import { ApiData, Operation, isDefined } from './common';
+import { ApiData, Operation, isDefined, isOpenApi3 } from './common';
 import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi3 } from './parsers/openapi3';
 
@@ -231,9 +231,11 @@ async function main() {
   const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
   const raw = await readFile(definitionPath, 'utf-8');
   const parsed = await parse(raw);
-  if (parsed.swagger) {
-    throw new Error('Not handling swagger files yet. Only openapi 3');
-  }
+
+  invariant(
+    isOpenApi3(parsed),
+    'Not handling swagger files yet. Only openapi 3',
+  );
 
   const apiData = await parseOpenApi3(parsed);
   const source = generateApiSource(apiData);
