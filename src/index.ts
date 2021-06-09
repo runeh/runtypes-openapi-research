@@ -11,6 +11,14 @@ import { ApiData, Operation, isDefined, isOpenApi3 } from './common';
 import { parseOpenApi2 } from './parsers/openapi2';
 import { parseOpenApi3 } from './parsers/openapi3';
 
+function formatRuntypeName(name: string) {
+  return name[0].toLowerCase() + name.slice(1) + 'Rt';
+}
+
+function formatTypeName(name: string) {
+  return name[0].toUpperCase() + name.slice(1);
+}
+
 const utilsForGenerated = dedent`
   function pickQueryValues<T extends Record<string, unknown>, K extends keyof T>(
     subject: T,
@@ -123,7 +131,9 @@ function generateOperationSource(api: ApiData, operation: Operation) {
   ];
 
   if (argsRootType) {
-    builderParts.push(`.args<rt.Static<typeof ${argsRootType.name}>>()`);
+    builderParts.push(
+      `.args<rt.Static<typeof ${formatRuntypeName(argsRootType.name)}>>()`,
+    );
   }
 
   builderParts.push(`.method('${operation.method}')`, `.path(${getPath})`);
@@ -164,6 +174,8 @@ function generateOperationSource(api: ApiData, operation: Operation) {
         format: false,
         includeImport: false,
         includeTypes: false,
+        formatRuntypeName,
+        formatTypeName,
       })
     : '';
 
@@ -174,6 +186,8 @@ function generateOperationSource(api: ApiData, operation: Operation) {
           format: false,
           includeImport: false,
           includeTypes: false,
+          formatRuntypeName,
+          formatTypeName,
         })
       : '';
 
@@ -204,10 +218,11 @@ function generateApiSource(api: ApiData) {
   }));
 
   const typesSource = generateRuntypes(namedTypes, {
-    includeTypes: false,
+    includeTypes: true,
     includeImport: false,
     format: false,
-    formatRuntypeName: (e) => e,
+    formatRuntypeName,
+    formatTypeName,
   });
 
   const operationsSource = api.operations
@@ -273,4 +288,4 @@ async function main3() {
   console.log(formatted);
 }
 
-main3();
+main2();

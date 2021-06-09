@@ -28,7 +28,7 @@ function anyTypeToTsType(type: AnyType): string {
       return type.types.map(anyTypeToTsType).join(' & ');
 
     case 'dictionary':
-      return `Dictionary<string, ${anyTypeToTsType(type.valueType)}>`;
+      return `Record<string, ${anyTypeToTsType(type.valueType)}>`;
 
     case 'named':
       return type.name;
