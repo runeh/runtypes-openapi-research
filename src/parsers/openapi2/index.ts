@@ -12,7 +12,6 @@ import {
   getParamKind,
   isDefined,
   isOpenApi2,
-  topoSort,
 } from '../../common';
 
 /**
@@ -316,5 +315,5 @@ export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const definitions = getDefinitions(bundledDoc);
   const operations = getOperations(bundledDoc, []);
 
-  return { referenceTypes: topoSort(definitions), operations };
+  return { referenceTypes: definitions, operations };
 }

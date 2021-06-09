@@ -13,7 +13,6 @@ import {
   getParamKind,
   isDefined,
   isOpenApi3,
-  topoSort,
 } from '../../common';
 import {
   HeaderObject,
@@ -239,6 +238,6 @@ export async function parseOpenApi3(doc: OpenAPIV3.Document): Promise<ApiData> {
 
   return {
     operations,
-    referenceTypes: topoSort(schemas),
+    referenceTypes: schemas,
   };
 }

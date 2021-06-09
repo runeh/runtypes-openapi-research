@@ -226,7 +226,7 @@ function generateApiSource(api: ApiData) {
     `;
 }
 
-async function main() {
+async function main1() {
   // const definitionPath = resolve(__dirname, '../resources/tripletex.json');
   const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
   const raw = await readFile(definitionPath, 'utf-8');
