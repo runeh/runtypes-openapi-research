@@ -900,7 +900,7 @@ type UserinfoSchema = rt.Static<typeof userinfoSchemaRt>;
 export const getUser = buildCall() //
   .method('get')
   .path('/user')
-  .parseJson(withRuntype(userinfoSchema))
+  .parseJson(withRuntype(userinfoSchemaRt))
   .build();
 
 // Operation: getCompanies
@@ -937,7 +937,7 @@ export const getCompanies = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'page', 'pageSize', 'sortBy')),
   )
-  .parseJson(withRuntype(getCompaniesResponseBody))
+  .parseJson(withRuntype(getCompaniesResponseBodyRt))
   .build();
 
 // Operation: getCompany
@@ -953,7 +953,7 @@ export const getCompany = buildCall() //
   .args<rt.Static<typeof getCompanyArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}`)
-  .parseJson(withRuntype(companySchema))
+  .parseJson(withRuntype(companySchemaRt))
   .build();
 
 // Operation: getAccounts
@@ -988,7 +988,7 @@ export const getAccounts = buildCall() //
         pickQueryValues(args, 'fromAccount', 'toAccount', 'page', 'pageSize'),
       ),
   )
-  .parseJson(withRuntype(getAccountsResponseBody))
+  .parseJson(withRuntype(getAccountsResponseBodyRt))
   .build();
 
 // Operation: getAccount
@@ -1009,7 +1009,7 @@ export const getAccount = buildCall() //
   .args<rt.Static<typeof getAccountArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/accounts/${args.accountCode}`)
-  .parseJson(withRuntype(accountSchema))
+  .parseJson(withRuntype(accountSchemaRt))
   .build();
 
 // Operation: getAccountBalances
@@ -1054,7 +1054,7 @@ export const getAccountBalances = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getAccountBalancesResponseBody))
+  .parseJson(withRuntype(getAccountBalancesResponseBodyRt))
   .build();
 
 // Operation: getAccountBalance
@@ -1078,7 +1078,7 @@ export const getAccountBalance = buildCall() //
       `/companies/${args.companySlug}/accountBalances/${args.accountCode}`,
   )
   .query((args) => new URLSearchParams(pickQueryValues(args, 'date')))
-  .parseJson(withRuntype(accountBalanceSchema))
+  .parseJson(withRuntype(accountBalanceSchemaRt))
   .build();
 
 // Operation: getBankAccounts
@@ -1102,7 +1102,7 @@ export const getBankAccounts = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getBankAccountsResponseBody))
+  .parseJson(withRuntype(getBankAccountsResponseBodyRt))
   .build();
 
 // Operation: createBankAccount
@@ -1145,7 +1145,7 @@ export const getBankAccount = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/bankAccounts/${args.bankAccountId}`,
   )
-  .parseJson(withRuntype(bankAccountResultSchema))
+  .parseJson(withRuntype(bankAccountResultSchemaRt))
   .build();
 
 // Operation: getContacts
@@ -1212,7 +1212,7 @@ export const getContacts = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getContactsResponseBody))
+  .parseJson(withRuntype(getContactsResponseBodyRt))
   .build();
 
 // Operation: createContact
@@ -1251,7 +1251,7 @@ export const getContact = buildCall() //
   .args<rt.Static<typeof getContactArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/contacts/${args.contactId}`)
-  .parseJson(withRuntype(contactSchema))
+  .parseJson(withRuntype(contactSchemaRt))
   .build();
 
 // Operation: updateContact
@@ -1297,7 +1297,7 @@ export const getContactContactPerson = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson`,
   )
-  .parseJson(withRuntype(getContactContactPersonResponseBody))
+  .parseJson(withRuntype(getContactContactPersonResponseBodyRt))
   .build();
 
 // Operation: addContactPersonToContact
@@ -1349,7 +1349,7 @@ export const getContactPerson = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/contacts/${args.contactId}/contactPerson/${args.contactPersonId}`,
   )
-  .parseJson(withRuntype(contactPersonSchema))
+  .parseJson(withRuntype(contactPersonSchemaRt))
   .build();
 
 // Operation: updateContactContactPerson
@@ -1427,7 +1427,7 @@ export const createProductSalesReport = buildCall() //
   .method('post')
   .path((args) => `/companies/${args.companySlug}/products/salesReport`)
   .body((args) => args.requestBody)
-  .parseJson(withRuntype(createProductSalesReportResponseBody))
+  .parseJson(withRuntype(createProductSalesReportResponseBodyRt))
   .build();
 
 // Operation: getJournalEntries
@@ -1475,7 +1475,7 @@ export const getJournalEntries = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getJournalEntriesResponseBody))
+  .parseJson(withRuntype(getJournalEntriesResponseBodyRt))
   .build();
 
 // Operation: createGeneralJournalEntry
@@ -1519,7 +1519,7 @@ export const getJournalEntry = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/journalEntries/${args.journalEntryId}`,
   )
-  .parseJson(withRuntype(journalEntrySchema))
+  .parseJson(withRuntype(journalEntrySchemaRt))
   .build();
 
 // Operation: getJournalEntryAttachments
@@ -1543,7 +1543,7 @@ export const getJournalEntryAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/journalEntries/${args.journalEntryId}/attachments`,
   )
-  .parseJson(withRuntype(getJournalEntryAttachmentsResponseBody))
+  .parseJson(withRuntype(getJournalEntryAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToJournalEntry
@@ -1587,7 +1587,7 @@ export const getTransaction = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/transactions/${args.transactionId}`,
   )
-  .parseJson(withRuntype(transactionSchema))
+  .parseJson(withRuntype(transactionSchemaRt))
   .build();
 
 // Operation: getInvoices
@@ -1652,7 +1652,7 @@ export const getInvoices = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getInvoicesResponseBody))
+  .parseJson(withRuntype(getInvoicesResponseBodyRt))
   .build();
 
 // Operation: createInvoice
@@ -1698,7 +1698,7 @@ export const getInvoice = buildCall() //
   .args<rt.Static<typeof getInvoiceArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/invoices/${args.invoiceId}`)
-  .parseJson(withRuntype(invoiceResultSchema))
+  .parseJson(withRuntype(invoiceResultSchemaRt))
   .build();
 
 // Operation: updateInvoice
@@ -1746,7 +1746,7 @@ export const getInvoiceAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/invoices/${args.invoiceId}/attachments`,
   )
-  .parseJson(withRuntype(getInvoiceAttachmentsResponseBody))
+  .parseJson(withRuntype(getInvoiceAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToInvoice
@@ -1815,7 +1815,7 @@ export const getInvoiceDrafts = buildCall() //
         pickQueryValues(args, 'page', 'pageSize', 'orderReference'),
       ),
   )
-  .parseJson(withRuntype(getInvoiceDraftsResponseBody))
+  .parseJson(withRuntype(getInvoiceDraftsResponseBodyRt))
   .build();
 
 // Operation: createInvoiceDraft
@@ -1856,7 +1856,7 @@ export const getInvoiceDraft = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/invoices/drafts/${args.draftId}`,
   )
-  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .parseJson(withRuntype(invoiceishDraftResultSchemaRt))
   .build();
 
 // Operation: updateInvoiceDraft
@@ -1923,7 +1923,7 @@ export const getInvoiceDraftAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/invoices/drafts/${args.draftId}/attachments`,
   )
-  .parseJson(withRuntype(getInvoiceDraftAttachmentsResponseBody))
+  .parseJson(withRuntype(getInvoiceDraftAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToInvoiceDraft
@@ -2016,7 +2016,7 @@ export const getCreditNotes = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getCreditNotesResponseBody))
+  .parseJson(withRuntype(getCreditNotesResponseBodyRt))
   .build();
 
 // Operation: createFullCreditNote
@@ -2078,7 +2078,7 @@ export const getCreditNote = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/creditNotes/${args.creditNoteId}`,
   )
-  .parseJson(withRuntype(creditNoteResultSchema))
+  .parseJson(withRuntype(creditNoteResultSchemaRt))
   .build();
 
 // Operation: sendCreditNote
@@ -2125,7 +2125,7 @@ export const getCreditNoteDrafts = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getCreditNoteDraftsResponseBody))
+  .parseJson(withRuntype(getCreditNoteDraftsResponseBodyRt))
   .build();
 
 // Operation: createCreditNoteDraft
@@ -2167,7 +2167,7 @@ export const getCreditNoteDraft = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}`,
   )
-  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .parseJson(withRuntype(invoiceishDraftResultSchemaRt))
   .build();
 
 // Operation: updateCreditNoteDraft
@@ -2238,7 +2238,7 @@ export const getCreditNoteDraftAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/creditNotes/drafts/${args.draftId}/attachments`,
   )
-  .parseJson(withRuntype(getCreditNoteDraftAttachmentsResponseBody))
+  .parseJson(withRuntype(getCreditNoteDraftAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToCreditNoteDraft
@@ -2304,7 +2304,7 @@ export const getOffers = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getOffersResponseBody))
+  .parseJson(withRuntype(getOffersResponseBodyRt))
   .build();
 
 // Operation: getOffer
@@ -2322,7 +2322,7 @@ export const getOffer = buildCall() //
   .args<rt.Static<typeof getOfferArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/offers/${args.offerId}`)
-  .parseJson(withRuntype(offerSchema))
+  .parseJson(withRuntype(offerSchemaRt))
   .build();
 
 // Operation: getOfferDrafts
@@ -2346,7 +2346,7 @@ export const getOfferDrafts = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getOfferDraftsResponseBody))
+  .parseJson(withRuntype(getOfferDraftsResponseBodyRt))
   .build();
 
 // Operation: createOfferDraft
@@ -2387,7 +2387,7 @@ export const getOfferDraft = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/offers/drafts/${args.draftId}`,
   )
-  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .parseJson(withRuntype(invoiceishDraftResultSchemaRt))
   .build();
 
 // Operation: updateOfferDraft
@@ -2454,7 +2454,7 @@ export const getOfferDraftAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/offers/drafts/${args.draftId}/attachments`,
   )
-  .parseJson(withRuntype(getOfferDraftAttachmentsResponseBody))
+  .parseJson(withRuntype(getOfferDraftAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToOfferDraft
@@ -2520,7 +2520,7 @@ export const getOrderConfirmations = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getOrderConfirmationsResponseBody))
+  .parseJson(withRuntype(getOrderConfirmationsResponseBodyRt))
   .build();
 
 // Operation: getOrderConfirmation
@@ -2542,7 +2542,7 @@ export const getOrderConfirmation = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/orderConfirmations/${args.confirmationId}`,
   )
-  .parseJson(withRuntype(orderConfirmationSchema))
+  .parseJson(withRuntype(orderConfirmationSchemaRt))
   .build();
 
 // Operation: getOrderConfirmationDrafts
@@ -2568,7 +2568,7 @@ export const getOrderConfirmationDrafts = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getOrderConfirmationDraftsResponseBody))
+  .parseJson(withRuntype(getOrderConfirmationDraftsResponseBodyRt))
   .build();
 
 // Operation: createOrderConfirmationDraft
@@ -2611,7 +2611,7 @@ export const getOrderConfirmationDraft = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}`,
   )
-  .parseJson(withRuntype(invoiceishDraftResultSchema))
+  .parseJson(withRuntype(invoiceishDraftResultSchemaRt))
   .build();
 
 // Operation: updateOrderConfirmationDraft
@@ -2683,7 +2683,7 @@ export const getOrderConfirmationDraftAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/orderConfirmations/drafts/${args.draftId}/attachments`,
   )
-  .parseJson(withRuntype(getOrderConfirmationDraftAttachmentsResponseBody))
+  .parseJson(withRuntype(getOrderConfirmationDraftAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToOrderConfirmationDraft
@@ -2773,7 +2773,7 @@ export const getProducts = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getProductsResponseBody))
+  .parseJson(withRuntype(getProductsResponseBodyRt))
   .build();
 
 // Operation: createProduct
@@ -2809,7 +2809,7 @@ export const getProduct = buildCall() //
   .args<rt.Static<typeof getProductArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/products/${args.productId}`)
-  .parseJson(withRuntype(productSchema))
+  .parseJson(withRuntype(productSchemaRt))
   .build();
 
 // Operation: updateProduct
@@ -2897,7 +2897,7 @@ export const getSales = buildCall() //
         ),
       ),
   )
-  .parseJson(withRuntype(getSalesResponseBody))
+  .parseJson(withRuntype(getSalesResponseBodyRt))
   .build();
 
 // Operation: createSale
@@ -2933,7 +2933,7 @@ export const getSale = buildCall() //
   .args<rt.Static<typeof getSaleArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/sales/${args.saleId}`)
-  .parseJson(withRuntype(saleResultSchema))
+  .parseJson(withRuntype(saleResultSchemaRt))
   .build();
 
 // Operation: deleteSale
@@ -2954,7 +2954,7 @@ export const deleteSale = buildCall() //
   .method('patch')
   .path((args) => `/companies/${args.companySlug}/sales/${args.saleId}/delete`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'description')))
-  .parseJson(withRuntype(saleResultSchema))
+  .parseJson(withRuntype(saleResultSchemaRt))
   .build();
 
 // Operation: getSaleAttachments
@@ -2976,7 +2976,7 @@ export const getSaleAttachments = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/sales/${args.saleId}/attachments`,
   )
-  .parseJson(withRuntype(getSaleAttachmentsResponseBody))
+  .parseJson(withRuntype(getSaleAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToSale
@@ -3017,7 +3017,7 @@ export const getSalePayments = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/sales/${args.saleId}/payments`,
   )
-  .parseJson(withRuntype(getSalePaymentsResponseBody))
+  .parseJson(withRuntype(getSalePaymentsResponseBodyRt))
   .build();
 
 // Operation: createSalePayment
@@ -3063,7 +3063,7 @@ export const getSalePayment = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/sales/${args.saleId}/payments/${args.paymentId}`,
   )
-  .parseJson(withRuntype(paymentSchema))
+  .parseJson(withRuntype(paymentSchemaRt))
   .build();
 
 // Operation: getSaleDrafts
@@ -3087,7 +3087,7 @@ export const getSaleDrafts = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getSaleDraftsResponseBody))
+  .parseJson(withRuntype(getSaleDraftsResponseBodyRt))
   .build();
 
 // Operation: createSaleDraft
@@ -3123,7 +3123,7 @@ export const getSaleDraft = buildCall() //
   .args<rt.Static<typeof getSaleDraftArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/sales/drafts/${args.draftId}`)
-  .parseJson(withRuntype(draftResultSchema))
+  .parseJson(withRuntype(draftResultSchemaRt))
   .build();
 
 // Operation: updateSaleDraft
@@ -3186,7 +3186,7 @@ export const getSaleDraftAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/sales/drafts/${args.draftId}/attachments`,
   )
-  .parseJson(withRuntype(getSaleDraftAttachmentsResponseBody))
+  .parseJson(withRuntype(getSaleDraftAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToSaleDraft
@@ -3260,7 +3260,7 @@ export const getPurchases = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'page', 'pageSize', 'sortBy')),
   )
-  .parseJson(withRuntype(getPurchasesResponseBody))
+  .parseJson(withRuntype(getPurchasesResponseBodyRt))
   .build();
 
 // Operation: createPurchase
@@ -3296,7 +3296,7 @@ export const getPurchase = buildCall() //
   .args<rt.Static<typeof getPurchaseArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/purchases/${args.purchaseId}`)
-  .parseJson(withRuntype(purchaseResultSchema))
+  .parseJson(withRuntype(purchaseResultSchemaRt))
   .build();
 
 // Operation: deletePurchase
@@ -3325,7 +3325,7 @@ export const deletePurchase = buildCall() //
       `/companies/${args.companySlug}/purchases/${args.purchaseId}/delete`,
   )
   .query((args) => new URLSearchParams(pickQueryValues(args, 'description')))
-  .parseJson(withRuntype(purchaseResultSchema))
+  .parseJson(withRuntype(purchaseResultSchemaRt))
   .build();
 
 // Operation: getPurchaseAttachments
@@ -3349,7 +3349,7 @@ export const getPurchaseAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/purchases/${args.purchaseId}/attachments`,
   )
-  .parseJson(withRuntype(getPurchaseAttachmentsResponseBody))
+  .parseJson(withRuntype(getPurchaseAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToPurchase
@@ -3394,7 +3394,7 @@ export const getPurchasePayments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/purchases/${args.purchaseId}/payments`,
   )
-  .parseJson(withRuntype(getPurchasePaymentsResponseBody))
+  .parseJson(withRuntype(getPurchasePaymentsResponseBodyRt))
   .build();
 
 // Operation: createPurchasePayment
@@ -3446,7 +3446,7 @@ export const getPurchasePayment = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/purchases/${args.purchaseId}/payments/${args.paymentId}`,
   )
-  .parseJson(withRuntype(paymentSchema))
+  .parseJson(withRuntype(paymentSchemaRt))
   .build();
 
 // Operation: getPurchaseDrafts
@@ -3470,7 +3470,7 @@ export const getPurchaseDrafts = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'page', 'pageSize')),
   )
-  .parseJson(withRuntype(getPurchaseDraftsResponseBody))
+  .parseJson(withRuntype(getPurchaseDraftsResponseBodyRt))
   .build();
 
 // Operation: createPurchaseDraft
@@ -3508,7 +3508,7 @@ export const getPurchaseDraft = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/purchases/drafts/${args.draftId}`,
   )
-  .parseJson(withRuntype(draftResultSchema))
+  .parseJson(withRuntype(draftResultSchemaRt))
   .build();
 
 // Operation: updatePurchaseDraft
@@ -3576,7 +3576,7 @@ export const getPurchaseDraftAttachments = buildCall() //
     (args) =>
       `/companies/${args.companySlug}/purchases/drafts/${args.draftId}/attachments`,
   )
-  .parseJson(withRuntype(getPurchaseDraftAttachmentsResponseBody))
+  .parseJson(withRuntype(getPurchaseDraftAttachmentsResponseBodyRt))
   .build();
 
 // Operation: addAttachmentToPurchaseDraft
@@ -3663,7 +3663,7 @@ export const getInbox = buildCall() //
         pickQueryValues(args, 'page', 'pageSize', 'sortBy', 'status', 'name'),
       ),
   )
-  .parseJson(withRuntype(getInboxResponseBody))
+  .parseJson(withRuntype(getInboxResponseBodyRt))
   .build();
 
 // Operation: createInboxDocument
@@ -3700,7 +3700,7 @@ export const getInboxDocument = buildCall() //
   .path(
     (args) => `/companies/${args.companySlug}/inbox/${args.inboxDocumentId}`,
   )
-  .parseJson(withRuntype(inboxResultSchema))
+  .parseJson(withRuntype(inboxResultSchemaRt))
   .build();
 
 // Operation: getProjects
@@ -3730,7 +3730,7 @@ export const getProjects = buildCall() //
         pickQueryValues(args, 'page', 'pageSize', 'completed'),
       ),
   )
-  .parseJson(withRuntype(getProjectsResponseBody))
+  .parseJson(withRuntype(getProjectsResponseBodyRt))
   .build();
 
 // Operation: createProject
@@ -3766,7 +3766,7 @@ export const getProject = buildCall() //
   .args<rt.Static<typeof getProjectArgsRt>>()
   .method('get')
   .path((args) => `/companies/${args.companySlug}/projects/${args.projectId}`)
-  .parseJson(withRuntype(projectResultSchema))
+  .parseJson(withRuntype(projectResultSchemaRt))
   .build();
 
 // Operation: deleteProject

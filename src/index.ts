@@ -160,10 +160,14 @@ function generateOperationSource(api: ApiData, operation: Operation) {
   }
 
   if (typeof jsonResponseBodyRuntype === 'string') {
-    builderParts.push(`.parseJson(withRuntype(${jsonResponseBodyRuntype}))`);
+    builderParts.push(
+      `.parseJson(withRuntype(${formatRuntypeName(jsonResponseBodyRuntype)}))`,
+    );
   } else if (jsonResponseBodyRuntype != null) {
     builderParts.push(
-      `.parseJson(withRuntype(${jsonResponseBodyRuntype.name}))`,
+      `.parseJson(withRuntype(${formatRuntypeName(
+        jsonResponseBodyRuntype.name,
+      )}))`,
     );
   }
 
