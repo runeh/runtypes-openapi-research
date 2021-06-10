@@ -7,7 +7,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "generate": "node ./dist/index.js"
   },
   "devDependencies": {
     "@tsconfig/node12": "^1.0.8",
