@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 import { RootType, generateRuntypes } from 'generate-runtypes';
 import { format, resolveConfig } from 'prettier';
@@ -241,8 +241,7 @@ function generateApiSource(api: ApiData) {
     `;
 }
 
-async function main1() {
-  // const definitionPath = resolve(__dirname, '../resources/tripletex.json');
+async function generateFiken() {
   const definitionPath = resolve(__dirname, '../resources/fiken.yaml');
   const raw = await readFile(definitionPath, 'utf-8');
   const parsed = await parse(raw);
@@ -257,10 +256,11 @@ async function main1() {
   const prettierConfig = await resolveConfig('./lol.ts');
   const formatted = format(source, prettierConfig ?? undefined);
 
-  console.log(formatted);
+  const dst = resolve(__dirname, '../generated/fiken.ts');
+  await writeFile(dst, formatted);
 }
 
-async function main2() {
+async function generateTripletex() {
   const definitionPath = resolve(__dirname, '../resources/tripletex.json');
   const raw = await readFile(definitionPath, 'utf-8');
   const parsed = await parse(raw);
@@ -271,10 +271,12 @@ async function main2() {
   const source = generateApiSource(apiData);
   const prettierConfig = await resolveConfig('./lol.ts');
   const formatted = format(source, prettierConfig ?? undefined);
-  console.log(formatted);
+
+  const dst = resolve(__dirname, '../generated/tripletex.ts');
+  await writeFile(dst, formatted);
 }
 
-async function main3() {
+async function generatePetstore() {
   const definitionPath = resolve(__dirname, '../resources/petstore.json');
   const raw = await readFile(definitionPath, 'utf-8');
   const parsed = await parse(raw);
@@ -285,7 +287,13 @@ async function main3() {
   const source = generateApiSource(apiData);
   const prettierConfig = await resolveConfig('./lol.ts');
   const formatted = format(source, prettierConfig ?? undefined);
-  console.log(formatted);
+
+  const dst = resolve(__dirname, '../generated/petstore.ts');
+  await writeFile(dst, formatted);
 }
 
-main2();
+async function main() {
+  await Promise.all([generatePetstore(), generateFiken(), generateTripletex()]);
+}
+
+main();
