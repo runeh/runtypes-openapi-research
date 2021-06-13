@@ -5,6 +5,7 @@ import { bundle } from 'swagger-parser';
 import invariant from 'ts-invariant';
 import {
   ApiData,
+  ApiResponse,
   Operation,
   Param,
   ParamKind,
@@ -180,6 +181,7 @@ function parseOperation(
     parameters,
     // consumes,
     summary,
+    responses,
   } = operation;
 
   invariant(operationId);
@@ -190,7 +192,7 @@ function parseOperation(
     summary,
     deprecated: deprecated ?? false,
     params: parameters?.map((e) => parseParameter(parameterRefs, e)) ?? [],
-    responses: [],
+    responses: parseResponses(responses),
   };
 
   // if (fileBody) {
@@ -226,47 +228,58 @@ function parseParameter(
   }
 }
 
-// function parseResponses(responses: OpenAPIV2.ResponsesObject): ApiResponse[] {
-//   return Object.entries(responses).map(([status, response]) => {
-//     invariant(isResponseObject(response), 'not a response');
-//     return parseResponse(response, status ? Number(status) : 'default');
-//   });
-// }
+function isResponseObject(thing: unknown): thing is OpenAPIV2.ResponseObject {
+  return typeof thing === 'object' && thing != null && 'description' in thing;
+}
 
-// function parseResponse(
-//   response: OpenAPIV2.ResponseObject,
-//   status: number | 'default',
-// ): ApiResponse {
-//   return {
-//     default: status === 'default',
-//     status: typeof status === 'number' ? status : undefined,
-//     headers: parseHeaders(response.headers),
-//     bodyAlternatives: parseBodies(response.content),
-//   };
-// }
+function parseResponses(responses: OpenAPIV2.ResponsesObject): ApiResponse[] {
+  return Object.entries(responses).map(([key, val]) => {
+    if (isResponseObject(val)) {
+      return parseResponse(val, key);
+    } else {
+      // fixme: deal with refs and "any"
+      throw new Error('halp');
+    }
+  });
+}
 
-// function parseHeaders(
-//   headers:
-//     | Record<string, OpenAPIV2.ReferenceObject | OpenAPIV2.HeaderObject>
-//     | undefined,
-// ): { name: string; type: AnyType }[] {
-//   return Object.entries(headers ?? {})
-//     .map(([name, val]) => {
-//       return isHeaderObject(val)
-//         ? ({ name, type: { kind: 'never' } } as const) // fixme: use schema here
-//         : undefined;
-//     })
-//     .filter(isDefined);
-// }
+function parseResponse(
+  response: OpenAPIV2.ResponseObject,
+  status: string | 'default',
+): ApiResponse {
+  return {
+    default: status === 'default',
+    status: isNaN(Number(status)) ? undefined : Number(status),
+    headers: parseHeaders(response.headers),
+    bodyAlternatives: [parseBody(response)],
+  };
+}
 
-// function parseBodies(
-//   bodies: Record<string, MediaTypeObject> | undefined,
-// ): { mimeType: string; type: AnyType }[] {
-//   return Object.entries(bodies ?? {}).map(([mimeType, val]) => {
-//     invariant(val.schema != null, 'not a schema');
-//     return { mimeType, type: schemaToType(val.schema) };
-//   });
-// }
+function parseHeaders(
+  headers:
+    | Record<string, OpenAPIV2.ReferenceObject | OpenAPIV2.HeaderObject>
+    | undefined,
+): { name: string; type: AnyType }[] {
+  return Object.entries(headers ?? {})
+    .map(([name, val]) => {
+      return isNotReferenceObject(val)
+        ? ({ name, type: { kind: 'never' } } as const) // fixme: use schema here
+        : undefined;
+    })
+    .filter(isDefined);
+}
+
+function parseBody(body: OpenAPIV2.Response): {
+  mimeType: string;
+  type: AnyType;
+} {
+  if (isNotReferenceObject(body) && body.schema) {
+    return { mimeType: 'application/json', type: schemaToType(body.schema) };
+  } else {
+    // fixme: deal with reference types here too!
+    return { mimeType: '', type: { kind: 'never' } };
+  }
+}
 
 export async function parseOpenApi2(doc: OpenAPIV2.Document): Promise<ApiData> {
   const bundledDoc = await bundle(doc, { dereference: { circular: false } });

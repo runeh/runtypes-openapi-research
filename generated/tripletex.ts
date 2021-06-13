@@ -9397,6 +9397,7 @@ export const Activity_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseActivityRt))
   .build();
 
 // Operation: Activity_post
@@ -9475,6 +9476,7 @@ export const ActivityForTimeSheet_getForTimeSheet = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseActivityRt))
   .build();
 
 // Operation: Activity_get
@@ -9493,6 +9495,7 @@ export const Activity_get = buildCall() //
   .method('get')
   .path((args) => `/activity/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperActivityRt))
   .build();
 
 // Operation: DeliveryAddress_get
@@ -9511,6 +9514,7 @@ export const DeliveryAddress_get = buildCall() //
   .method('get')
   .path((args) => `/deliveryAddress/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperDeliveryAddressRt))
   .build();
 
 // Operation: DeliveryAddress_put
@@ -9529,6 +9533,7 @@ export const DeliveryAddress_put = buildCall() //
   .method('put')
   .path((args) => `/deliveryAddress/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperDeliveryAddressRt))
   .build();
 
 // Operation: DeliveryAddress_search
@@ -9575,6 +9580,7 @@ export const DeliveryAddress_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDeliveryAddressRt))
   .build();
 
 // Operation: Asset_search
@@ -9615,6 +9621,7 @@ export const Asset_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseAssetRt))
   .build();
 
 // Operation: Asset_post
@@ -9666,6 +9673,7 @@ export const Asset_get = buildCall() //
   .method('get')
   .path((args) => `/asset/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperAssetRt))
   .build();
 
 // Operation: Asset_put
@@ -9684,6 +9692,7 @@ export const Asset_put = buildCall() //
   .method('put')
   .path((args) => `/asset/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperAssetRt))
   .build();
 
 // Operation: Asset_delete
@@ -9753,6 +9762,7 @@ export const BalanceSheet_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBalanceSheetAccountRt))
   .build();
 
 // Operation: Bank_get
@@ -9771,6 +9781,7 @@ export const Bank_get = buildCall() //
   .method('get')
   .path((args) => `/bank/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperBankRt))
   .build();
 
 // Operation: Bank_search
@@ -9813,6 +9824,7 @@ export const Bank_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBankRt))
   .build();
 
 // Operation: BankReconciliation_search
@@ -9853,6 +9865,7 @@ export const BankReconciliation_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBankReconciliationRt))
   .build();
 
 // Operation: BankReconciliation_post
@@ -9894,6 +9907,7 @@ export const BankReconciliationLastClosed_lastClosed = buildCall() //
         pickQueryValues(args, 'accountId', 'after', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperBankReconciliationRt))
   .build();
 
 // Operation: BankReconciliation_get
@@ -9912,6 +9926,7 @@ export const BankReconciliation_get = buildCall() //
   .method('get')
   .path((args) => `/bank/reconciliation/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperBankReconciliationRt))
   .build();
 
 // Operation: BankReconciliation_put
@@ -9930,6 +9945,7 @@ export const BankReconciliation_put = buildCall() //
   .method('put')
   .path((args) => `/bank/reconciliation/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperBankReconciliationRt))
   .build();
 
 // Operation: BankReconciliation_delete
@@ -9967,6 +9983,7 @@ export const BankReconciliationAdjustment_adjustment = buildCall() //
   .method('put')
   .path((args) => `/bank/reconciliation/${args.id}/:adjustment`)
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseBankReconciliationAdjustmentRt))
   .build();
 
 // Operation: BankReconciliationMatch_search
@@ -10005,6 +10022,7 @@ export const BankReconciliationMatch_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBankReconciliationMatchRt))
   .build();
 
 // Operation: BankReconciliationMatch_post
@@ -10043,6 +10061,7 @@ export const BankReconciliationMatchSuggest_suggest = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'bankReconciliationId')),
   )
+  .parseJson(withRuntype(listResponseBankReconciliationMatchRt))
   .build();
 
 // Operation: BankReconciliationMatch_get
@@ -10061,6 +10080,7 @@ export const BankReconciliationMatch_get = buildCall() //
   .method('get')
   .path((args) => `/bank/reconciliation/match/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperBankReconciliationMatchRt))
   .build();
 
 // Operation: BankReconciliationMatch_put
@@ -10079,6 +10099,7 @@ export const BankReconciliationMatch_put = buildCall() //
   .method('put')
   .path((args) => `/bank/reconciliation/match/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperBankReconciliationMatchRt))
   .build();
 
 // Operation: BankReconciliationMatch_delete
@@ -10113,6 +10134,7 @@ export const BankReconciliationPaymentType_get = buildCall() //
   .method('get')
   .path((args) => `/bank/reconciliation/paymentType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperBankReconciliationPaymentTypeRt))
   .build();
 
 // Operation: BankReconciliationPaymentType_search
@@ -10151,6 +10173,7 @@ export const BankReconciliationPaymentType_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBankReconciliationPaymentTypeRt))
   .build();
 
 // Operation: BankStatementImport_importBankStatement
@@ -10224,6 +10247,7 @@ export const BankStatement_get = buildCall() //
   .method('get')
   .path((args) => `/bank/statement/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperBankStatementRt))
   .build();
 
 // Operation: BankStatement_delete
@@ -10293,6 +10317,7 @@ export const BankStatement_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBankStatementRt))
   .build();
 
 // Operation: BankStatementTransactionDetails_getDetails
@@ -10311,6 +10336,7 @@ export const BankStatementTransactionDetails_getDetails = buildCall() //
   .method('get')
   .path((args) => `/bank/statement/transaction/${args.id}/details`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperObjectRt))
   .build();
 
 // Operation: BankStatementTransaction_get
@@ -10329,6 +10355,7 @@ export const BankStatementTransaction_get = buildCall() //
   .method('get')
   .path((args) => `/bank/statement/transaction/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperBankTransactionRt))
   .build();
 
 // Operation: BankStatementTransaction_search
@@ -10367,6 +10394,7 @@ export const BankStatementTransaction_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseBankTransactionRt))
   .build();
 
 // Operation: TokenConsumerByToken_getByToken
@@ -10387,6 +10415,7 @@ export const TokenConsumerByToken_getByToken = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'token', 'fields')),
   )
+  .parseJson(withRuntype(responseWrapperConsumerTokenRt))
   .build();
 
 // Operation: TokenEmployeeCreate_create
@@ -10422,6 +10451,7 @@ export const TokenEmployeeCreate_create = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(responseWrapperEmployeeTokenRt))
   .build();
 
 // Operation: TokenSessionWhoAmI_whoAmI
@@ -10440,6 +10470,7 @@ export const TokenSessionWhoAmI_whoAmI = buildCall() //
   .method('get')
   .path('/token/session/>whoAmI')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperLoggedInUserInfoDTORt))
   .build();
 
 // Operation: TokenSession_delete
@@ -10485,6 +10516,7 @@ export const TokenSessionCreate_create = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(responseWrapperSessionTokenRt))
   .build();
 
 // Operation: CompanyWithLoginAccess_getWithLoginAccess
@@ -10513,6 +10545,7 @@ export const CompanyWithLoginAccess_getWithLoginAccess = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseCompanyRt))
   .build();
 
 // Operation: CompanyDivisions_getDivisions
@@ -10541,6 +10574,7 @@ export const CompanyDivisions_getDivisions = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseCompanyRt))
   .build();
 
 // Operation: Company_get
@@ -10559,6 +10593,7 @@ export const Company_get = buildCall() //
   .method('get')
   .path((args) => `/company/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCompanyRt))
   .build();
 
 // Operation: Company_put
@@ -10577,6 +10612,7 @@ export const Company_put = buildCall() //
   .method('put')
   .path('/company')
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperCompanyRt))
   .build();
 
 // Operation: CompanySettingsAltinn_search
@@ -10595,6 +10631,7 @@ export const CompanySettingsAltinn_search = buildCall() //
   .method('get')
   .path('/company/settings/altinn')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperAltinnCompanyModuleRt))
   .build();
 
 // Operation: CompanySettingsAltinn_put
@@ -10613,6 +10650,7 @@ export const CompanySettingsAltinn_put = buildCall() //
   .method('put')
   .path('/company/settings/altinn')
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperAltinnCompanyModuleRt))
   .build();
 
 // Operation: CompanySalesmodules_get
@@ -10641,6 +10679,7 @@ export const CompanySalesmodules_get = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseSalesModuleDTORt))
   .build();
 
 // Operation: CompanySalesmodules_post
@@ -10705,6 +10744,7 @@ export const Contact_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseContactRt))
   .build();
 
 // Operation: Contact_post
@@ -10741,6 +10781,7 @@ export const Contact_get = buildCall() //
   .method('get')
   .path((args) => `/contact/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperContactRt))
   .build();
 
 // Operation: Contact_put
@@ -10759,6 +10800,7 @@ export const Contact_put = buildCall() //
   .method('put')
   .path((args) => `/contact/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperContactRt))
   .build();
 
 // Operation: Country_get
@@ -10777,6 +10819,7 @@ export const Country_get = buildCall() //
   .method('get')
   .path((args) => `/country/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCountryRt))
   .build();
 
 // Operation: Country_search
@@ -10815,6 +10858,7 @@ export const Country_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseCountryRt))
   .build();
 
 // Operation: Currency_get
@@ -10833,6 +10877,7 @@ export const Currency_get = buildCall() //
   .method('get')
   .path((args) => `/currency/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCurrencyRt))
   .build();
 
 // Operation: Currency_search
@@ -10871,6 +10916,7 @@ export const Currency_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseCurrencyRt))
   .build();
 
 // Operation: CurrencyRate_getRate
@@ -10889,6 +10935,7 @@ export const CurrencyRate_getRate = buildCall() //
   .method('get')
   .path((args) => `/currency/${args.id}/rate`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'date', 'fields')))
+  .parseJson(withRuntype(responseWrapperCurrencyExchangeRateRt))
   .build();
 
 // Operation: Customer_search
@@ -10937,6 +10984,7 @@ export const Customer_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseCustomerRt))
   .build();
 
 // Operation: Customer_post
@@ -10973,6 +11021,7 @@ export const CustomerList_putList = buildCall() //
   .method('put')
   .path('/customer/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseCustomerRt))
   .build();
 
 // Operation: CustomerList_postList
@@ -11009,6 +11058,7 @@ export const Customer_get = buildCall() //
   .method('get')
   .path((args) => `/customer/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCustomerRt))
   .build();
 
 // Operation: Customer_put
@@ -11027,6 +11077,7 @@ export const Customer_put = buildCall() //
   .method('put')
   .path((args) => `/customer/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperCustomerRt))
   .build();
 
 // Operation: Customer_delete
@@ -11085,6 +11136,7 @@ export const CustomerCategory_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseCustomerCategoryRt))
   .build();
 
 // Operation: CustomerCategory_post
@@ -11121,6 +11173,7 @@ export const CustomerCategory_get = buildCall() //
   .method('get')
   .path((args) => `/customer/category/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCustomerCategoryRt))
   .build();
 
 // Operation: CustomerCategory_put
@@ -11139,6 +11192,7 @@ export const CustomerCategory_put = buildCall() //
   .method('put')
   .path((args) => `/customer/category/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperCustomerCategoryRt))
   .build();
 
 // Operation: Department_search
@@ -11181,6 +11235,7 @@ export const Department_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDepartmentRt))
   .build();
 
 // Operation: Department_post
@@ -11217,6 +11272,7 @@ export const DepartmentList_putList = buildCall() //
   .method('put')
   .path('/department/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseDepartmentRt))
   .build();
 
 // Operation: DepartmentList_postList
@@ -11253,6 +11309,7 @@ export const Department_get = buildCall() //
   .method('get')
   .path((args) => `/department/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperDepartmentRt))
   .build();
 
 // Operation: Department_put
@@ -11271,6 +11328,7 @@ export const Department_put = buildCall() //
   .method('put')
   .path((args) => `/department/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperDepartmentRt))
   .build();
 
 // Operation: Department_delete
@@ -11313,6 +11371,7 @@ export const Division_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseDivisionRt))
   .build();
 
 // Operation: Division_post
@@ -11349,6 +11408,7 @@ export const DivisionList_putList = buildCall() //
   .method('put')
   .path('/division/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseDivisionRt))
   .build();
 
 // Operation: DivisionList_postList
@@ -11385,6 +11445,7 @@ export const Division_put = buildCall() //
   .method('put')
   .path((args) => `/division/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperDivisionRt))
   .build();
 
 // Operation: DocumentContent_downloadContent
@@ -11392,6 +11453,8 @@ export const Division_put = buildCall() //
 const documentContent_downloadContentArgsRt = rt
   .Record({ id: rt.Number })
   .asReadonly();
+
+const documentContent_downloadContentResponseBodyRt = rt.String;
 
 /**
  * operation ID: DocumentContent_downloadContent
@@ -11401,6 +11464,7 @@ export const DocumentContent_downloadContent = buildCall() //
   .args<rt.Static<typeof documentContent_downloadContentArgsRt>>()
   .method('get')
   .path((args) => `/document/${args.id}/content`)
+  .parseJson(withRuntype(documentContent_downloadContentResponseBodyRt))
   .build();
 
 // Operation: Document_get
@@ -11419,6 +11483,7 @@ export const Document_get = buildCall() //
   .method('get')
   .path((args) => `/document/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperDocumentRt))
   .build();
 
 // Operation: DocumentArchiveReception_receptionPost
@@ -11476,6 +11541,7 @@ export const DocumentArchiveCustomer_getCustomer = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveCustomer_customerPost
@@ -11533,6 +11599,7 @@ export const DocumentArchiveProject_getProject = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveProject_projectPost
@@ -11590,6 +11657,7 @@ export const DocumentArchiveSupplier_getSupplier = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveSupplier_supplierPost
@@ -11647,6 +11715,7 @@ export const DocumentArchiveEmployee_getEmployee = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveEmployee_employeePost
@@ -11704,6 +11773,7 @@ export const DocumentArchiveProduct_getProduct = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveProduct_productPost
@@ -11761,6 +11831,7 @@ export const DocumentArchiveAccount_getAccount = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveAccount_accountPost
@@ -11818,6 +11889,7 @@ export const DocumentArchiveProspect_getProspect = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchiveProspect_prospectPost
@@ -11852,6 +11924,7 @@ export const DocumentArchive_put = buildCall() //
   .method('put')
   .path((args) => `/documentArchive/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperDocumentArchiveRt))
   .build();
 
 // Operation: DocumentArchive_delete
@@ -11924,6 +11997,7 @@ export const Employee_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseEmployeeRt))
   .build();
 
 // Operation: Employee_post
@@ -11978,6 +12052,7 @@ export const Employee_get = buildCall() //
   .method('get')
   .path((args) => `/employee/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperEmployeeRt))
   .build();
 
 // Operation: Employee_put
@@ -11996,6 +12071,7 @@ export const Employee_put = buildCall() //
   .method('put')
   .path((args) => `/employee/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperEmployeeRt))
   .build();
 
 // Operation: EmployeeCategory_search
@@ -12036,6 +12112,7 @@ export const EmployeeCategory_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseEmployeeCategoryRt))
   .build();
 
 // Operation: EmployeeCategory_post
@@ -12072,6 +12149,7 @@ export const EmployeeCategoryList_putList = buildCall() //
   .method('put')
   .path('/employee/category/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseEmployeeCategoryRt))
   .build();
 
 // Operation: EmployeeCategoryList_postList
@@ -12125,6 +12203,7 @@ export const EmployeeCategory_get = buildCall() //
   .method('get')
   .path((args) => `/employee/category/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperEmployeeCategoryRt))
   .build();
 
 // Operation: EmployeeCategory_put
@@ -12143,6 +12222,7 @@ export const EmployeeCategory_put = buildCall() //
   .method('put')
   .path((args) => `/employee/category/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperEmployeeCategoryRt))
   .build();
 
 // Operation: EmployeeCategory_delete
@@ -12193,6 +12273,7 @@ export const EmployeeEmployment_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseEmploymentRt))
   .build();
 
 // Operation: EmployeeEmployment_post
@@ -12229,6 +12310,7 @@ export const EmployeeEmployment_get = buildCall() //
   .method('get')
   .path((args) => `/employee/employment/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperEmploymentRt))
   .build();
 
 // Operation: EmployeeEmployment_put
@@ -12247,6 +12329,7 @@ export const EmployeeEmployment_put = buildCall() //
   .method('put')
   .path((args) => `/employee/employment/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperEmploymentRt))
   .build();
 
 // Operation: EmployeeEmploymentDetails_search
@@ -12283,6 +12366,7 @@ export const EmployeeEmploymentDetails_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseEmploymentDetailsRt))
   .build();
 
 // Operation: EmployeeEmploymentDetails_post
@@ -12319,6 +12403,7 @@ export const EmployeeEmploymentDetails_get = buildCall() //
   .method('get')
   .path((args) => `/employee/employment/details/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperEmploymentDetailsRt))
   .build();
 
 // Operation: EmployeeEmploymentDetails_put
@@ -12337,6 +12422,7 @@ export const EmployeeEmploymentDetails_put = buildCall() //
   .method('put')
   .path((args) => `/employee/employment/details/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperEmploymentDetailsRt))
   .build();
 
 // Operation: EmployeeEmploymentEmploymentTypeMaritimeEmploymentType_getMaritimeEmploymentType
@@ -12384,6 +12470,7 @@ export const EmployeeEmploymentEmploymentTypeMaritimeEmploymentType_getMaritimeE
           pickQueryValues(args, 'type', 'from', 'count', 'sorting', 'fields'),
         ),
     )
+    .parseJson(withRuntype(listResponseEmploymentTypeRt))
     .build();
 
 // Operation: EmployeeEmploymentEmploymentTypeSalaryType_getSalaryType
@@ -12418,6 +12505,7 @@ export const EmployeeEmploymentEmploymentTypeSalaryType_getSalaryType =
           pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
         ),
     )
+    .parseJson(withRuntype(listResponseEmploymentTypeRt))
     .build();
 
 // Operation: EmployeeEmploymentEmploymentTypeScheduleType_getScheduleType
@@ -12452,6 +12540,7 @@ export const EmployeeEmploymentEmploymentTypeScheduleType_getScheduleType =
           pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
         ),
     )
+    .parseJson(withRuntype(listResponseEmploymentTypeRt))
     .build();
 
 // Operation: EmployeeEmploymentEmploymentTypeEmploymentFormType_getEmploymentFormType
@@ -12488,6 +12577,7 @@ export const EmployeeEmploymentEmploymentTypeEmploymentFormType_getEmploymentFor
           pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
         ),
     )
+    .parseJson(withRuntype(listResponseEmploymentTypeRt))
     .build();
 
 // Operation: EmployeeEmploymentEmploymentTypeEmploymentEndReasonType_getEmploymentEndReasonType
@@ -12524,6 +12614,7 @@ export const EmployeeEmploymentEmploymentTypeEmploymentEndReasonType_getEmployme
           pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
         ),
     )
+    .parseJson(withRuntype(listResponseEmploymentTypeRt))
     .build();
 
 // Operation: EmployeeEmploymentEmploymentType_search
@@ -12552,6 +12643,7 @@ export const EmployeeEmploymentEmploymentType_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseEmploymentTypeRt))
   .build();
 
 // Operation: EmployeeEmploymentLeaveOfAbsence_post
@@ -12606,6 +12698,7 @@ export const EmployeeEmploymentLeaveOfAbsence_get = buildCall() //
   .method('get')
   .path((args) => `/employee/employment/leaveOfAbsence/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperLeaveOfAbsenceRt))
   .build();
 
 // Operation: EmployeeEmploymentLeaveOfAbsence_put
@@ -12624,6 +12717,7 @@ export const EmployeeEmploymentLeaveOfAbsence_put = buildCall() //
   .method('put')
   .path((args) => `/employee/employment/leaveOfAbsence/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperLeaveOfAbsenceRt))
   .build();
 
 // Operation: EmployeeEmploymentLeaveOfAbsenceType_search
@@ -12652,6 +12746,7 @@ export const EmployeeEmploymentLeaveOfAbsenceType_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseLeaveOfAbsenceTypeRt))
   .build();
 
 // Operation: EmployeeEmploymentOccupationCode_search
@@ -12690,6 +12785,7 @@ export const EmployeeEmploymentOccupationCode_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseOccupationCodeRt))
   .build();
 
 // Operation: EmployeeEmploymentRemunerationType_search
@@ -12718,6 +12814,7 @@ export const EmployeeEmploymentRemunerationType_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseRemunerationTypeRt))
   .build();
 
 // Operation: EmployeeEmploymentWorkingHoursScheme_search
@@ -12746,6 +12843,7 @@ export const EmployeeEmploymentWorkingHoursScheme_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseWorkingHoursSchemeRt))
   .build();
 
 // Operation: EmployeeHourlyCostAndRate_search
@@ -12782,6 +12880,7 @@ export const EmployeeHourlyCostAndRate_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseHourlyCostAndRateRt))
   .build();
 
 // Operation: EmployeeHourlyCostAndRate_post
@@ -12818,6 +12917,7 @@ export const EmployeeHourlyCostAndRate_get = buildCall() //
   .method('get')
   .path((args) => `/employee/hourlyCostAndRate/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperHourlyCostAndRateRt))
   .build();
 
 // Operation: EmployeeHourlyCostAndRate_put
@@ -12836,6 +12936,7 @@ export const EmployeeHourlyCostAndRate_put = buildCall() //
   .method('put')
   .path((args) => `/employee/hourlyCostAndRate/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperHourlyCostAndRateRt))
   .build();
 
 // Operation: EmployeeNextOfKin_search
@@ -12872,6 +12973,7 @@ export const EmployeeNextOfKin_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseNextOfKinRt))
   .build();
 
 // Operation: EmployeeNextOfKin_post
@@ -12908,6 +13010,7 @@ export const EmployeeNextOfKin_get = buildCall() //
   .method('get')
   .path((args) => `/employee/nextOfKin/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperNextOfKinRt))
   .build();
 
 // Operation: EmployeeNextOfKin_put
@@ -12926,6 +13029,7 @@ export const EmployeeNextOfKin_put = buildCall() //
   .method('put')
   .path((args) => `/employee/nextOfKin/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperNextOfKinRt))
   .build();
 
 // Operation: EmployeeStandardTime_search
@@ -12962,6 +13066,7 @@ export const EmployeeStandardTime_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseStandardTimeRt))
   .build();
 
 // Operation: EmployeeStandardTime_post
@@ -12998,6 +13103,7 @@ export const EmployeeStandardTime_get = buildCall() //
   .method('get')
   .path((args) => `/employee/standardTime/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperStandardTimeRt))
   .build();
 
 // Operation: EmployeeStandardTime_put
@@ -13016,6 +13122,7 @@ export const EmployeeStandardTime_put = buildCall() //
   .method('put')
   .path((args) => `/employee/standardTime/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperStandardTimeRt))
   .build();
 
 // Operation: EmployeeEntitlement_search
@@ -13052,6 +13159,7 @@ export const EmployeeEntitlement_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseEntitlementRt))
   .build();
 
 // Operation: EmployeeEntitlementGrantClientEntitlementsByTemplate_grantClientEntitlementsByTemplate
@@ -13190,6 +13298,7 @@ export const EmployeeEntitlementClient_client = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseEntitlementRt))
   .build();
 
 // Operation: EmployeeEntitlement_get
@@ -13208,6 +13317,7 @@ export const EmployeeEntitlement_get = buildCall() //
   .method('get')
   .path((args) => `/employee/entitlement/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperEntitlementRt))
   .build();
 
 // Operation: Event_example
@@ -13226,6 +13336,7 @@ export const Event_example = buildCall() //
   .method('get')
   .path((args) => `/event/${args.eventType}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperEventInfoDTORt))
   .build();
 
 // Operation: Event_get
@@ -13244,6 +13355,7 @@ export const Event_get = buildCall() //
   .method('get')
   .path('/event')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperMapStringEventInfoDescriptionRt))
   .build();
 
 // Operation: EventSubscription_search
@@ -13272,6 +13384,7 @@ export const EventSubscription_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseSubscriptionRt))
   .build();
 
 // Operation: EventSubscription_post
@@ -13308,6 +13421,7 @@ export const EventSubscriptionList_putList = buildCall() //
   .method('put')
   .path('/event/subscription/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseSubscriptionRt))
   .build();
 
 // Operation: EventSubscriptionList_postList
@@ -13361,6 +13475,7 @@ export const EventSubscription_get = buildCall() //
   .method('get')
   .path((args) => `/event/subscription/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSubscriptionRt))
   .build();
 
 // Operation: EventSubscription_put
@@ -13379,6 +13494,7 @@ export const EventSubscription_put = buildCall() //
   .method('put')
   .path((args) => `/event/subscription/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperSubscriptionRt))
   .build();
 
 // Operation: EventSubscription_delete
@@ -13437,6 +13553,7 @@ export const Inventory_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseInventoryRt))
   .build();
 
 // Operation: Inventory_post
@@ -13473,6 +13590,7 @@ export const Inventory_get = buildCall() //
   .method('get')
   .path((args) => `/inventory/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperInventoryRt))
   .build();
 
 // Operation: Inventory_put
@@ -13491,6 +13609,7 @@ export const Inventory_put = buildCall() //
   .method('put')
   .path((args) => `/inventory/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperInventoryRt))
   .build();
 
 // Operation: Inventory_delete
@@ -13546,6 +13665,7 @@ export const InventoryInventories_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseInventoriesRt))
   .build();
 
 // Operation: InventoryLocation_search
@@ -13586,6 +13706,7 @@ export const InventoryLocation_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseInventoryLocationRt))
   .build();
 
 // Operation: InventoryLocation_post
@@ -13622,6 +13743,7 @@ export const InventoryLocationList_putList = buildCall() //
   .method('put')
   .path('/inventory/location/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseInventoryLocationRt))
   .build();
 
 // Operation: InventoryLocationList_postList
@@ -13658,6 +13780,7 @@ export const InventoryLocation_get = buildCall() //
   .method('get')
   .path((args) => `/inventory/location/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperInventoryLocationRt))
   .build();
 
 // Operation: InventoryLocation_put
@@ -13676,6 +13799,7 @@ export const InventoryLocation_put = buildCall() //
   .method('put')
   .path((args) => `/inventory/location/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperInventoryLocationRt))
   .build();
 
 // Operation: InventoryLocation_delete
@@ -13732,6 +13856,7 @@ export const InventoryStocktaking_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseStocktakingRt))
   .build();
 
 // Operation: InventoryStocktaking_post
@@ -13778,6 +13903,7 @@ export const InventoryStocktaking_get = buildCall() //
   .method('get')
   .path((args) => `/inventory/stocktaking/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperStocktakingRt))
   .build();
 
 // Operation: InventoryStocktaking_put
@@ -13796,6 +13922,7 @@ export const InventoryStocktaking_put = buildCall() //
   .method('put')
   .path((args) => `/inventory/stocktaking/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperStocktakingRt))
   .build();
 
 // Operation: InventoryStocktaking_delete
@@ -13850,6 +13977,7 @@ export const InventoryStocktakingProductline_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductLineRt))
   .build();
 
 // Operation: InventoryStocktakingProductline_post
@@ -13886,6 +14014,7 @@ export const InventoryStocktakingProductline_get = buildCall() //
   .method('get')
   .path((args) => `/inventory/stocktaking/productline/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductLineRt))
   .build();
 
 // Operation: InventoryStocktakingProductline_put
@@ -13904,6 +14033,7 @@ export const InventoryStocktakingProductline_put = buildCall() //
   .method('put')
   .path((args) => `/inventory/stocktaking/productline/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProductLineRt))
   .build();
 
 // Operation: InventoryStocktakingProductline_delete
@@ -13971,6 +14101,7 @@ export const Invoice_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseInvoiceRt))
   .build();
 
 // Operation: Invoice_post
@@ -14027,6 +14158,8 @@ const invoicePdf_downloadPdfArgsRt = rt
   .Record({ invoiceId: rt.Number })
   .asReadonly();
 
+const invoicePdf_downloadPdfResponseBodyRt = rt.String;
+
 /**
  * operation ID: InvoicePdf_downloadPdf
  * `GET: /invoice/{invoiceId}/pdf`
@@ -14035,6 +14168,7 @@ export const InvoicePdf_downloadPdf = buildCall() //
   .args<rt.Static<typeof invoicePdf_downloadPdfArgsRt>>()
   .method('get')
   .path((args) => `/invoice/${args.invoiceId}/pdf`)
+  .parseJson(withRuntype(invoicePdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: InvoiceSend_send
@@ -14105,6 +14239,7 @@ export const InvoicePayment_payment = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(responseWrapperInvoiceRt))
   .build();
 
 // Operation: InvoiceCreateCreditNote_createCreditNote
@@ -14131,6 +14266,7 @@ export const InvoiceCreateCreditNote_createCreditNote = buildCall() //
         pickQueryValues(args, 'date', 'comment', 'creditNoteEmail'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperInvoiceRt))
   .build();
 
 // Operation: InvoiceCreateReminder_createReminder
@@ -14203,6 +14339,7 @@ export const Invoice_get = buildCall() //
   .method('get')
   .path((args) => `/invoice/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperInvoiceRt))
   .build();
 
 // Operation: InvoicePaymentType_get
@@ -14221,6 +14358,7 @@ export const InvoicePaymentType_get = buildCall() //
   .method('get')
   .path((args) => `/invoice/paymentType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPaymentTypeRt))
   .build();
 
 // Operation: InvoicePaymentType_search
@@ -14259,6 +14397,7 @@ export const InvoicePaymentType_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePaymentTypeRt))
   .build();
 
 // Operation: InvoiceDetails_get
@@ -14277,6 +14416,7 @@ export const InvoiceDetails_get = buildCall() //
   .method('get')
   .path((args) => `/invoice/details/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectInvoiceDetailsRt))
   .build();
 
 // Operation: InvoiceDetails_search
@@ -14320,6 +14460,7 @@ export const InvoiceDetails_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectInvoiceDetailsRt))
   .build();
 
 // Operation: LedgerOpenPost_openPost
@@ -14372,6 +14513,7 @@ export const LedgerOpenPost_openPost = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseLedgerAccountRt))
   .build();
 
 // Operation: Ledger_search
@@ -14427,6 +14569,7 @@ export const Ledger_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseLedgerAccountRt))
   .build();
 
 // Operation: LedgerAccount_search
@@ -14479,6 +14622,7 @@ export const LedgerAccount_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseAccountRt))
   .build();
 
 // Operation: LedgerAccount_post
@@ -14515,6 +14659,7 @@ export const LedgerAccountList_putList = buildCall() //
   .method('put')
   .path('/ledger/account/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseAccountRt))
   .build();
 
 // Operation: LedgerAccountList_postList
@@ -14568,6 +14713,7 @@ export const LedgerAccount_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/account/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperAccountRt))
   .build();
 
 // Operation: LedgerAccount_put
@@ -14586,6 +14732,7 @@ export const LedgerAccount_put = buildCall() //
   .method('put')
   .path((args) => `/ledger/account/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperAccountRt))
   .build();
 
 // Operation: LedgerAccount_delete
@@ -14618,6 +14765,7 @@ export const LedgerAccountingPeriod_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/accountingPeriod/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperAccountingPeriodRt))
   .build();
 
 // Operation: LedgerAccountingPeriod_search
@@ -14666,6 +14814,7 @@ export const LedgerAccountingPeriod_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseAccountingPeriodRt))
   .build();
 
 // Operation: LedgerAnnualAccount_get
@@ -14684,6 +14833,7 @@ export const LedgerAnnualAccount_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/annualAccount/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperAnnualAccountRt))
   .build();
 
 // Operation: LedgerAnnualAccount_search
@@ -14724,6 +14874,7 @@ export const LedgerAnnualAccount_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseAnnualAccountRt))
   .build();
 
 // Operation: LedgerCloseGroup_get
@@ -14742,6 +14893,7 @@ export const LedgerCloseGroup_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/closeGroup/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCloseGroupRt))
   .build();
 
 // Operation: LedgerCloseGroup_search
@@ -14783,6 +14935,7 @@ export const LedgerCloseGroup_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseCloseGroupRt))
   .build();
 
 // Operation: LedgerPaymentTypeOut_search
@@ -14828,6 +14981,7 @@ export const LedgerPaymentTypeOut_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePaymentTypeOutRt))
   .build();
 
 // Operation: LedgerPaymentTypeOut_post
@@ -14864,6 +15018,7 @@ export const LedgerPaymentTypeOutList_putList = buildCall() //
   .method('put')
   .path('/ledger/paymentTypeOut/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponsePaymentTypeOutRt))
   .build();
 
 // Operation: LedgerPaymentTypeOutList_postList
@@ -14900,6 +15055,7 @@ export const LedgerPaymentTypeOut_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/paymentTypeOut/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPaymentTypeOutRt))
   .build();
 
 // Operation: LedgerPaymentTypeOut_put
@@ -14918,6 +15074,7 @@ export const LedgerPaymentTypeOut_put = buildCall() //
   .method('put')
   .path((args) => `/ledger/paymentTypeOut/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperPaymentTypeOutRt))
   .build();
 
 // Operation: LedgerPaymentTypeOut_delete
@@ -14986,6 +15143,7 @@ export const LedgerPostingOpenPost_openPost = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePostingRt))
   .build();
 
 // Operation: LedgerPosting_get
@@ -15004,6 +15162,7 @@ export const LedgerPosting_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/posting/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPostingRt))
   .build();
 
 // Operation: LedgerPosting_search
@@ -15066,6 +15225,7 @@ export const LedgerPosting_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePostingRt))
   .build();
 
 // Operation: LedgerVatType_get
@@ -15084,6 +15244,7 @@ export const LedgerVatType_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/vatType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperVatTypeRt))
   .build();
 
 // Operation: LedgerVatType_search
@@ -15126,6 +15287,7 @@ export const LedgerVatType_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseVatTypeRt))
   .build();
 
 // Operation: LedgerVoucher_search
@@ -15175,6 +15337,7 @@ export const LedgerVoucher_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(voucherSearchResponseRt))
   .build();
 
 // Operation: LedgerVoucher_post
@@ -15213,6 +15376,7 @@ export const LedgerVoucherList_putList = buildCall() //
   .path('/ledger/voucher/list')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'sendToLedger')))
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseVoucherRt))
   .build();
 
 // Operation: LedgerVoucherSendToLedger_sendToLedger
@@ -15233,6 +15397,7 @@ export const LedgerVoucherSendToLedger_sendToLedger = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'version', 'number')),
   )
+  .parseJson(withRuntype(responseWrapperVoucherRt))
   .build();
 
 // Operation: LedgerVoucherImportDocument_importDocument
@@ -15298,6 +15463,7 @@ export const LedgerVoucherNonPosted_nonPosted = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseVoucherRt))
   .build();
 
 // Operation: LedgerVoucherVoucherReception_voucherReception
@@ -15340,6 +15506,7 @@ export const LedgerVoucherVoucherReception_voucherReception = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseVoucherRt))
   .build();
 
 // Operation: LedgerVoucherPdf_downloadPdf
@@ -15347,6 +15514,8 @@ export const LedgerVoucherVoucherReception_voucherReception = buildCall() //
 const ledgerVoucherPdf_downloadPdfArgsRt = rt
   .Record({ voucherId: rt.Number })
   .asReadonly();
+
+const ledgerVoucherPdf_downloadPdfResponseBodyRt = rt.String;
 
 /**
  * operation ID: LedgerVoucherPdf_downloadPdf
@@ -15356,6 +15525,7 @@ export const LedgerVoucherPdf_downloadPdf = buildCall() //
   .args<rt.Static<typeof ledgerVoucherPdf_downloadPdfArgsRt>>()
   .method('get')
   .path((args) => `/ledger/voucher/${args.voucherId}/pdf`)
+  .parseJson(withRuntype(ledgerVoucherPdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: LedgerVoucherPdf_uploadPdf
@@ -15437,6 +15607,7 @@ export const LedgerVoucherSendToInbox_sendToInbox = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'version', 'comment')),
   )
+  .parseJson(withRuntype(responseWrapperVoucherRt))
   .build();
 
 // Operation: LedgerVoucherImportGbat10_importGbat10
@@ -15472,6 +15643,7 @@ export const LedgerVoucher_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/voucher/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperVoucherRt))
   .build();
 
 // Operation: LedgerVoucher_put
@@ -15494,6 +15666,7 @@ export const LedgerVoucher_put = buildCall() //
   .path((args) => `/ledger/voucher/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'sendToLedger')))
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperVoucherRt))
   .build();
 
 // Operation: LedgerVoucher_delete
@@ -15525,6 +15698,7 @@ export const LedgerVoucherReverse_reverse = buildCall() //
   .method('put')
   .path((args) => `/ledger/voucher/${args.id}/:reverse`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'date')))
+  .parseJson(withRuntype(responseWrapperVoucherRt))
   .build();
 
 // Operation: LedgerVoucherOptions_options
@@ -15543,6 +15717,7 @@ export const LedgerVoucherOptions_options = buildCall() //
   .method('get')
   .path((args) => `/ledger/voucher/${args.id}/options`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperVoucherOptionsRt))
   .build();
 
 // Operation: LedgerVoucherType_get
@@ -15561,6 +15736,7 @@ export const LedgerVoucherType_get = buildCall() //
   .method('get')
   .path((args) => `/ledger/voucherType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperVoucherTypeRt))
   .build();
 
 // Operation: LedgerVoucherType_search
@@ -15590,6 +15766,7 @@ export const LedgerVoucherType_search = buildCall() //
         pickQueryValues(args, 'name', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseVoucherTypeRt))
   .build();
 
 // Operation: Municipality_search
@@ -15626,6 +15803,7 @@ export const Municipality_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseMunicipalityRt))
   .build();
 
 // Operation: Order_search
@@ -15675,6 +15853,7 @@ export const Order_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseOrderRt))
   .build();
 
 // Operation: Order_post
@@ -15744,6 +15923,7 @@ export const OrderInvoice_invoice = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(responseWrapperInvoiceRt))
   .build();
 
 // Operation: OrderInvoiceMultipleOrders_invoiceMultipleOrders
@@ -15766,6 +15946,7 @@ export const OrderInvoiceMultipleOrders_invoiceMultipleOrders = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'id', 'invoiceDate')),
   )
+  .parseJson(withRuntype(responseWrapperInvoiceRt))
   .build();
 
 // Operation: OrderApproveSubscriptionInvoice_approveSubscriptionInvoice
@@ -15789,6 +15970,7 @@ export const OrderApproveSubscriptionInvoice_approveSubscriptionInvoice =
     .method('put')
     .path((args) => `/order/${args.id}/:approveSubscriptionInvoice`)
     .query((args) => new URLSearchParams(pickQueryValues(args, 'invoiceDate')))
+    .parseJson(withRuntype(responseWrapperInvoiceRt))
     .build();
 
 // Operation: OrderUnApproveSubscriptionInvoice_unApproveSubscriptionInvoice
@@ -15829,6 +16011,7 @@ export const Order_get = buildCall() //
   .method('get')
   .path((args) => `/order/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperOrderRt))
   .build();
 
 // Operation: Order_put
@@ -15847,6 +16030,7 @@ export const Order_put = buildCall() //
   .method('put')
   .path((args) => `/order/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperOrderRt))
   .build();
 
 // Operation: OrderAttach_attach
@@ -15863,6 +16047,7 @@ export const OrderAttach_attach = buildCall() //
   .args<rt.Static<typeof orderAttach_attachArgsRt>>()
   .method('put')
   .path((args) => `/order/${args.id}/:attach`)
+  .parseJson(withRuntype(responseWrapperDocumentArchiveRt))
   .build();
 
 // Operation: OrderOrderGroup_search
@@ -15901,6 +16086,7 @@ export const OrderOrderGroup_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseOrderGroupRt))
   .build();
 
 // Operation: OrderOrderGroup_put
@@ -15929,6 +16115,7 @@ export const OrderOrderGroup_put = buildCall() //
       ),
   )
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperOrderGroupRt))
   .build();
 
 // Operation: OrderOrderGroup_post
@@ -15966,6 +16153,7 @@ export const OrderOrderGroup_get = buildCall() //
   .method('get')
   .path((args) => `/order/orderGroup/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperOrderGroupRt))
   .build();
 
 // Operation: OrderOrderGroup_delete
@@ -16034,6 +16222,7 @@ export const OrderOrderline_get = buildCall() //
   .method('get')
   .path((args) => `/order/orderline/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperOrderLineRt))
   .build();
 
 // Operation: OrderOrderline_put
@@ -16052,6 +16241,7 @@ export const OrderOrderline_put = buildCall() //
   .method('put')
   .path((args) => `/order/orderline/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperOrderLineRt))
   .build();
 
 // Operation: OrderOrderline_delete
@@ -16084,6 +16274,7 @@ export const ProductExternal_get = buildCall() //
   .method('get')
   .path((args) => `/product/external/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperExternalProductRt))
   .build();
 
 // Operation: ProductExternal_search
@@ -16156,6 +16347,7 @@ export const ProductExternal_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseExternalProductRt))
   .build();
 
 // Operation: Product_search
@@ -16228,6 +16420,7 @@ export const Product_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductRt))
   .build();
 
 // Operation: Product_post
@@ -16264,6 +16457,7 @@ export const ProductList_putList = buildCall() //
   .method('put')
   .path('/product/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProductRt))
   .build();
 
 // Operation: ProductList_postList
@@ -16300,6 +16494,7 @@ export const Product_get = buildCall() //
   .method('get')
   .path((args) => `/product/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductRt))
   .build();
 
 // Operation: Product_put
@@ -16318,6 +16513,7 @@ export const Product_put = buildCall() //
   .method('put')
   .path((args) => `/product/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProductRt))
   .build();
 
 // Operation: Product_delete
@@ -16372,6 +16568,7 @@ export const ProductInventoryLocation_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductInventoryLocationRt))
   .build();
 
 // Operation: ProductInventoryLocation_post
@@ -16408,6 +16605,7 @@ export const ProductInventoryLocationList_putList = buildCall() //
   .method('put')
   .path('/product/inventoryLocation/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProductInventoryLocationRt))
   .build();
 
 // Operation: ProductInventoryLocationList_postList
@@ -16444,6 +16642,7 @@ export const ProductInventoryLocation_get = buildCall() //
   .method('get')
   .path((args) => `/product/inventoryLocation/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductInventoryLocationRt))
   .build();
 
 // Operation: ProductInventoryLocation_put
@@ -16462,6 +16661,7 @@ export const ProductInventoryLocation_put = buildCall() //
   .method('put')
   .path((args) => `/product/inventoryLocation/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProductInventoryLocationRt))
   .build();
 
 // Operation: ProductInventoryLocation_delete
@@ -16496,6 +16696,7 @@ export const ProductLogisticsSettings_get = buildCall() //
   .method('get')
   .path('/product/logisticsSettings')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperLogisticsSettingsRt))
   .build();
 
 // Operation: ProductLogisticsSettings_put
@@ -16514,6 +16715,7 @@ export const ProductLogisticsSettings_put = buildCall() //
   .method('put')
   .path('/product/logisticsSettings')
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperLogisticsSettingsRt))
   .build();
 
 // Operation: ProductGroup_search
@@ -16552,6 +16754,7 @@ export const ProductGroup_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductGroupRt))
   .build();
 
 // Operation: ProductGroup_post
@@ -16588,6 +16791,7 @@ export const ProductGroupList_putList = buildCall() //
   .method('put')
   .path('/product/group/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProductGroupRt))
   .build();
 
 // Operation: ProductGroupList_postList
@@ -16641,6 +16845,7 @@ export const ProductGroup_get = buildCall() //
   .method('get')
   .path((args) => `/product/group/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductGroupRt))
   .build();
 
 // Operation: ProductGroup_put
@@ -16659,6 +16864,7 @@ export const ProductGroup_put = buildCall() //
   .method('put')
   .path((args) => `/product/group/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProductGroupRt))
   .build();
 
 // Operation: ProductGroup_delete
@@ -16713,6 +16919,7 @@ export const ProductGroupRelation_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductGroupRelationRt))
   .build();
 
 // Operation: ProductGroupRelation_post
@@ -16784,6 +16991,7 @@ export const ProductGroupRelation_get = buildCall() //
   .method('get')
   .path((args) => `/product/groupRelation/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductGroupRelationRt))
   .build();
 
 // Operation: ProductGroupRelation_delete
@@ -16842,6 +17050,7 @@ export const ProductProductPrice_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductPriceRt))
   .build();
 
 // Operation: ProductUnit_search
@@ -16884,6 +17093,7 @@ export const ProductUnit_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductUnitRt))
   .build();
 
 // Operation: ProductUnit_post
@@ -16920,6 +17130,7 @@ export const ProductUnitList_putList = buildCall() //
   .method('put')
   .path('/product/unit/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProductUnitRt))
   .build();
 
 // Operation: ProductUnitList_postList
@@ -16956,6 +17167,7 @@ export const ProductUnit_get = buildCall() //
   .method('get')
   .path((args) => `/product/unit/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductUnitRt))
   .build();
 
 // Operation: ProductUnit_put
@@ -16974,6 +17186,7 @@ export const ProductUnit_put = buildCall() //
   .method('put')
   .path((args) => `/product/unit/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProductUnitRt))
   .build();
 
 // Operation: ProductUnit_delete
@@ -17006,6 +17219,7 @@ export const ProductUnitMaster_get = buildCall() //
   .method('get')
   .path((args) => `/product/unit/master/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProductUnitMasterRt))
   .build();
 
 // Operation: ProductUnitMaster_search
@@ -17054,6 +17268,7 @@ export const ProductUnitMaster_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProductUnitMasterRt))
   .build();
 
 // Operation: Project_search
@@ -17116,6 +17331,7 @@ export const Project_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectRt))
   .build();
 
 // Operation: Project_post
@@ -17170,6 +17386,7 @@ export const ProjectList_putList = buildCall() //
   .method('put')
   .path('/project/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProjectRt))
   .build();
 
 // Operation: ProjectList_postList
@@ -17243,6 +17460,7 @@ export const ProjectForTimeSheet_getForTimeSheet = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectRt))
   .build();
 
 // Operation: ProjectImport_importProjectStatement
@@ -17302,6 +17520,7 @@ export const Project_get = buildCall() //
   .method('get')
   .path((args) => `/project/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectRt))
   .build();
 
 // Operation: Project_put
@@ -17320,6 +17539,7 @@ export const Project_put = buildCall() //
   .method('put')
   .path((args) => `/project/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectRt))
   .build();
 
 // Operation: Project_delete
@@ -17376,6 +17596,7 @@ export const ProjectCategory_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectCategoryRt))
   .build();
 
 // Operation: ProjectCategory_post
@@ -17412,6 +17633,7 @@ export const ProjectCategory_get = buildCall() //
   .method('get')
   .path((args) => `/project/category/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectCategoryRt))
   .build();
 
 // Operation: ProjectCategory_put
@@ -17430,6 +17652,7 @@ export const ProjectCategory_put = buildCall() //
   .method('put')
   .path((args) => `/project/category/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectCategoryRt))
   .build();
 
 // Operation: ProjectOrderline_search
@@ -17468,6 +17691,7 @@ export const ProjectOrderline_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectOrderLineRt))
   .build();
 
 // Operation: ProjectOrderline_post
@@ -17522,6 +17746,7 @@ export const ProjectOrderline_get = buildCall() //
   .method('get')
   .path((args) => `/project/orderline/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectOrderLineRt))
   .build();
 
 // Operation: ProjectOrderline_put
@@ -17540,6 +17765,7 @@ export const ProjectOrderline_put = buildCall() //
   .method('put')
   .path((args) => `/project/orderline/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectOrderLineRt))
   .build();
 
 // Operation: ProjectOrderline_delete
@@ -17625,6 +17851,7 @@ export const ProjectParticipant_get = buildCall() //
   .method('get')
   .path((args) => `/project/participant/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectParticipantRt))
   .build();
 
 // Operation: ProjectParticipant_put
@@ -17643,6 +17870,7 @@ export const ProjectParticipant_put = buildCall() //
   .method('put')
   .path((args) => `/project/participant/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectParticipantRt))
   .build();
 
 // Operation: ProjectPeriodInvoicingReserve_invoicingReserve
@@ -17670,6 +17898,7 @@ export const ProjectPeriodInvoicingReserve_invoicingReserve = buildCall() //
         pickQueryValues(args, 'dateFrom', 'dateTo', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperProjectPeriodInvoicingReserveRt))
   .build();
 
 // Operation: ProjectPeriodInvoiced_invoiced
@@ -17695,6 +17924,7 @@ export const ProjectPeriodInvoiced_invoiced = buildCall() //
         pickQueryValues(args, 'dateFrom', 'dateTo', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperProjectPeriodInvoicedRt))
   .build();
 
 // Operation: ProjectPeriodOverallStatus_overallStatus
@@ -17720,6 +17950,7 @@ export const ProjectPeriodOverallStatus_overallStatus = buildCall() //
         pickQueryValues(args, 'dateFrom', 'dateTo', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperProjectPeriodOverallStatusRt))
   .build();
 
 // Operation: ProjectPeriodMonthlyStatus_monthlyStatus
@@ -17761,6 +17992,7 @@ export const ProjectPeriodMonthlyStatus_monthlyStatus = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectPeriodMonthlyStatusRt))
   .build();
 
 // Operation: ProjectPeriodHourlistReport_hourlistReport
@@ -17786,6 +18018,7 @@ export const ProjectPeriodHourlistReport_hourlistReport = buildCall() //
         pickQueryValues(args, 'dateFrom', 'dateTo', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperProjectPeriodHourlyReportRt))
   .build();
 
 // Operation: ProjectProjectActivity_post
@@ -17839,6 +18072,7 @@ export const ProjectProjectActivity_get = buildCall() //
   .method('get')
   .path((args) => `/project/projectActivity/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectActivityRt))
   .build();
 
 // Operation: ProjectProjectActivity_delete
@@ -17873,6 +18107,7 @@ export const ProjectControlForm_get = buildCall() //
   .method('get')
   .path((args) => `/project/controlForm/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectControlFormRt))
   .build();
 
 // Operation: ProjectControlForm_search
@@ -17911,6 +18146,7 @@ export const ProjectControlForm_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectControlFormRt))
   .build();
 
 // Operation: ProjectControlFormType_get
@@ -17929,6 +18165,7 @@ export const ProjectControlFormType_get = buildCall() //
   .method('get')
   .path((args) => `/project/controlFormType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectControlFormTypeRt))
   .build();
 
 // Operation: ProjectControlFormType_search
@@ -17957,6 +18194,7 @@ export const ProjectControlFormType_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectControlFormTypeRt))
   .build();
 
 // Operation: ProjectHourlyRates_search
@@ -18007,6 +18245,7 @@ export const ProjectHourlyRates_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectHourlyRateRt))
   .build();
 
 // Operation: ProjectHourlyRates_post
@@ -18043,6 +18282,7 @@ export const ProjectHourlyRatesList_putList = buildCall() //
   .method('put')
   .path('/project/hourlyRates/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProjectHourlyRateRt))
   .build();
 
 // Operation: ProjectHourlyRatesList_postList
@@ -18096,6 +18336,7 @@ export const ProjectHourlyRates_get = buildCall() //
   .method('get')
   .path((args) => `/project/hourlyRates/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectHourlyRateRt))
   .build();
 
 // Operation: ProjectHourlyRates_put
@@ -18114,6 +18355,7 @@ export const ProjectHourlyRates_put = buildCall() //
   .method('put')
   .path((args) => `/project/hourlyRates/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectHourlyRateRt))
   .build();
 
 // Operation: ProjectHourlyRates_delete
@@ -18172,6 +18414,7 @@ export const ProjectHourlyRatesProjectSpecificRates_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectSpecificRateRt))
   .build();
 
 // Operation: ProjectHourlyRatesProjectSpecificRates_post
@@ -18211,6 +18454,7 @@ export const ProjectHourlyRatesProjectSpecificRatesList_putList = buildCall() //
   .method('put')
   .path('/project/hourlyRates/projectSpecificRates/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseProjectSpecificRateRt))
   .build();
 
 // Operation: ProjectHourlyRatesProjectSpecificRatesList_postList
@@ -18273,6 +18517,7 @@ export const ProjectHourlyRatesProjectSpecificRates_get = buildCall() //
   .method('get')
   .path((args) => `/project/hourlyRates/projectSpecificRates/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectSpecificRateRt))
   .build();
 
 // Operation: ProjectHourlyRatesProjectSpecificRates_put
@@ -18291,6 +18536,7 @@ export const ProjectHourlyRatesProjectSpecificRates_put = buildCall() //
   .method('put')
   .path((args) => `/project/hourlyRates/projectSpecificRates/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectSpecificRateRt))
   .build();
 
 // Operation: ProjectHourlyRatesProjectSpecificRates_delete
@@ -18325,6 +18571,7 @@ export const ProjectSettings_get = buildCall() //
   .method('get')
   .path('/project/settings')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectSettingsRt))
   .build();
 
 // Operation: ProjectSettings_put
@@ -18343,6 +18590,7 @@ export const ProjectSettings_put = buildCall() //
   .method('put')
   .path('/project/settings')
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperProjectSettingsRt))
   .build();
 
 // Operation: ProjectTask_search
@@ -18381,6 +18629,7 @@ export const ProjectTask_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTaskRt))
   .build();
 
 // Operation: ProjectTemplate_get
@@ -18399,6 +18648,7 @@ export const ProjectTemplate_get = buildCall() //
   .method('get')
   .path((args) => `/project/template/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProjectTemplateRt))
   .build();
 
 // Operation: CrmProspect_search
@@ -18461,6 +18711,7 @@ export const CrmProspect_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProspectRt))
   .build();
 
 // Operation: CrmProspect_get
@@ -18479,6 +18730,7 @@ export const CrmProspect_get = buildCall() //
   .method('get')
   .path((args) => `/crm/prospect/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperProspectRt))
   .build();
 
 // Operation: PickupPoint_get
@@ -18497,6 +18749,7 @@ export const PickupPoint_get = buildCall() //
   .method('get')
   .path((args) => `/pickupPoint/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPickupPointRt))
   .build();
 
 // Operation: PickupPoint_search
@@ -18539,6 +18792,7 @@ export const PickupPoint_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePickupPointRt))
   .build();
 
 // Operation: PurchaseOrder_search
@@ -18593,6 +18847,7 @@ export const PurchaseOrder_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrder_post
@@ -18654,6 +18909,7 @@ export const PurchaseOrderSend_send = buildCall() //
   .method('put')
   .path((args) => `/purchaseOrder/${args.id}/:send`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'sendType')))
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrderSendByEmail_sendByEmail
@@ -18679,6 +18935,7 @@ export const PurchaseOrderSendByEmail_sendByEmail = buildCall() //
         pickQueryValues(args, 'emailAddress', 'subject', 'message'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrder_get
@@ -18697,6 +18954,7 @@ export const PurchaseOrder_get = buildCall() //
   .method('get')
   .path((args) => `/purchaseOrder/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrder_put
@@ -18715,6 +18973,7 @@ export const PurchaseOrder_put = buildCall() //
   .method('put')
   .path((args) => `/purchaseOrder/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrder_delete
@@ -18747,6 +19006,7 @@ export const TransportType_get = buildCall() //
   .method('get')
   .path((args) => `/transportType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTransportTypeRt))
   .build();
 
 // Operation: TransportType_search
@@ -18785,6 +19045,7 @@ export const TransportType_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTransportTypeRt))
   .build();
 
 // Operation: PurchaseOrderDeviation_search
@@ -18823,6 +19084,7 @@ export const PurchaseOrderDeviation_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseDeviationRt))
   .build();
 
 // Operation: PurchaseOrderDeviation_post
@@ -18859,6 +19121,7 @@ export const PurchaseOrderDeviationList_putList = buildCall() //
   .method('put')
   .path('/purchaseOrder/deviation/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseDeviationRt))
   .build();
 
 // Operation: PurchaseOrderDeviationList_postList
@@ -18893,6 +19156,7 @@ export const PurchaseOrderDeviationApprove_approve = buildCall() //
   .args<rt.Static<typeof purchaseOrderDeviationApprove_approveArgsRt>>()
   .method('put')
   .path((args) => `/purchaseOrder/deviation/${args.id}/:approve`)
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrderDeviationDeliver_deliver
@@ -18909,6 +19173,7 @@ export const PurchaseOrderDeviationDeliver_deliver = buildCall() //
   .args<rt.Static<typeof purchaseOrderDeviationDeliver_deliverArgsRt>>()
   .method('put')
   .path((args) => `/purchaseOrder/deviation/${args.id}/:deliver`)
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrderDeviationUndeliver_undeliver
@@ -18925,6 +19190,7 @@ export const PurchaseOrderDeviationUndeliver_undeliver = buildCall() //
   .args<rt.Static<typeof purchaseOrderDeviationUndeliver_undeliverArgsRt>>()
   .method('put')
   .path((args) => `/purchaseOrder/deviation/${args.id}/:undeliver`)
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrderDeviation_get
@@ -18943,6 +19209,7 @@ export const PurchaseOrderDeviation_get = buildCall() //
   .method('get')
   .path((args) => `/purchaseOrder/deviation/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperDeviationRt))
   .build();
 
 // Operation: PurchaseOrderDeviation_put
@@ -18961,6 +19228,7 @@ export const PurchaseOrderDeviation_put = buildCall() //
   .method('put')
   .path((args) => `/purchaseOrder/deviation/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperDeviationRt))
   .build();
 
 // Operation: PurchaseOrderDeviation_delete
@@ -19019,6 +19287,7 @@ export const PurchaseOrderGoodsReceipt_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseGoodsReceiptRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceipt_post
@@ -19110,6 +19379,7 @@ export const PurchaseOrderGoodsReceiptRegisterGoodsReceipt_registerGoodsReceipt 
           pickQueryValues(args, 'registrationDate', 'inventoryId', 'fields'),
         ),
     )
+    .parseJson(withRuntype(responseWrapperGoodsReceiptRt))
     .build();
 
 // Operation: PurchaseOrderGoodsReceiptConfirm_confirm
@@ -19134,6 +19404,7 @@ export const PurchaseOrderGoodsReceiptConfirm_confirm = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'createRestOrder', 'fields')),
   )
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceiptReceiveAndConfirm_receiveAndConfirm
@@ -19167,6 +19438,7 @@ export const PurchaseOrderGoodsReceiptReceiveAndConfirm_receiveAndConfirm =
           pickQueryValues(args, 'receivedDate', 'inventoryId', 'fields'),
         ),
     )
+    .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
     .build();
 
 // Operation: PurchaseOrderGoodsReceipt_get
@@ -19185,6 +19457,7 @@ export const PurchaseOrderGoodsReceipt_get = buildCall() //
   .method('get')
   .path((args) => `/purchaseOrder/goodsReceipt/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperGoodsReceiptRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceipt_put
@@ -19207,6 +19480,7 @@ export const PurchaseOrderGoodsReceipt_put = buildCall() //
   .path((args) => `/purchaseOrder/goodsReceipt/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperGoodsReceiptRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceipt_delete
@@ -19261,6 +19535,7 @@ export const PurchaseOrderGoodsReceiptLine_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseGoodsReceiptLineRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceiptLine_post
@@ -19297,6 +19572,7 @@ export const PurchaseOrderGoodsReceiptLineList_putList = buildCall() //
   .method('put')
   .path('/purchaseOrder/goodsReceiptLine/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseGoodsReceiptLineRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceiptLineList_postList
@@ -19351,6 +19627,7 @@ export const PurchaseOrderGoodsReceiptLine_get = buildCall() //
   .method('get')
   .path((args) => `/purchaseOrder/goodsReceiptLine/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperGoodsReceiptLineRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceiptLine_put
@@ -19369,6 +19646,7 @@ export const PurchaseOrderGoodsReceiptLine_put = buildCall() //
   .method('put')
   .path((args) => `/purchaseOrder/goodsReceiptLine/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperGoodsReceiptLineRt))
   .build();
 
 // Operation: PurchaseOrderGoodsReceiptLine_delete
@@ -19431,6 +19709,7 @@ export const PurchaseOrderPurchaseOrderIncomingInvoiceRelation_search =
           ),
         ),
     )
+    .parseJson(withRuntype(listResponsePurchaseOrderIncomingInvoiceRelationRt))
     .build();
 
 // Operation: PurchaseOrderPurchaseOrderIncomingInvoiceRelation_post
@@ -19530,6 +19809,7 @@ export const PurchaseOrderPurchaseOrderIncomingInvoiceRelation_get = buildCall()
     (args) => `/purchaseOrder/purchaseOrderIncomingInvoiceRelation/${args.id}`,
   )
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPurchaseOrderIncomingInvoiceRelationRt))
   .build();
 
 // Operation: PurchaseOrderPurchaseOrderIncomingInvoiceRelation_delete
@@ -19592,6 +19872,7 @@ export const PurchaseOrderOrderline_get = buildCall() //
   .method('get')
   .path((args) => `/purchaseOrder/orderline/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPurchaseOrderlineRt))
   .build();
 
 // Operation: PurchaseOrderOrderline_put
@@ -19610,6 +19891,7 @@ export const PurchaseOrderOrderline_put = buildCall() //
   .method('put')
   .path((args) => `/purchaseOrder/orderline/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperPurchaseOrderlineRt))
   .build();
 
 // Operation: PurchaseOrderOrderline_delete
@@ -19644,6 +19926,7 @@ export const Reminder_get = buildCall() //
   .method('get')
   .path((args) => `/reminder/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperReminderRt))
   .build();
 
 // Operation: Reminder_search
@@ -19693,6 +19976,7 @@ export const Reminder_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseReminderRt))
   .build();
 
 // Operation: ResultbudgetCompany_getCompanyResultBudget
@@ -19722,6 +20006,7 @@ export const ResultbudgetCompany_getCompanyResultBudget = buildCall() //
         pickQueryValues(args, 'year', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseResultBudgetRt))
   .build();
 
 // Operation: ResultbudgetDepartment_getDepartmentResultBudget
@@ -19757,6 +20042,7 @@ export const ResultbudgetDepartment_getDepartmentResultBudget = buildCall() //
         pickQueryValues(args, 'year', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseResultBudgetRt))
   .build();
 
 // Operation: ResultbudgetProject_getProjectResultBudget
@@ -19789,6 +20075,7 @@ export const ResultbudgetProject_getProjectResultBudget = buildCall() //
         pickQueryValues(args, 'year', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseResultBudgetRt))
   .build();
 
 // Operation: ResultbudgetProduct_getProductResultBudget
@@ -19821,6 +20108,7 @@ export const ResultbudgetProduct_getProductResultBudget = buildCall() //
         pickQueryValues(args, 'year', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseResultBudgetRt))
   .build();
 
 // Operation: ResultbudgetEmployee_getEmployeeResultBudget
@@ -19853,6 +20141,7 @@ export const ResultbudgetEmployee_getEmployeeResultBudget = buildCall() //
         pickQueryValues(args, 'year', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseResultBudgetRt))
   .build();
 
 // Operation: SalaryType_search
@@ -19901,6 +20190,7 @@ export const SalaryType_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseSalaryTypeRt))
   .build();
 
 // Operation: SalaryType_get
@@ -19919,6 +20209,7 @@ export const SalaryType_get = buildCall() //
   .method('get')
   .path((args) => `/salary/type/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSalaryTypeRt))
   .build();
 
 // Operation: SalaryCompilationPdf_downloadPdf
@@ -19927,6 +20218,8 @@ const salaryCompilationPdf_downloadPdfArgsRt = rt.Intersect(
   rt.Record({ employeeId: rt.Number }).asReadonly(),
   rt.Record({ year: rt.Number }).asPartial().asReadonly(),
 );
+
+const salaryCompilationPdf_downloadPdfResponseBodyRt = rt.String;
 
 /**
  * operation ID: SalaryCompilationPdf_downloadPdf
@@ -19939,6 +20232,7 @@ export const SalaryCompilationPdf_downloadPdf = buildCall() //
   .query(
     (args) => new URLSearchParams(pickQueryValues(args, 'employeeId', 'year')),
   )
+  .parseJson(withRuntype(salaryCompilationPdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: SalaryCompilation_get
@@ -19962,6 +20256,7 @@ export const SalaryCompilation_get = buildCall() //
         pickQueryValues(args, 'employeeId', 'year', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperSalaryCompilationRt))
   .build();
 
 // Operation: SalaryPayslip_search
@@ -20018,6 +20313,7 @@ export const SalaryPayslip_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePayslipRt))
   .build();
 
 // Operation: SalaryPayslipPdf_downloadPdf
@@ -20025,6 +20321,8 @@ export const SalaryPayslip_search = buildCall() //
 const salaryPayslipPdf_downloadPdfArgsRt = rt
   .Record({ id: rt.Number })
   .asReadonly();
+
+const salaryPayslipPdf_downloadPdfResponseBodyRt = rt.String;
 
 /**
  * operation ID: SalaryPayslipPdf_downloadPdf
@@ -20034,6 +20332,7 @@ export const SalaryPayslipPdf_downloadPdf = buildCall() //
   .args<rt.Static<typeof salaryPayslipPdf_downloadPdfArgsRt>>()
   .method('get')
   .path((args) => `/salary/payslip/${args.id}/pdf`)
+  .parseJson(withRuntype(salaryPayslipPdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: SalaryPayslip_get
@@ -20052,6 +20351,7 @@ export const SalaryPayslip_get = buildCall() //
   .method('get')
   .path((args) => `/salary/payslip/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPayslipRt))
   .build();
 
 // Operation: SalarySettings_get
@@ -20070,6 +20370,7 @@ export const SalarySettings_get = buildCall() //
   .method('get')
   .path('/salary/settings')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSalarySettingsRt))
   .build();
 
 // Operation: SalarySettings_put
@@ -20088,6 +20389,7 @@ export const SalarySettings_put = buildCall() //
   .method('put')
   .path('/salary/settings')
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperSalarySettingsRt))
   .build();
 
 // Operation: SalarySettingsHoliday_search
@@ -20116,6 +20418,7 @@ export const SalarySettingsHoliday_search = buildCall() //
         pickQueryValues(args, 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponseCompanyHolidayRt))
   .build();
 
 // Operation: SalarySettingsHoliday_post
@@ -20152,6 +20455,7 @@ export const SalarySettingsHolidayList_putList = buildCall() //
   .method('put')
   .path('/salary/settings/holiday/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseCompanyHolidayRt))
   .build();
 
 // Operation: SalarySettingsHolidayList_postList
@@ -20205,6 +20509,7 @@ export const SalarySettingsHoliday_put = buildCall() //
   .method('put')
   .path((args) => `/salary/settings/holiday/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperCompanyHolidayRt))
   .build();
 
 // Operation: SalarySettingsPensionScheme_search
@@ -20234,6 +20539,7 @@ export const SalarySettingsPensionScheme_search = buildCall() //
         pickQueryValues(args, 'number', 'from', 'count', 'sorting', 'fields'),
       ),
   )
+  .parseJson(withRuntype(listResponsePensionSchemeRt))
   .build();
 
 // Operation: SalarySettingsPensionScheme_post
@@ -20270,6 +20576,7 @@ export const SalarySettingsPensionSchemeList_putList = buildCall() //
   .method('put')
   .path('/salary/settings/pensionScheme/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponsePensionSchemeRt))
   .build();
 
 // Operation: SalarySettingsPensionSchemeList_postList
@@ -20323,6 +20630,7 @@ export const SalarySettingsPensionScheme_get = buildCall() //
   .method('get')
   .path((args) => `/salary/settings/pensionScheme/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPensionSchemeRt))
   .build();
 
 // Operation: SalarySettingsPensionScheme_put
@@ -20341,6 +20649,7 @@ export const SalarySettingsPensionScheme_put = buildCall() //
   .method('put')
   .path((args) => `/salary/settings/pensionScheme/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperPensionSchemeRt))
   .build();
 
 // Operation: SalarySettingsPensionScheme_delete
@@ -20397,6 +20706,7 @@ export const SalaryTransaction_get = buildCall() //
   .method('get')
   .path((args) => `/salary/transaction/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSalaryTransactionRt))
   .build();
 
 // Operation: SalaryTransaction_delete
@@ -20467,6 +20777,7 @@ export const Supplier_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseSupplierRt))
   .build();
 
 // Operation: Supplier_post
@@ -20503,6 +20814,7 @@ export const SupplierList_putList = buildCall() //
   .method('put')
   .path('/supplier/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseSupplierRt))
   .build();
 
 // Operation: SupplierList_postList
@@ -20539,6 +20851,7 @@ export const Supplier_get = buildCall() //
   .method('get')
   .path((args) => `/supplier/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSupplierRt))
   .build();
 
 // Operation: Supplier_put
@@ -20557,6 +20870,7 @@ export const Supplier_put = buildCall() //
   .method('put')
   .path((args) => `/supplier/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperSupplierRt))
   .build();
 
 // Operation: Supplier_delete
@@ -20622,6 +20936,7 @@ export const SupplierInvoice_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceApprove_approve
@@ -20640,6 +20955,7 @@ export const SupplierInvoiceApprove_approve = buildCall() //
   .method('put')
   .path((args) => `/supplierInvoice/${args.invoiceId}/:approve`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'comment')))
+  .parseJson(withRuntype(responseWrapperSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoicePdf_downloadPdf
@@ -20647,6 +20963,8 @@ export const SupplierInvoiceApprove_approve = buildCall() //
 const supplierInvoicePdf_downloadPdfArgsRt = rt
   .Record({ invoiceId: rt.Number })
   .asReadonly();
+
+const supplierInvoicePdf_downloadPdfResponseBodyRt = rt.String;
 
 /**
  * operation ID: SupplierInvoicePdf_downloadPdf
@@ -20656,6 +20974,7 @@ export const SupplierInvoicePdf_downloadPdf = buildCall() //
   .args<rt.Static<typeof supplierInvoicePdf_downloadPdfArgsRt>>()
   .method('get')
   .path((args) => `/supplierInvoice/${args.invoiceId}/pdf`)
+  .parseJson(withRuntype(supplierInvoicePdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: SupplierInvoiceForApproval_getApprovalInvoices
@@ -20698,6 +21017,7 @@ export const SupplierInvoiceForApproval_getApprovalInvoices = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceVoucherPostings_putPostings
@@ -20720,6 +21040,7 @@ export const SupplierInvoiceVoucherPostings_putPostings = buildCall() //
   .path((args) => `/supplierInvoice/voucher/${args.id}/postings`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'sendToLedger')))
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceApprove_approveMany
@@ -20741,6 +21062,7 @@ export const SupplierInvoiceApprove_approveMany = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'invoiceIds', 'comment')),
   )
+  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceAddRecipient_addRecipientToMany
@@ -20769,6 +21091,7 @@ export const SupplierInvoiceAddRecipient_addRecipientToMany = buildCall() //
         pickQueryValues(args, 'employeeId', 'invoiceIds', 'comment'),
       ),
   )
+  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceAddRecipient_addRecipient
@@ -20790,6 +21113,7 @@ export const SupplierInvoiceAddRecipient_addRecipient = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'employeeId', 'comment')),
   )
+  .parseJson(withRuntype(responseWrapperSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceReject_rejectMany
@@ -20811,6 +21135,7 @@ export const SupplierInvoiceReject_rejectMany = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'comment', 'invoiceIds')),
   )
+  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoiceAddPayment_addPayment
@@ -20870,6 +21195,7 @@ export const SupplierInvoiceReject_reject = buildCall() //
   .method('put')
   .path((args) => `/supplierInvoice/${args.invoiceId}/:reject`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'comment')))
+  .parseJson(withRuntype(responseWrapperSupplierInvoiceRt))
   .build();
 
 // Operation: SupplierInvoice_get
@@ -20888,6 +21214,7 @@ export const SupplierInvoice_get = buildCall() //
   .method('get')
   .path((args) => `/supplierInvoice/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSupplierInvoiceRt))
   .build();
 
 // Operation: VoucherApprovalListElement_get
@@ -20906,6 +21233,7 @@ export const VoucherApprovalListElement_get = buildCall() //
   .method('get')
   .path((args) => `/voucherApprovalListElement/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperVoucherApprovalListElementRt))
   .build();
 
 // Operation: TimesheetEntry_search
@@ -20955,6 +21283,7 @@ export const TimesheetEntry_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(timesheetEntrySearchResponseRt))
   .build();
 
 // Operation: TimesheetEntry_post
@@ -20991,6 +21320,7 @@ export const TimesheetEntryList_putList = buildCall() //
   .method('put')
   .path('/timesheet/entry/list')
   .body((args) => args.body)
+  .parseJson(withRuntype(listResponseTimesheetEntryRt))
   .build();
 
 // Operation: TimesheetEntryList_postList
@@ -21047,6 +21377,7 @@ export const TimesheetEntryRecentProjects_getRecentProjects = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseProjectRt))
   .build();
 
 // Operation: TimesheetEntryRecentActivities_getRecentActivities
@@ -21090,6 +21421,7 @@ export const TimesheetEntryRecentActivities_getRecentActivities = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseActivityRt))
   .build();
 
 // Operation: TimesheetEntryTotalHours_getTotalHours
@@ -21118,6 +21450,7 @@ export const TimesheetEntryTotalHours_getTotalHours = buildCall() //
         pickQueryValues(args, 'employeeId', 'startDate', 'endDate', 'fields'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperBigDecimalRt))
   .build();
 
 // Operation: TimesheetEntry_get
@@ -21136,6 +21469,7 @@ export const TimesheetEntry_get = buildCall() //
   .method('get')
   .path((args) => `/timesheet/entry/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTimesheetEntryRt))
   .build();
 
 // Operation: TimesheetEntry_put
@@ -21154,6 +21488,7 @@ export const TimesheetEntry_put = buildCall() //
   .method('put')
   .path((args) => `/timesheet/entry/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperTimesheetEntryRt))
   .build();
 
 // Operation: TimesheetEntry_delete
@@ -21206,6 +21541,7 @@ export const TimesheetMonthApprove_approve = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetMonthUnapprove_unapprove
@@ -21229,6 +21565,7 @@ export const TimesheetMonthUnapprove_unapprove = buildCall() //
         pickQueryValues(args, 'id', 'employeeIds', 'monthYear'),
       ),
   )
+  .parseJson(withRuntype(listResponseMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetMonthReopen_reopen
@@ -21252,6 +21589,7 @@ export const TimesheetMonthReopen_reopen = buildCall() //
         pickQueryValues(args, 'id', 'employeeIds', 'monthYear'),
       ),
   )
+  .parseJson(withRuntype(listResponseMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetMonthByMonthNumber_getByMonthNumber
@@ -21291,6 +21629,7 @@ export const TimesheetMonthByMonthNumber_getByMonthNumber = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetMonthComplete_complete
@@ -21314,6 +21653,7 @@ export const TimesheetMonthComplete_complete = buildCall() //
         pickQueryValues(args, 'id', 'employeeIds', 'monthYear'),
       ),
   )
+  .parseJson(withRuntype(listResponseMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetMonth_get
@@ -21332,6 +21672,7 @@ export const TimesheetMonth_get = buildCall() //
   .method('get')
   .path((args) => `/timesheet/month/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetSalaryTypeSpecification_search
@@ -21372,6 +21713,7 @@ export const TimesheetSalaryTypeSpecification_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTimesheetSalaryTypeSpecificationRt))
   .build();
 
 // Operation: TimesheetSalaryTypeSpecification_post
@@ -21408,6 +21750,7 @@ export const TimesheetSalaryTypeSpecification_get = buildCall() //
   .method('get')
   .path((args) => `/timesheet/salaryTypeSpecification/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTimesheetSalaryTypeSpecificationRt))
   .build();
 
 // Operation: TimesheetSalaryTypeSpecification_put
@@ -21429,6 +21772,7 @@ export const TimesheetSalaryTypeSpecification_put = buildCall() //
   .method('put')
   .path((args) => `/timesheet/salaryTypeSpecification/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperTimesheetSalaryTypeSpecificationRt))
   .build();
 
 // Operation: TimesheetSalaryTypeSpecification_delete
@@ -21463,6 +21807,7 @@ export const TimesheetSettings_get = buildCall() //
   .method('get')
   .path('/timesheet/settings')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTimesheetSettingsRt))
   .build();
 
 // Operation: TimesheetTimeClock_search
@@ -21513,6 +21858,7 @@ export const TimesheetTimeClock_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTimeClockRt))
   .build();
 
 // Operation: TimesheetTimeClockPresent_getPresent
@@ -21534,6 +21880,7 @@ export const TimesheetTimeClockPresent_getPresent = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'employeeId', 'fields')),
   )
+  .parseJson(withRuntype(responseWrapperTimeClockRt))
   .build();
 
 // Operation: TimesheetTimeClock_get
@@ -21552,6 +21899,7 @@ export const TimesheetTimeClock_get = buildCall() //
   .method('get')
   .path((args) => `/timesheet/timeClock/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTimeClockRt))
   .build();
 
 // Operation: TimesheetTimeClock_put
@@ -21570,6 +21918,7 @@ export const TimesheetTimeClock_put = buildCall() //
   .method('put')
   .path((args) => `/timesheet/timeClock/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperTimeClockRt))
   .build();
 
 // Operation: TimesheetTimeClockStart_start
@@ -21596,6 +21945,7 @@ export const TimesheetTimeClockStart_start = buildCall() //
         pickQueryValues(args, 'employeeId', 'projectId', 'activityId', 'date'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperTimeClockRt))
   .build();
 
 // Operation: TimesheetTimeClockStop_stop
@@ -21637,6 +21987,7 @@ export const TimesheetWeekApprove_approve = buildCall() //
         pickQueryValues(args, 'id', 'employeeId', 'weekYear'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperWeekRt))
   .build();
 
 // Operation: TimesheetWeekUnapprove_unapprove
@@ -21660,6 +22011,7 @@ export const TimesheetWeekUnapprove_unapprove = buildCall() //
         pickQueryValues(args, 'id', 'employeeId', 'weekYear'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperWeekRt))
   .build();
 
 // Operation: TimesheetWeekReopen_reopen
@@ -21683,6 +22035,7 @@ export const TimesheetWeekReopen_reopen = buildCall() //
         pickQueryValues(args, 'id', 'employeeId', 'weekYear'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperWeekRt))
   .build();
 
 // Operation: TimesheetWeekComplete_complete
@@ -21706,6 +22059,7 @@ export const TimesheetWeekComplete_complete = buildCall() //
         pickQueryValues(args, 'id', 'employeeId', 'weekYear'),
       ),
   )
+  .parseJson(withRuntype(responseWrapperWeekRt))
   .build();
 
 // Operation: TimesheetWeek_search
@@ -21748,6 +22102,7 @@ export const TimesheetWeek_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseWeekRt))
   .build();
 
 // Operation: TravelExpenseAccommodationAllowance_search
@@ -21804,6 +22159,7 @@ export const TravelExpenseAccommodationAllowance_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseAccommodationAllowanceRt))
   .build();
 
 // Operation: TravelExpenseAccommodationAllowance_post
@@ -21840,6 +22196,7 @@ export const TravelExpenseAccommodationAllowance_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/accommodationAllowance/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperAccommodationAllowanceRt))
   .build();
 
 // Operation: TravelExpenseAccommodationAllowance_put
@@ -21858,6 +22215,7 @@ export const TravelExpenseAccommodationAllowance_put = buildCall() //
   .method('put')
   .path((args) => `/travelExpense/accommodationAllowance/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperAccommodationAllowanceRt))
   .build();
 
 // Operation: TravelExpenseAccommodationAllowance_delete
@@ -21930,6 +22288,7 @@ export const TravelExpenseCost_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseCostRt))
   .build();
 
 // Operation: TravelExpenseCost_post
@@ -21966,6 +22325,7 @@ export const TravelExpenseCost_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/cost/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperCostRt))
   .build();
 
 // Operation: TravelExpenseCost_put
@@ -21984,6 +22344,7 @@ export const TravelExpenseCost_put = buildCall() //
   .method('put')
   .path((args) => `/travelExpense/cost/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperCostRt))
   .build();
 
 // Operation: TravelExpenseCost_delete
@@ -22062,6 +22423,7 @@ export const TravelExpenseMileageAllowance_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseMileageAllowanceRt))
   .build();
 
 // Operation: TravelExpenseMileageAllowance_post
@@ -22098,6 +22460,7 @@ export const TravelExpenseMileageAllowance_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/mileageAllowance/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperMileageAllowanceRt))
   .build();
 
 // Operation: TravelExpenseMileageAllowance_put
@@ -22116,6 +22479,7 @@ export const TravelExpenseMileageAllowance_put = buildCall() //
   .method('put')
   .path((args) => `/travelExpense/mileageAllowance/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperMileageAllowanceRt))
   .build();
 
 // Operation: TravelExpenseMileageAllowance_delete
@@ -22170,6 +22534,7 @@ export const TravelExpensePassenger_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePassengerRt))
   .build();
 
 // Operation: TravelExpensePassenger_post
@@ -22206,6 +22571,7 @@ export const TravelExpensePassenger_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/passenger/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPassengerRt))
   .build();
 
 // Operation: TravelExpensePassenger_put
@@ -22224,6 +22590,7 @@ export const TravelExpensePassenger_put = buildCall() //
   .method('put')
   .path((args) => `/travelExpense/passenger/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperPassengerRt))
   .build();
 
 // Operation: TravelExpensePassenger_delete
@@ -22309,6 +22676,7 @@ export const TravelExpensePerDiemCompensation_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponsePerDiemCompensationRt))
   .build();
 
 // Operation: TravelExpensePerDiemCompensation_post
@@ -22345,6 +22713,7 @@ export const TravelExpensePerDiemCompensation_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/perDiemCompensation/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperPerDiemCompensationRt))
   .build();
 
 // Operation: TravelExpensePerDiemCompensation_put
@@ -22363,6 +22732,7 @@ export const TravelExpensePerDiemCompensation_put = buildCall() //
   .method('put')
   .path((args) => `/travelExpense/perDiemCompensation/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperPerDiemCompensationRt))
   .build();
 
 // Operation: TravelExpensePerDiemCompensation_delete
@@ -22433,6 +22803,7 @@ export const TravelExpense_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
 
 // Operation: TravelExpense_post
@@ -22469,6 +22840,7 @@ export const TravelExpenseApprove_approve = buildCall() //
   .method('put')
   .path('/travelExpense/:approve')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
 
 // Operation: TravelExpenseAttachment_downloadAttachment
@@ -22476,6 +22848,8 @@ export const TravelExpenseApprove_approve = buildCall() //
 const travelExpenseAttachment_downloadAttachmentArgsRt = rt
   .Record({ travelExpenseId: rt.Number })
   .asReadonly();
+
+const travelExpenseAttachment_downloadAttachmentResponseBodyRt = rt.String;
 
 /**
  * operation ID: TravelExpenseAttachment_downloadAttachment
@@ -22485,6 +22859,9 @@ export const TravelExpenseAttachment_downloadAttachment = buildCall() //
   .args<rt.Static<typeof travelExpenseAttachment_downloadAttachmentArgsRt>>()
   .method('get')
   .path((args) => `/travelExpense/${args.travelExpenseId}/attachment`)
+  .parseJson(
+    withRuntype(travelExpenseAttachment_downloadAttachmentResponseBodyRt),
+  )
   .build();
 
 // Operation: TravelExpenseAttachment_uploadAttachment
@@ -22547,6 +22924,7 @@ export const TravelExpenseDeliver_deliver = buildCall() //
   .method('put')
   .path('/travelExpense/:deliver')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
 
 // Operation: TravelExpenseUndeliver_undeliver
@@ -22565,6 +22943,7 @@ export const TravelExpenseUndeliver_undeliver = buildCall() //
   .method('put')
   .path('/travelExpense/:undeliver')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
 
 // Operation: TravelExpenseUnapprove_unapprove
@@ -22583,6 +22962,7 @@ export const TravelExpenseUnapprove_unapprove = buildCall() //
   .method('put')
   .path('/travelExpense/:unapprove')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
 
 // Operation: TravelExpenseCreateVouchers_createVouchers
@@ -22601,6 +22981,7 @@ export const TravelExpenseCreateVouchers_createVouchers = buildCall() //
   .method('put')
   .path('/travelExpense/:createVouchers')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id', 'date')))
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
 
 // Operation: TravelExpenseAttachmentList_uploadAttachments
@@ -22640,6 +23021,7 @@ export const TravelExpense_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseRt))
   .build();
 
 // Operation: TravelExpense_put
@@ -22658,6 +23040,7 @@ export const TravelExpense_put = buildCall() //
   .method('put')
   .path((args) => `/travelExpense/${args.id}`)
   .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperTravelExpenseRt))
   .build();
 
 // Operation: TravelExpense_delete
@@ -22687,6 +23070,7 @@ export const TravelExpenseCopy_copy = buildCall() //
   .method('put')
   .path('/travelExpense/:copy')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseRt))
   .build();
 
 // Operation: TravelExpenseRate_search
@@ -22745,6 +23129,7 @@ export const TravelExpenseRate_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelExpenseRateRt))
   .build();
 
 // Operation: TravelExpenseRate_get
@@ -22763,6 +23148,7 @@ export const TravelExpenseRate_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/rate/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseRateRt))
   .build();
 
 // Operation: TravelExpenseRateCategory_search
@@ -22825,6 +23211,7 @@ export const TravelExpenseRateCategory_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelExpenseRateCategoryRt))
   .build();
 
 // Operation: TravelExpenseRateCategory_get
@@ -22843,6 +23230,7 @@ export const TravelExpenseRateCategory_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/rateCategory/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseRateCategoryRt))
   .build();
 
 // Operation: TravelExpenseRateCategoryGroup_search
@@ -22885,6 +23273,7 @@ export const TravelExpenseRateCategoryGroup_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelExpenseRateCategoryGroupRt))
   .build();
 
 // Operation: TravelExpenseRateCategoryGroup_get
@@ -22903,6 +23292,7 @@ export const TravelExpenseRateCategoryGroup_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/rateCategoryGroup/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseRateCategoryGroupRt))
   .build();
 
 // Operation: TravelExpenseCostCategory_get
@@ -22921,6 +23311,7 @@ export const TravelExpenseCostCategory_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/costCategory/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelCostCategoryRt))
   .build();
 
 // Operation: TravelExpenseCostCategory_search
@@ -22963,6 +23354,7 @@ export const TravelExpenseCostCategory_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelCostCategoryRt))
   .build();
 
 // Operation: TravelExpensePaymentType_get
@@ -22981,6 +23373,7 @@ export const TravelExpensePaymentType_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/paymentType/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelPaymentTypeRt))
   .build();
 
 // Operation: TravelExpensePaymentType_search
@@ -23023,6 +23416,7 @@ export const TravelExpensePaymentType_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelPaymentTypeRt))
   .build();
 
 // Operation: TravelExpenseSettings_get
@@ -23041,6 +23435,7 @@ export const TravelExpenseSettings_get = buildCall() //
   .method('get')
   .path('/travelExpense/settings')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseSettingsRt))
   .build();
 
 // Operation: TravelExpenseZone_get
@@ -23059,6 +23454,7 @@ export const TravelExpenseZone_get = buildCall() //
   .method('get')
   .path((args) => `/travelExpense/zone/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperTravelExpenseZoneRt))
   .build();
 
 // Operation: TravelExpenseZone_search
@@ -23099,6 +23495,7 @@ export const TravelExpenseZone_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseTravelExpenseZoneRt))
   .build();
 
 // Operation: VoucherMessage_search
@@ -23135,6 +23532,7 @@ export const VoucherMessage_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseVoucherMessageRt))
   .build();
 
 // Operation: VoucherMessage_post
@@ -23207,6 +23605,7 @@ export const VoucherStatus_search = buildCall() //
         ),
       ),
   )
+  .parseJson(withRuntype(listResponseVoucherStatusRt))
   .build();
 
 // Operation: VoucherStatus_post
@@ -23243,4 +23642,5 @@ export const VoucherStatus_get = buildCall() //
   .method('get')
   .path((args) => `/voucherStatus/${args.id}`)
   .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperVoucherStatusRt))
   .build();

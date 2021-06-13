@@ -109,6 +109,7 @@ export const uploadFile = buildCall() //
   .args<rt.Static<typeof uploadFileArgsRt>>()
   .method('post')
   .path((args) => `/pet/${args.petId}/uploadImage`)
+  .parseJson(withRuntype(apiResponseRt))
   .build();
 
 // Operation: updatePet
@@ -155,6 +156,8 @@ const findPetsByStatusArgsRt = rt
   })
   .asReadonly();
 
+const findPetsByStatusResponseBodyRt = rt.Array(petRt);
+
 /**
  * operation ID: findPetsByStatus
  * `GET: /pet/findByStatus`
@@ -166,6 +169,7 @@ export const findPetsByStatus = buildCall() //
   .method('get')
   .path('/pet/findByStatus')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'status')))
+  .parseJson(withRuntype(findPetsByStatusResponseBodyRt))
   .build();
 
 // Operation: findPetsByTags
@@ -173,6 +177,8 @@ export const findPetsByStatus = buildCall() //
 const findPetsByTagsArgsRt = rt
   .Record({ tags: rt.Array(rt.String) })
   .asReadonly();
+
+const findPetsByTagsResponseBodyRt = rt.Array(petRt);
 
 /**
  * operation ID: findPetsByTags
@@ -185,6 +191,7 @@ export const findPetsByTags = buildCall() //
   .method('get')
   .path('/pet/findByTags')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'tags')))
+  .parseJson(withRuntype(findPetsByTagsResponseBodyRt))
   .build();
 
 // Operation: getPetById
@@ -200,6 +207,7 @@ export const getPetById = buildCall() //
   .args<rt.Static<typeof getPetByIdArgsRt>>()
   .method('get')
   .path((args) => `/pet/${args.petId}`)
+  .parseJson(withRuntype(petRt))
   .build();
 
 // Operation: updatePetWithForm
@@ -238,6 +246,8 @@ export const deletePet = buildCall() //
 
 // Operation: getInventory
 
+const getInventoryResponseBodyRt = rt.Dictionary(rt.Unknown);
+
 /**
  * operation ID: getInventory
  * `GET: /store/inventory`
@@ -246,6 +256,7 @@ export const deletePet = buildCall() //
 export const getInventory = buildCall() //
   .method('get')
   .path('/store/inventory')
+  .parseJson(withRuntype(getInventoryResponseBodyRt))
   .build();
 
 // Operation: placeOrder
@@ -261,6 +272,7 @@ export const placeOrder = buildCall() //
   .method('post')
   .path('/store/order')
   .body((args) => args.body)
+  .parseJson(withRuntype(orderRt))
   .build();
 
 // Operation: getOrderById
@@ -277,6 +289,7 @@ export const getOrderById = buildCall() //
   .args<rt.Static<typeof getOrderByIdArgsRt>>()
   .method('get')
   .path((args) => `/store/order/${args.orderId}`)
+  .parseJson(withRuntype(orderRt))
   .build();
 
 // Operation: deleteOrder
@@ -325,6 +338,7 @@ export const getUserByName = buildCall() //
   .args<rt.Static<typeof getUserByNameArgsRt>>()
   .method('get')
   .path((args) => `/user/${args.username}`)
+  .parseJson(withRuntype(userRt))
   .build();
 
 // Operation: updateUser
@@ -366,6 +380,8 @@ const loginUserArgsRt = rt
   .Record({ username: rt.String, password: rt.String })
   .asReadonly();
 
+const loginUserResponseBodyRt = rt.String;
+
 /**
  * operation ID: loginUser
  * `GET: /user/login`
@@ -378,6 +394,7 @@ export const loginUser = buildCall() //
     (args) =>
       new URLSearchParams(pickQueryValues(args, 'username', 'password')),
   )
+  .parseJson(withRuntype(loginUserResponseBodyRt))
   .build();
 
 // Operation: logoutUser
