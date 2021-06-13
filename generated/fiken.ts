@@ -55,7 +55,13 @@ const attachmentSchemaRt = rt.Record({
   downloadUrl: rt.String,
   downloadUrlWithFikenNormalUserCredentials: rt.String,
   comment: rt.String,
-  type: rt.Union(rt.Literal('invoice'), rt.Literal('reminder')),
+  type: rt.Union(
+    rt.Literal('invoice'),
+    rt.Literal('reminder'),
+    rt.Literal('unspecified'),
+    rt.Literal('ocr'),
+    rt.Literal('bank_statement'),
+  ),
 });
 
 type AttachmentSchema = rt.Static<typeof attachmentSchemaRt>;
@@ -155,6 +161,7 @@ const contactSchemaRt = rt.Intersect(
     daysUntilInvoicingDueDate: rt.Number,
     address: addressSchemaRt,
     groups: rt.Array(rt.String),
+    documents: rt.Array(attachmentSchemaRt),
   }),
   rt.Record({ name: rt.String }).asPartial(),
 );
@@ -349,6 +356,7 @@ const journalEntrySchemaRt = rt.Intersect(
   rt.Record({
     journalEntryId: rt.Number,
     transactionId: rt.Number,
+    offsetTransactionId: rt.Number,
     journalEntryNumber: rt.Number,
     attachments: rt.Array(attachmentSchemaRt),
   }),
@@ -635,6 +643,7 @@ const orderConfirmationSchemaRt = rt.Record({
   contactId: rt.Number,
   contactPersonId: rt.Number,
   projectId: rt.Number,
+  createdInvoice: rt.Number,
 });
 
 type OrderConfirmationSchema = rt.Static<typeof orderConfirmationSchemaRt>;
@@ -1274,6 +1283,27 @@ export const updateContact = buildCall() //
   .method('put')
   .path((args) => `/companies/${args.companySlug}/contacts/${args.contactId}`)
   .body((args) => args.requestBody)
+  .build();
+
+// Operation: addAttachmentToContact
+
+const addAttachmentToContactArgsRt = rt
+  .Record({ companySlug: rt.String, contactId: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: addAttachmentToContact
+ * `POST:
+ * /companies/{companySlug}/contacts/{contactId}/attachments`
+ * Creates and adds a new attachment/document to a contact
+ */
+export const addAttachmentToContact = buildCall() //
+  .args<rt.Static<typeof addAttachmentToContactArgsRt>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/contacts/${args.contactId}/attachments`,
+  )
   .build();
 
 // Operation: getContactContactPerson
@@ -2543,6 +2573,27 @@ export const getOrderConfirmation = buildCall() //
       `/companies/${args.companySlug}/orderConfirmations/${args.confirmationId}`,
   )
   .parseJson(withRuntype(orderConfirmationSchemaRt))
+  .build();
+
+// Operation: createInvoicDraftFromOrderConfirmation
+
+const createInvoicDraftFromOrderConfirmationArgsRt = rt
+  .Record({ companySlug: rt.String, confirmationId: rt.String })
+  .asReadonly();
+
+/**
+ * operation ID: createInvoicDraftFromOrderConfirmation
+ * `POST:
+ * /companies/{companySlug}/orderConfirmations/{confirmationId}/createInvoiceDraft`
+ * Creates an invoice draft from an order confirmation
+ */
+export const createInvoicDraftFromOrderConfirmation = buildCall() //
+  .args<rt.Static<typeof createInvoicDraftFromOrderConfirmationArgsRt>>()
+  .method('post')
+  .path(
+    (args) =>
+      `/companies/${args.companySlug}/orderConfirmations/${args.confirmationId}/createInvoiceDraft`,
+  )
   .build();
 
 // Operation: getOrderConfirmationDrafts

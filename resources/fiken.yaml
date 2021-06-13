@@ -139,6 +139,16 @@ info:
         GET https://api.fiken.no/api/v2/companies
         Authorization: Bearer <access_token_value>
 
+    ### Revoking tokens
+
+    To revoke an access token and refresh token use the Revoke Token endpoint.
+
+    The Revoke Token endpoint disables the application grant, the access token and the corresponding refresh token used to authenticate the call. Other access tokens obtained from the same refresh token are also revoked.
+
+        POST https://fiken.no/oauth/revoke
+        Authorization: Bearer <access_token_value>
+
+    The response for a successful revocation is 200/OK.
 
     ## Try It Out
 
@@ -739,6 +749,48 @@ paths:
                 type: string
                 format: uri
               description: Full URL of updated contact
+
+  /companies/{companySlug}/contacts/{contactId}/attachments:
+    parameters:
+      - $ref: '#/components/parameters/companySlug'
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    post:
+      description: Creates and adds a new attachment/document to a contact
+      operationId: addAttachmentToContact
+      tags:
+        - contacts
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  example: invoice_24760.pdf
+                  description: Required. The filename. Must end with either .png, .jpeg, .jpg, .gif or .pdf
+                comment:
+                  type: string
+                  description: Not required.
+                file:
+                  type: string
+                  format: binary
+                  example: https://fiken.no/api/v2/files/745b2f15-gh75-4408-bgf2-b1d2dt610cb2/invoice24760.pdf
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: Full URL of newly created attachment
 
   /companies/{companySlug}/contacts/{contactId}/contactPerson:
     parameters:
@@ -2034,6 +2086,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/orderConfirmation'
+
+  /companies/{companySlug}/orderConfirmations/{confirmationId}/createInvoiceDraft:
+    parameters:
+      - $ref: '#/components/parameters/companySlug'
+      - name: confirmationId
+        in: path
+        description: |
+          The confirmationId (primary key of the returned object) is returned as the first field in the GET all
+          order confirmations call
+        required: true
+        schema:
+          type: string
+    post:
+      description: Creates an invoice draft from an order confirmation
+      operationId: createInvoicDraftFromOrderConfirmation
+      tags:
+        - order confirmations
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: Full URL of newly created invoice draft
 
   /companies/{companySlug}/orderConfirmations/drafts:
     parameters:
@@ -3422,7 +3500,7 @@ components:
           description: Field for additional information for this attachment.
         type:
           type: string
-          enum: [invoice, reminder]
+          enum: [invoice, reminder, unspecified, ocr, bank_statement]
           example: invoice
     bankAccountRequest:
       type: object
@@ -3617,6 +3695,11 @@ components:
           type: array
           items:
             type: string
+        documents:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/attachment'
     contactPerson:
       type: object
       required:
@@ -4586,6 +4669,11 @@ components:
         transactionId:
           type: integer
           format: int64
+        offsetTransactionId:
+          type: integer
+          format: int64
+          readOnly: true
+          description: If a journal entry has been cancelled this provides the id of the balancing transaction
         journalEntryNumber:
           type: integer
           format: int32
@@ -4605,6 +4693,7 @@ components:
             $ref: '#/components/schemas/journalEntryLine'
         attachments:
           type: array
+          readOnly: true
           items:
             $ref: '#/components/schemas/attachment'
     offer:
@@ -4757,6 +4846,11 @@ components:
         projectId:
           format: int64
           example: 2815556
+        createdInvoice:
+          format: int64
+          example: 2815556
+          readOnly: true
+          description: If the order confirmation was used to create an invoice, the id of the associated invoice. Otherwise null is returned.
     orderLine:
       type: object
       required:
@@ -5828,4 +5922,3 @@ components:
 
 security:
   - fiken_api_oauth: []
-  

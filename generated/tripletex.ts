@@ -40,8 +40,6 @@ const changeRt = rt
       rt.Literal('REOPENED'),
       rt.Literal('DO_NOT_SHOW'),
     ),
-    periodReopened: rt.String,
-    periodLocked: rt.String,
   })
   .asPartial();
 
@@ -115,6 +113,12 @@ const listResponseActivityRt = rt
 
 type ListResponseActivity = rt.Static<typeof listResponseActivityRt>;
 
+const addonLogoDTORt = rt
+  .Record({ documentId: rt.Number, content: rt.Array(rt.String) })
+  .asPartial();
+
+type AddonLogoDTO = rt.Static<typeof addonLogoDTORt>;
+
 const addonRt = rt.Intersect(
   rt
     .Record({
@@ -122,6 +126,7 @@ const addonRt = rt.Intersect(
       version: rt.Number,
       name: rt.String,
       description: rt.String,
+      shortDescription: rt.String,
       redirectUrl: rt.String,
       status: rt.Union(
         rt.Literal('IN_DEVELOPMENT'),
@@ -133,6 +138,30 @@ const addonRt = rt.Intersect(
       isPublic: rt.Boolean,
       apiConsumerId: rt.Number,
       visibility: rt.Union(rt.Literal('COMPANY_WIDE'), rt.Literal('PERSONAL')),
+      linkToInfo: rt.String,
+      partnerName: rt.String,
+      targetSystemName: rt.String,
+      categories: rt.Array(
+        rt.Union(
+          rt.Literal('OTHER'),
+          rt.Literal('YEAR_END'),
+          rt.Literal('BANK'),
+          rt.Literal('STAFF'),
+          rt.Literal('BOOKING_AND_CHECKOUT'),
+          rt.Literal('CRM'),
+          rt.Literal('FOR_CRAFTSMEN'),
+          rt.Literal('FOR_ACCOUNTANTS'),
+          rt.Literal('FOR_RESTAURATEUR'),
+          rt.Literal('FOR_WORKSHOPS'),
+          rt.Literal('HEALTH'),
+          rt.Literal('DEBT_COLLECTION'),
+          rt.Literal('ONLINE_STORE'),
+          rt.Literal('PERSONAL'),
+          rt.Literal('REPORTING'),
+          rt.Literal('TRAVEL_AND_EXPENSES'),
+        ),
+      ),
+      logo: addonLogoDTORt,
     })
     .asPartial(),
   rt
@@ -199,6 +228,7 @@ type Department = {
   name?: string;
   departmentNumber?: string;
   departmentManager?: Employee;
+  isInactive?: boolean;
 };
 
 const departmentRt: rt.Runtype<Department> = rt.Lazy(() =>
@@ -210,6 +240,7 @@ const departmentRt: rt.Runtype<Department> = rt.Lazy(() =>
         name: rt.String,
         departmentNumber: rt.String,
         departmentManager: employeeRt,
+        isInactive: rt.Boolean,
       })
       .asPartial(),
     rt
@@ -1041,7 +1072,11 @@ const electronicSupportDTORt = rt
   .Record({
     bankId: rt.Number,
     bankName: rt.String,
-    type: rt.Union(rt.Literal('PARTIAL'), rt.Literal('COMPLETE')),
+    type: rt.Union(
+      rt.Literal('PARTIAL'),
+      rt.Literal('COMPLETE'),
+      rt.Literal('PSD2'),
+    ),
     bankUrl: rt.String,
   })
   .asPartial();
@@ -1085,6 +1120,10 @@ const responseWrapperElectronicSupportDTORt = rt
 type ResponseWrapperElectronicSupportDTO = rt.Static<
   typeof responseWrapperElectronicSupportDTORt
 >;
+
+const responseWrapperBooleanRt = rt.Record({ value: rt.Boolean }).asPartial();
+
+type ResponseWrapperBoolean = rt.Static<typeof responseWrapperBooleanRt>;
 
 const bankOnboardingAccessRequestDTORt = rt
   .Record({
@@ -1248,6 +1287,21 @@ const projectCategoryRt = rt.Intersect(
 
 type ProjectCategory = rt.Static<typeof projectCategoryRt>;
 
+const discountGroupRt = rt.Intersect(
+  rt.Record({ id: rt.Number, version: rt.Number, name: rt.String }).asPartial(),
+  rt
+    .Record({
+      changes: rt.Array(changeRt),
+      url: rt.String,
+      number: rt.String,
+      nameAndNumber: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+type DiscountGroup = rt.Static<typeof discountGroupRt>;
+
 const productUnitRt = rt.Intersect(
   rt
     .Record({
@@ -1292,6 +1346,7 @@ const supplierRt = rt.Intersect(
       category2: customerCategoryRt,
       category3: customerCategoryRt,
       bankAccountPresentation: rt.Array(companyBankAccountPresentationRt),
+      currency: currencyRt,
     })
     .asPartial(),
   rt
@@ -1307,6 +1362,23 @@ const supplierRt = rt.Intersect(
 );
 
 type Supplier = rt.Static<typeof supplierRt>;
+
+const documentRt = rt.Intersect(
+  rt
+    .Record({ id: rt.Number, version: rt.Number, fileName: rt.String })
+    .asPartial(),
+  rt
+    .Record({
+      changes: rt.Array(changeRt),
+      url: rt.String,
+      size: rt.Number,
+      mimeType: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+type Document = rt.Static<typeof documentRt>;
 
 type Product = {
   id?: number;
@@ -1328,6 +1400,7 @@ type Product = {
   priceExcludingVatCurrency?: number;
   priceIncludingVatCurrency?: number;
   isInactive?: boolean;
+  discountGroup?: DiscountGroup;
   productUnit?: ProductUnit;
   isStockItem?: boolean;
   readonly stockOfGoods?: number;
@@ -1338,6 +1411,14 @@ type Product = {
   readonly discountPrice?: number;
   supplier?: Supplier;
   resaleProduct?: Product;
+  isDeletable?: boolean;
+  hasSupplierProductConnected?: boolean;
+  weight?: number;
+  weightUnit?: 'kg' | 'g' | 'hg';
+  volume?: number;
+  volumeUnit?: 'cm3' | 'dm3' | 'm3';
+  hsnCode?: string;
+  readonly image?: Document;
 };
 
 const productRt: rt.Runtype<Product> = rt.Lazy(() =>
@@ -1355,6 +1436,7 @@ const productRt: rt.Runtype<Product> = rt.Lazy(() =>
         priceExcludingVatCurrency: rt.Number,
         priceIncludingVatCurrency: rt.Number,
         isInactive: rt.Boolean,
+        discountGroup: discountGroupRt,
         productUnit: productUnitRt,
         isStockItem: rt.Boolean,
         vatType: vatTypeRt,
@@ -1363,6 +1445,21 @@ const productRt: rt.Runtype<Product> = rt.Lazy(() =>
         account: accountRt,
         supplier: supplierRt,
         resaleProduct: productRt,
+        isDeletable: rt.Boolean,
+        hasSupplierProductConnected: rt.Boolean,
+        weight: rt.Number,
+        weightUnit: rt.Union(
+          rt.Literal('kg'),
+          rt.Literal('g'),
+          rt.Literal('hg'),
+        ),
+        volume: rt.Number,
+        volumeUnit: rt.Union(
+          rt.Literal('cm3'),
+          rt.Literal('dm3'),
+          rt.Literal('m3'),
+        ),
+        hsnCode: rt.String,
       })
       .asPartial(),
     rt
@@ -1377,6 +1474,7 @@ const productRt: rt.Runtype<Product> = rt.Lazy(() =>
         profitInPercent: rt.Number,
         stockOfGoods: rt.Number,
         discountPrice: rt.Number,
+        image: documentRt,
       })
       .asPartial()
       .asReadonly(),
@@ -1399,10 +1497,17 @@ const inventoryRt = rt.Intersect(
       address: addressRt,
       lastStocking: rt.String,
       status: rt.String,
+      hasLocations: rt.Boolean,
+      mainInventory: rt.Boolean,
+      inactive: rt.Boolean,
     })
     .asPartial(),
   rt
-    .Record({ changes: rt.Array(changeRt), url: rt.String })
+    .Record({
+      changes: rt.Array(changeRt),
+      url: rt.String,
+      displayName: rt.String,
+    })
     .asPartial()
     .asReadonly(),
 );
@@ -1420,7 +1525,12 @@ const inventoryLocationRt = rt.Intersect(
     })
     .asPartial(),
   rt
-    .Record({ changes: rt.Array(changeRt), url: rt.String, number: rt.Number })
+    .Record({
+      changes: rt.Array(changeRt),
+      url: rt.String,
+      number: rt.Number,
+      isDeletable: rt.Boolean,
+    })
     .asPartial()
     .asReadonly(),
 );
@@ -1542,23 +1652,6 @@ const orderLineRt: rt.Runtype<OrderLine> = rt.Lazy(() =>
       .asReadonly(),
   ),
 );
-
-const documentRt = rt.Intersect(
-  rt
-    .Record({ id: rt.Number, version: rt.Number, fileName: rt.String })
-    .asPartial(),
-  rt
-    .Record({
-      changes: rt.Array(changeRt),
-      url: rt.String,
-      size: rt.Number,
-      mimeType: rt.String,
-    })
-    .asPartial()
-    .asReadonly(),
-);
-
-type Document = rt.Static<typeof documentRt>;
 
 type Order = {
   id?: number;
@@ -3111,20 +3204,6 @@ type ResponseWrapperBankReconciliation = rt.Static<
   typeof responseWrapperBankReconciliationRt
 >;
 
-const listResponseBankReconciliationRt = rt
-  .Record({
-    fullResultSize: rt.Number,
-    from: rt.Number,
-    count: rt.Number,
-    versionDigest: rt.String,
-    values: rt.Array(bankReconciliationRt),
-  })
-  .asPartial();
-
-type ListResponseBankReconciliation = rt.Static<
-  typeof listResponseBankReconciliationRt
->;
-
 const bankReconciliationPaymentTypeRt = rt.Intersect(
   rt.Record({ id: rt.Number, version: rt.Number }).asPartial(),
   rt
@@ -3205,6 +3284,20 @@ type ListResponseBankReconciliationAdjustment = rt.Static<
   typeof listResponseBankReconciliationAdjustmentRt
 >;
 
+const listResponseBankReconciliationRt = rt
+  .Record({
+    fullResultSize: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    versionDigest: rt.String,
+    values: rt.Array(bankReconciliationRt),
+  })
+  .asPartial();
+
+type ListResponseBankReconciliation = rt.Static<
+  typeof listResponseBankReconciliationRt
+>;
+
 const fileIdForIncomingPaymentsDTORt = rt
   .Record({
     fileId: rt.Number,
@@ -3280,6 +3373,7 @@ const bankSettingsRt = rt.Intersect(
       remitNumberOfAcceptors: rt.Number,
       showAdviceCurrencyMismatch: rt.Boolean,
       parsePaymentsWithUnknownKID: rt.Boolean,
+      signAutoPayWithBankId: rt.Boolean,
     })
     .asPartial(),
   rt
@@ -3302,14 +3396,6 @@ type ResponseWrapperBankSettings = rt.Static<
   typeof responseWrapperBankSettingsRt
 >;
 
-const responseWrapperBankStatementRt = rt
-  .Record({ value: bankStatementRt })
-  .asPartial();
-
-type ResponseWrapperBankStatement = rt.Static<
-  typeof responseWrapperBankStatementRt
->;
-
 const bankStatementBalanceDTORt = rt
   .Record({ amount: rt.Number, date: rt.String })
   .asPartial()
@@ -3323,6 +3409,14 @@ const responseWrapperBankStatementBalanceDTORt = rt
 
 type ResponseWrapperBankStatementBalanceDTO = rt.Static<
   typeof responseWrapperBankStatementBalanceDTORt
+>;
+
+const responseWrapperBankStatementRt = rt
+  .Record({ value: bankStatementRt })
+  .asPartial();
+
+type ResponseWrapperBankStatement = rt.Static<
+  typeof responseWrapperBankStatementRt
 >;
 
 const listResponseBankStatementRt = rt
@@ -3475,6 +3569,34 @@ const listResponseBannerRt = rt
 
 type ListResponseBanner = rt.Static<typeof listResponseBannerRt>;
 
+const calloutDTORt = rt
+  .Record({
+    severity: rt.Union(
+      rt.Literal('INFO'),
+      rt.Literal('WARNING'),
+      rt.Literal('ERROR'),
+      rt.Literal('CONFIRMATION'),
+    ),
+    message: rt.String,
+    id: rt.Number,
+    pageSpecific: rt.Boolean,
+  })
+  .asPartial();
+
+type CalloutDTO = rt.Static<typeof calloutDTORt>;
+
+const listResponseCalloutDTORt = rt
+  .Record({
+    fullResultSize: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    versionDigest: rt.String,
+    values: rt.Array(calloutDTORt),
+  })
+  .asPartial();
+
+type ListResponseCalloutDTO = rt.Static<typeof listResponseCalloutDTORt>;
+
 const apiConsumerRt = rt.Intersect(
   rt
     .Record({
@@ -3563,6 +3685,64 @@ const apiErrorRt = rt
 
 type ApiError = rt.Static<typeof apiErrorRt>;
 
+const employeeTokenRt = rt.Intersect(
+  rt
+    .Record({
+      id: rt.Number,
+      version: rt.Number,
+      employee: employeeRt,
+      apiConsumer: apiConsumerRt,
+      token: rt.String,
+      expirationDate: rt.String,
+    })
+    .asPartial(),
+  rt
+    .Record({ changes: rt.Array(changeRt), url: rt.String })
+    .asPartial()
+    .asReadonly(),
+);
+
+type EmployeeToken = rt.Static<typeof employeeTokenRt>;
+
+const employeeTokenBundleRt = rt
+  .Record({
+    employeeToken: employeeTokenRt,
+    employee: employeeRt,
+    robotEmployee: employeeRt,
+  })
+  .asPartial();
+
+type EmployeeTokenBundle = rt.Static<typeof employeeTokenBundleRt>;
+
+const responseWrapperEmployeeTokenBundleRt = rt
+  .Record({ value: employeeTokenBundleRt })
+  .asPartial();
+
+type ResponseWrapperEmployeeTokenBundle = rt.Static<
+  typeof responseWrapperEmployeeTokenBundleRt
+>;
+
+const responseWrapperEmployeeTokenRt = rt
+  .Record({ value: employeeTokenRt })
+  .asPartial();
+
+type ResponseWrapperEmployeeToken = rt.Static<
+  typeof responseWrapperEmployeeTokenRt
+>;
+
+const mobileAppLoginRt = rt
+  .Record({
+    username: rt.String,
+    password: rt.String,
+    appSecret: rt.String,
+    mfaCode: rt.Number,
+    expirationDate: rt.String,
+    employeeId: rt.Number,
+  })
+  .asPartial();
+
+type MobileAppLogin = rt.Static<typeof mobileAppLoginRt>;
+
 const companyRt = rt.Intersect(
   rt
     .Record({
@@ -3647,64 +3827,6 @@ const credentialsRt = rt
   .asPartial();
 
 type Credentials = rt.Static<typeof credentialsRt>;
-
-const employeeTokenRt = rt.Intersect(
-  rt
-    .Record({
-      id: rt.Number,
-      version: rt.Number,
-      employee: employeeRt,
-      apiConsumer: apiConsumerRt,
-      token: rt.String,
-      expirationDate: rt.String,
-    })
-    .asPartial(),
-  rt
-    .Record({ changes: rt.Array(changeRt), url: rt.String })
-    .asPartial()
-    .asReadonly(),
-);
-
-type EmployeeToken = rt.Static<typeof employeeTokenRt>;
-
-const employeeTokenBundleRt = rt
-  .Record({
-    employeeToken: employeeTokenRt,
-    employee: employeeRt,
-    robotEmployee: employeeRt,
-  })
-  .asPartial();
-
-type EmployeeTokenBundle = rt.Static<typeof employeeTokenBundleRt>;
-
-const responseWrapperEmployeeTokenBundleRt = rt
-  .Record({ value: employeeTokenBundleRt })
-  .asPartial();
-
-type ResponseWrapperEmployeeTokenBundle = rt.Static<
-  typeof responseWrapperEmployeeTokenBundleRt
->;
-
-const responseWrapperEmployeeTokenRt = rt
-  .Record({ value: employeeTokenRt })
-  .asPartial();
-
-type ResponseWrapperEmployeeToken = rt.Static<
-  typeof responseWrapperEmployeeTokenRt
->;
-
-const mobileAppLoginRt = rt
-  .Record({
-    username: rt.String,
-    password: rt.String,
-    appSecret: rt.String,
-    mfaCode: rt.Number,
-    expirationDate: rt.String,
-    employeeId: rt.Number,
-  })
-  .asPartial();
-
-type MobileAppLogin = rt.Static<typeof mobileAppLoginRt>;
 
 const autoLoginRt = rt.Record({ loginUrl: rt.String }).asPartial().asReadonly();
 
@@ -4752,7 +4874,24 @@ const autoPayMessageDTORt = rt
 type AutoPayMessageDTO = rt.Static<typeof autoPayMessageDTORt>;
 
 const paymentRt = rt.Intersect(
-  rt.Record({ id: rt.Number, version: rt.Number }).asPartial(),
+  rt
+    .Record({
+      id: rt.Number,
+      version: rt.Number,
+      statusId: rt.Union(
+        rt.Literal('NEW'),
+        rt.Literal('PENDING_SIGNING'),
+        rt.Literal('CANCELLED'),
+        rt.Literal('ERROR'),
+        rt.Literal('RECEIVED_BY_BANK'),
+        rt.Literal('ACCEPTED_BY_BANK'),
+        rt.Literal('CANCELLED_IN_BANK'),
+        rt.Literal('REJECTED_BY_BANK'),
+        rt.Literal('PAID'),
+        rt.Literal('OTHER'),
+      ),
+    })
+    .asPartial(),
   rt
     .Record({
       changes: rt.Array(changeRt),
@@ -5620,6 +5759,7 @@ const appSpecificRt = rt
     hourBalanceEnabledForEmployee: rt.Boolean,
     vacationBalanceEnabledForEmployee: rt.Boolean,
     userIsAuthCreateCustomer: rt.Boolean,
+    userIsAuthProjectMenu: rt.Boolean,
   })
   .asPartial();
 
@@ -5857,6 +5997,113 @@ const listResponseProductNewsRt = rt
 
 type ListResponseProductNews = rt.Static<typeof listResponseProductNewsRt>;
 
+type SupplierProduct = {
+  id?: number;
+  version?: number;
+  readonly changes?: Change[];
+  readonly url?: string;
+  name?: string;
+  number?: string;
+  description?: string;
+  ean?: string;
+  costExcludingVatCurrency?: number;
+  priceExcludingVatCurrency?: number;
+  priceIncludingVatCurrency?: number;
+  isInactive?: boolean;
+  productUnit?: ProductUnit;
+  isStockItem?: boolean;
+  readonly stockOfGoods?: number;
+  vatType?: VatType;
+  currency?: Currency;
+  readonly discountPrice?: number;
+  supplier?: Supplier;
+  resaleProduct?: SupplierProduct;
+  readonly isDeletable?: boolean;
+  readonly vendorName?: string;
+  readonly isEfoNelfoProduct?: boolean;
+  readonly wholesalerId?: number;
+};
+
+const supplierProductRt: rt.Runtype<SupplierProduct> = rt.Lazy(() =>
+  rt.Intersect(
+    rt
+      .Record({
+        id: rt.Number,
+        version: rt.Number,
+        name: rt.String,
+        number: rt.String,
+        description: rt.String,
+        ean: rt.String,
+        costExcludingVatCurrency: rt.Number,
+        priceExcludingVatCurrency: rt.Number,
+        priceIncludingVatCurrency: rt.Number,
+        isInactive: rt.Boolean,
+        productUnit: productUnitRt,
+        isStockItem: rt.Boolean,
+        vatType: vatTypeRt,
+        currency: currencyRt,
+        supplier: supplierRt,
+        resaleProduct: supplierProductRt,
+      })
+      .asPartial(),
+    rt
+      .Record({
+        changes: rt.Array(changeRt),
+        url: rt.String,
+        stockOfGoods: rt.Number,
+        discountPrice: rt.Number,
+        isDeletable: rt.Boolean,
+        vendorName: rt.String,
+        isEfoNelfoProduct: rt.Boolean,
+        wholesalerId: rt.Number,
+      })
+      .asPartial()
+      .asReadonly(),
+  ),
+);
+
+const responseWrapperSupplierProductRt = rt
+  .Record({ value: supplierProductRt })
+  .asPartial();
+
+type ResponseWrapperSupplierProduct = rt.Static<
+  typeof responseWrapperSupplierProductRt
+>;
+
+const listResponseSupplierProductRt = rt
+  .Record({
+    fullResultSize: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    versionDigest: rt.String,
+    values: rt.Array(supplierProductRt),
+  })
+  .asPartial();
+
+type ListResponseSupplierProduct = rt.Static<
+  typeof listResponseSupplierProductRt
+>;
+
+const responseWrapperDiscountGroupRt = rt
+  .Record({ value: discountGroupRt })
+  .asPartial();
+
+type ResponseWrapperDiscountGroup = rt.Static<
+  typeof responseWrapperDiscountGroupRt
+>;
+
+const listResponseDiscountGroupRt = rt
+  .Record({
+    fullResultSize: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    versionDigest: rt.String,
+    values: rt.Array(discountGroupRt),
+  })
+  .asPartial();
+
+type ListResponseDiscountGroup = rt.Static<typeof listResponseDiscountGroupRt>;
+
 const productInventoryLocationRt = rt.Intersect(
   rt
     .Record({
@@ -5908,6 +6155,7 @@ const logisticsSettingsRt = rt.Intersect(
       id: rt.Number,
       version: rt.Number,
       hasWarehouseLocation: rt.Boolean,
+      showOnboardingWizard: rt.Boolean,
     })
     .asPartial(),
   rt
@@ -6051,6 +6299,32 @@ const listResponseProductPriceRt = rt
 
 type ListResponseProductPrice = rt.Static<typeof listResponseProductPriceRt>;
 
+const productSettingsRt = rt.Intersect(
+  rt
+    .Record({
+      id: rt.Number,
+      version: rt.Number,
+      warehouse: rt.Boolean,
+      productPurchase: rt.Boolean,
+      purchaseOrder: rt.Boolean,
+    })
+    .asPartial(),
+  rt
+    .Record({ changes: rt.Array(changeRt), url: rt.String })
+    .asPartial()
+    .asReadonly(),
+);
+
+type ProductSettings = rt.Static<typeof productSettingsRt>;
+
+const responseWrapperProductSettingsRt = rt
+  .Record({ value: productSettingsRt })
+  .asPartial();
+
+type ResponseWrapperProductSettings = rt.Static<
+  typeof responseWrapperProductSettingsRt
+>;
+
 const responseWrapperProductUnitRt = rt
   .Record({ value: productUnitRt })
   .asPartial();
@@ -6132,10 +6406,6 @@ const responseWrapperLongRt = rt.Record({ value: rt.Number }).asPartial();
 
 type ResponseWrapperLong = rt.Static<typeof responseWrapperLongRt>;
 
-const responseWrapperBooleanRt = rt.Record({ value: rt.Boolean }).asPartial();
-
-type ResponseWrapperBoolean = rt.Static<typeof responseWrapperBooleanRt>;
-
 const responseWrapperProjectCategoryRt = rt
   .Record({ value: projectCategoryRt })
   .asPartial();
@@ -6200,29 +6470,6 @@ const listResponseProjectParticipantRt = rt
 
 type ListResponseProjectParticipant = rt.Static<
   typeof listResponseProjectParticipantRt
->;
-
-const projectPeriodInvoicingReserveRt = rt
-  .Record({
-    invoiceFeeReserveCurrency: rt.Number,
-    periodOrderLinesIncomeCurrency: rt.Number,
-    invoiceExtracostsReserveCurrency: rt.Number,
-    invoiceAkontoReserveAmountCurrency: rt.Number,
-    invoiceReserveTotalAmountCurrency: rt.Number,
-  })
-  .asPartial()
-  .asReadonly();
-
-type ProjectPeriodInvoicingReserve = rt.Static<
-  typeof projectPeriodInvoicingReserveRt
->;
-
-const responseWrapperProjectPeriodInvoicingReserveRt = rt
-  .Record({ value: projectPeriodInvoicingReserveRt })
-  .asPartial();
-
-type ResponseWrapperProjectPeriodInvoicingReserve = rt.Static<
-  typeof responseWrapperProjectPeriodInvoicingReserveRt
 >;
 
 const projectPeriodInvoicedRt = rt
@@ -6310,6 +6557,29 @@ const responseWrapperProjectPeriodHourlyReportRt = rt
 
 type ResponseWrapperProjectPeriodHourlyReport = rt.Static<
   typeof responseWrapperProjectPeriodHourlyReportRt
+>;
+
+const projectPeriodInvoicingReserveRt = rt
+  .Record({
+    invoiceFeeReserveCurrency: rt.Number,
+    periodOrderLinesIncomeCurrency: rt.Number,
+    invoiceExtracostsReserveCurrency: rt.Number,
+    invoiceAkontoReserveAmountCurrency: rt.Number,
+    invoiceReserveTotalAmountCurrency: rt.Number,
+  })
+  .asPartial()
+  .asReadonly();
+
+type ProjectPeriodInvoicingReserve = rt.Static<
+  typeof projectPeriodInvoicingReserveRt
+>;
+
+const responseWrapperProjectPeriodInvoicingReserveRt = rt
+  .Record({ value: projectPeriodInvoicingReserveRt })
+  .asPartial();
+
+type ResponseWrapperProjectPeriodInvoicingReserve = rt.Static<
+  typeof responseWrapperProjectPeriodInvoicingReserveRt
 >;
 
 const responseWrapperProjectActivityRt = rt
@@ -6880,6 +7150,153 @@ type ResponseWrapperPurchaseOrder = rt.Static<
   typeof responseWrapperPurchaseOrderRt
 >;
 
+const contentDispositionRt = rt
+  .Record({
+    type: rt.String,
+    parameters: rt.Dictionary(rt.Unknown),
+    fileName: rt.String,
+    creationDate: rt.String,
+    modificationDate: rt.String,
+    readDate: rt.String,
+    size: rt.Number,
+  })
+  .asPartial();
+
+type ContentDisposition = rt.Static<typeof contentDispositionRt>;
+
+const mediaTypeRt = rt
+  .Record({
+    type: rt.String,
+    subtype: rt.String,
+    parameters: rt.Dictionary(rt.Unknown),
+    wildcardType: rt.Boolean,
+    wildcardSubtype: rt.Boolean,
+  })
+  .asPartial();
+
+type MediaType = rt.Static<typeof mediaTypeRt>;
+
+const messageBodyWorkersRt = rt.Dictionary(rt.Unknown);
+
+type MessageBodyWorkers = rt.Static<typeof messageBodyWorkersRt>;
+
+const providersRt = rt.Dictionary(rt.Unknown);
+
+type Providers = rt.Static<typeof providersRt>;
+
+type MultiPart = {
+  contentDisposition?: ContentDisposition;
+  entity?: Record<string, unknown>;
+  headers?: Record<string, unknown>;
+  mediaType?: MediaType;
+  messageBodyWorkers?: MessageBodyWorkers;
+  parent?: MultiPart;
+  providers?: Providers;
+  bodyParts?: BodyPart[];
+  parameterizedHeaders?: Record<string, unknown>;
+};
+
+const multiPartRt: rt.Runtype<MultiPart> = rt.Lazy(() =>
+  rt
+    .Record({
+      contentDisposition: contentDispositionRt,
+      entity: rt.Dictionary(rt.Unknown),
+      headers: rt.Dictionary(rt.Unknown),
+      mediaType: mediaTypeRt,
+      messageBodyWorkers: messageBodyWorkersRt,
+      parent: multiPartRt,
+      providers: providersRt,
+      bodyParts: rt.Array(bodyPartRt),
+      parameterizedHeaders: rt.Dictionary(rt.Unknown),
+    })
+    .asPartial(),
+);
+
+type BodyPart = {
+  contentDisposition?: ContentDisposition;
+  entity?: Record<string, unknown>;
+  headers?: Record<string, unknown>;
+  mediaType?: MediaType;
+  messageBodyWorkers?: MessageBodyWorkers;
+  parent?: MultiPart;
+  providers?: Providers;
+  parameterizedHeaders?: Record<string, unknown>;
+};
+
+const bodyPartRt: rt.Runtype<BodyPart> = rt.Lazy(() =>
+  rt
+    .Record({
+      contentDisposition: contentDispositionRt,
+      entity: rt.Dictionary(rt.Unknown),
+      headers: rt.Dictionary(rt.Unknown),
+      mediaType: mediaTypeRt,
+      messageBodyWorkers: messageBodyWorkersRt,
+      parent: multiPartRt,
+      providers: providersRt,
+      parameterizedHeaders: rt.Dictionary(rt.Unknown),
+    })
+    .asPartial(),
+);
+
+const formDataContentDispositionRt = rt
+  .Record({
+    type: rt.String,
+    parameters: rt.Dictionary(rt.Unknown),
+    fileName: rt.String,
+    creationDate: rt.String,
+    modificationDate: rt.String,
+    readDate: rt.String,
+    size: rt.Number,
+    name: rt.String,
+  })
+  .asPartial();
+
+type FormDataContentDisposition = rt.Static<
+  typeof formDataContentDispositionRt
+>;
+
+const formDataBodyPartRt = rt
+  .Record({
+    contentDisposition: contentDispositionRt,
+    entity: rt.Dictionary(rt.Unknown),
+    headers: rt.Dictionary(rt.Unknown),
+    mediaType: mediaTypeRt,
+    messageBodyWorkers: messageBodyWorkersRt,
+    parent: multiPartRt,
+    providers: providersRt,
+    formDataContentDisposition: formDataContentDispositionRt,
+    simple: rt.Boolean,
+    name: rt.String,
+    value: rt.String,
+    parameterizedHeaders: rt.Dictionary(rt.Unknown),
+  })
+  .asPartial();
+
+type FormDataBodyPart = rt.Static<typeof formDataBodyPartRt>;
+
+const formDataMultiPartRt = rt
+  .Record({
+    contentDisposition: contentDispositionRt,
+    entity: rt.Dictionary(rt.Unknown),
+    headers: rt.Dictionary(rt.Unknown),
+    mediaType: mediaTypeRt,
+    messageBodyWorkers: messageBodyWorkersRt,
+    parent: multiPartRt,
+    providers: providersRt,
+    bodyParts: rt.Array(bodyPartRt),
+    fields: rt.Dictionary(rt.Unknown),
+    parameterizedHeaders: rt.Dictionary(rt.Unknown),
+  })
+  .asPartial();
+
+type FormDataMultiPart = rt.Static<typeof formDataMultiPartRt>;
+
+const parameterizedHeaderRt = rt
+  .Record({ value: rt.String, parameters: rt.Dictionary(rt.Unknown) })
+  .asPartial();
+
+type ParameterizedHeader = rt.Static<typeof parameterizedHeaderRt>;
+
 const listResponsePurchaseOrderRt = rt
   .Record({
     fullResultSize: rt.Number,
@@ -6917,7 +7334,7 @@ const deviationRt = rt.Intersect(
     .Record({
       id: rt.Number,
       version: rt.Number,
-      purchaseOrderLine: orderLineRt,
+      purchaseOrderLine: purchaseOrderlineRt,
       date: rt.String,
       cause: rt.Union(
         rt.Literal('CAUSE_DEFECT'),
@@ -7724,20 +8141,6 @@ type ResponseWrapperSupplierInvoice = rt.Static<
   typeof responseWrapperSupplierInvoiceRt
 >;
 
-const listResponseSupplierInvoiceRt = rt
-  .Record({
-    fullResultSize: rt.Number,
-    from: rt.Number,
-    count: rt.Number,
-    versionDigest: rt.String,
-    values: rt.Array(supplierInvoiceRt),
-  })
-  .asPartial();
-
-type ListResponseSupplierInvoice = rt.Static<
-  typeof listResponseSupplierInvoiceRt
->;
-
 const orderLinePostingDTORt = rt.Intersect(
   rt
     .Record({
@@ -7754,6 +8157,20 @@ const orderLinePostingDTORt = rt.Intersect(
 );
 
 type OrderLinePostingDTO = rt.Static<typeof orderLinePostingDTORt>;
+
+const listResponseSupplierInvoiceRt = rt
+  .Record({
+    fullResultSize: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    versionDigest: rt.String,
+    values: rt.Array(supplierInvoiceRt),
+  })
+  .asPartial();
+
+type ListResponseSupplierInvoice = rt.Static<
+  typeof listResponseSupplierInvoiceRt
+>;
 
 const responseWrapperVoucherApprovalListElementRt = rt
   .Record({ value: voucherApprovalListElementRt })
@@ -8273,153 +8690,6 @@ const listResponseTravelExpenseRt = rt
 
 type ListResponseTravelExpense = rt.Static<typeof listResponseTravelExpenseRt>;
 
-const contentDispositionRt = rt
-  .Record({
-    type: rt.String,
-    parameters: rt.Dictionary(rt.Unknown),
-    fileName: rt.String,
-    creationDate: rt.String,
-    modificationDate: rt.String,
-    readDate: rt.String,
-    size: rt.Number,
-  })
-  .asPartial();
-
-type ContentDisposition = rt.Static<typeof contentDispositionRt>;
-
-const mediaTypeRt = rt
-  .Record({
-    type: rt.String,
-    subtype: rt.String,
-    parameters: rt.Dictionary(rt.Unknown),
-    wildcardType: rt.Boolean,
-    wildcardSubtype: rt.Boolean,
-  })
-  .asPartial();
-
-type MediaType = rt.Static<typeof mediaTypeRt>;
-
-const messageBodyWorkersRt = rt.Dictionary(rt.Unknown);
-
-type MessageBodyWorkers = rt.Static<typeof messageBodyWorkersRt>;
-
-const providersRt = rt.Dictionary(rt.Unknown);
-
-type Providers = rt.Static<typeof providersRt>;
-
-type MultiPart = {
-  contentDisposition?: ContentDisposition;
-  entity?: Record<string, unknown>;
-  headers?: Record<string, unknown>;
-  mediaType?: MediaType;
-  messageBodyWorkers?: MessageBodyWorkers;
-  parent?: MultiPart;
-  providers?: Providers;
-  bodyParts?: BodyPart[];
-  parameterizedHeaders?: Record<string, unknown>;
-};
-
-const multiPartRt: rt.Runtype<MultiPart> = rt.Lazy(() =>
-  rt
-    .Record({
-      contentDisposition: contentDispositionRt,
-      entity: rt.Dictionary(rt.Unknown),
-      headers: rt.Dictionary(rt.Unknown),
-      mediaType: mediaTypeRt,
-      messageBodyWorkers: messageBodyWorkersRt,
-      parent: multiPartRt,
-      providers: providersRt,
-      bodyParts: rt.Array(bodyPartRt),
-      parameterizedHeaders: rt.Dictionary(rt.Unknown),
-    })
-    .asPartial(),
-);
-
-type BodyPart = {
-  contentDisposition?: ContentDisposition;
-  entity?: Record<string, unknown>;
-  headers?: Record<string, unknown>;
-  mediaType?: MediaType;
-  messageBodyWorkers?: MessageBodyWorkers;
-  parent?: MultiPart;
-  providers?: Providers;
-  parameterizedHeaders?: Record<string, unknown>;
-};
-
-const bodyPartRt: rt.Runtype<BodyPart> = rt.Lazy(() =>
-  rt
-    .Record({
-      contentDisposition: contentDispositionRt,
-      entity: rt.Dictionary(rt.Unknown),
-      headers: rt.Dictionary(rt.Unknown),
-      mediaType: mediaTypeRt,
-      messageBodyWorkers: messageBodyWorkersRt,
-      parent: multiPartRt,
-      providers: providersRt,
-      parameterizedHeaders: rt.Dictionary(rt.Unknown),
-    })
-    .asPartial(),
-);
-
-const formDataContentDispositionRt = rt
-  .Record({
-    type: rt.String,
-    parameters: rt.Dictionary(rt.Unknown),
-    fileName: rt.String,
-    creationDate: rt.String,
-    modificationDate: rt.String,
-    readDate: rt.String,
-    size: rt.Number,
-    name: rt.String,
-  })
-  .asPartial();
-
-type FormDataContentDisposition = rt.Static<
-  typeof formDataContentDispositionRt
->;
-
-const formDataBodyPartRt = rt
-  .Record({
-    contentDisposition: contentDispositionRt,
-    entity: rt.Dictionary(rt.Unknown),
-    headers: rt.Dictionary(rt.Unknown),
-    mediaType: mediaTypeRt,
-    messageBodyWorkers: messageBodyWorkersRt,
-    parent: multiPartRt,
-    providers: providersRt,
-    formDataContentDisposition: formDataContentDispositionRt,
-    simple: rt.Boolean,
-    name: rt.String,
-    value: rt.String,
-    parameterizedHeaders: rt.Dictionary(rt.Unknown),
-  })
-  .asPartial();
-
-type FormDataBodyPart = rt.Static<typeof formDataBodyPartRt>;
-
-const formDataMultiPartRt = rt
-  .Record({
-    contentDisposition: contentDispositionRt,
-    entity: rt.Dictionary(rt.Unknown),
-    headers: rt.Dictionary(rt.Unknown),
-    mediaType: mediaTypeRt,
-    messageBodyWorkers: messageBodyWorkersRt,
-    parent: multiPartRt,
-    providers: providersRt,
-    bodyParts: rt.Array(bodyPartRt),
-    fields: rt.Dictionary(rt.Unknown),
-    parameterizedHeaders: rt.Dictionary(rt.Unknown),
-  })
-  .asPartial();
-
-type FormDataMultiPart = rt.Static<typeof formDataMultiPartRt>;
-
-const parameterizedHeaderRt = rt
-  .Record({ value: rt.String, parameters: rt.Dictionary(rt.Unknown) })
-  .asPartial();
-
-type ParameterizedHeader = rt.Static<typeof parameterizedHeaderRt>;
-
 const responseWrapperTravelExpenseRateRt = rt
   .Record({ value: travelExpenseRateRt })
   .asPartial();
@@ -8674,9 +8944,9 @@ const tripletexAccountRt = rt
       rt.Literal('AGRO_IDRETTSLAG_PAYROLL'),
       rt.Literal('AGRO_FORENING_PAYROLL'),
     ),
-    accountingOffice: rt.Boolean,
     auditor: rt.Boolean,
     reseller: rt.Boolean,
+    accountingOffice: rt.Boolean,
   })
   .asPartial();
 
@@ -8724,9 +8994,9 @@ const tripletexAccount2Rt = rt
     bankAccount: rt.String,
     postAccount: rt.String,
     numberOfPrepaidUsers: rt.Number,
-    accountingOffice: rt.Boolean,
     auditor: rt.Boolean,
     reseller: rt.Boolean,
+    accountingOffice: rt.Boolean,
   })
   .asPartial();
 
@@ -9071,6 +9341,95 @@ const salesForceAccountInfoRt = rt.Intersect(
       registerDate: rt.String,
       startDate: rt.String,
       endDate: rt.String,
+      activeMainModule: rt.Union(
+        rt.Literal('ACCOUNTING'),
+        rt.Literal('INVOICE'),
+        rt.Literal('CRM'),
+        rt.Literal('PROJECT'),
+        rt.Literal('WAGE'),
+        rt.Literal('NETS_PRINT'),
+        rt.Literal('NETS_PRINT_SALARY'),
+        rt.Literal('OCR'),
+        rt.Literal('REMIT'),
+        rt.Literal('SMS_NOTIFICATION'),
+        rt.Literal('VOUCHER_SCANNING'),
+        rt.Literal('TIME_TRACKING'),
+        rt.Literal('VVS_ELECTRO'),
+        rt.Literal('UBEGRENSET_BILAG_VVS_ELEKTRO'),
+        rt.Literal('INVOICE_OPTION_VIPPS'),
+        rt.Literal('INVOICE_OPTION_EFAKTURA'),
+        rt.Literal('INVOICE_OPTION_AVTALEGIRO'),
+        rt.Literal('INVOICE_OPTION_PAPER'),
+        rt.Literal('FACTORING_APRILA'),
+        rt.Literal('INVOICE_OPTION_AUTOINVOICE_OUTBOUND_EHF'),
+        rt.Literal('API_V2'),
+        rt.Literal('SMART_SCAN'),
+        rt.Literal('BILAG_0_100_mikro'),
+        rt.Literal('BILAG_0_500_vanlig_legacy'),
+        rt.Literal('BILAG_501_1000_vanlig_legacy'),
+        rt.Literal('BILAG_1001_2000_vanlig_legacy'),
+        rt.Literal('BILAG_2001_3500_vanlig_legacy'),
+        rt.Literal('BILAG_3501_5000_vanlig_legacy'),
+        rt.Literal('BILAG_5001_10001_vanlig_legacy'),
+        rt.Literal('UBEGRENSET_BILAG_vanlig_legacy'),
+        rt.Literal('BILAG_0_500_prosjekt_legacy'),
+        rt.Literal('BILAG_501_1000_prosjekt_legacy'),
+        rt.Literal('BILAG_1001_2000_prosjekt_legacy'),
+        rt.Literal('BILAG_2001_3500_prosjekt_legacy'),
+        rt.Literal('BILAG_3501_5000_prosjekt_legacy'),
+        rt.Literal('BILAG_5001_10001_prosjekt_legacy'),
+        rt.Literal('UBEGRENSET_BILAG_prosjekt_legacy'),
+        rt.Literal('MIKRO'),
+        rt.Literal('MINI'),
+        rt.Literal('MEDIUM'),
+        rt.Literal('TOTAL'),
+        rt.Literal('BASIS'),
+        rt.Literal('SMART'),
+        rt.Literal('AGRO_CLIENT'),
+        rt.Literal('MAMUT'),
+        rt.Literal('KOMPLETT'),
+        rt.Literal('SMART_WAGE'),
+        rt.Literal('SMART_TIME_TRACKING'),
+        rt.Literal('BILAG_0_500'),
+        rt.Literal('BILAG_501_1000'),
+        rt.Literal('BILAG_1001_2000'),
+        rt.Literal('BILAG_2001_3500'),
+        rt.Literal('BILAG_3501_5000'),
+        rt.Literal('BILAG_5001_10001'),
+        rt.Literal('UBEGRENSET_BILAG'),
+        rt.Literal('READ_ONLY_ACCESS'),
+        rt.Literal('READ_ONLY_ACCESS_FREE'),
+        rt.Literal('AUTOPAY'),
+        rt.Literal('VOUCHER_APPROVAL'),
+        rt.Literal('SMART_PROJECT'),
+        rt.Literal('ACCOUNT_OFFICE'),
+        rt.Literal('UNLIMITED_VOUCHER_ACCOUNT_OFFICE'),
+        rt.Literal('COMPANY_SERVICE_FOR_PAYING_ACCOUNT_OFFICES'),
+        rt.Literal('AGRO_WAGE'),
+        rt.Literal('INVOICE_OPTION_AUTOINVOICE_INCOMING_EHF'),
+        rt.Literal('MAMUT_PROJECT'),
+        rt.Literal('MAMUT_WITH_WAGE'),
+        rt.Literal('USER_SERVICE_HISTORIC_CUSTOMERS_NON_STANDARD'),
+        rt.Literal('ENCRYPTED_PAYSLIP'),
+        rt.Literal('AGRO_LICENCE'),
+        rt.Literal('AGRO_DOCUMENT_CENTER'),
+        rt.Literal('AGRO_INVOICE'),
+        rt.Literal('FIVE_EMPLOYEES'),
+        rt.Literal('AUTOPLUS_MINI'),
+        rt.Literal('AUTOPLUS_MEDIUM'),
+        rt.Literal('AUTOPLUS_STOR'),
+        rt.Literal('CASH_CREDIT_APRILA'),
+        rt.Literal('NO1TS'),
+        rt.Literal('NO1TS_TRAVELREPORT'),
+        rt.Literal('NO1TS_ACCOUNTING'),
+        rt.Literal('AGRO_INVOICE_MIGRATED'),
+        rt.Literal('USER_CATEGORY_1_LICENSE'),
+        rt.Literal('USER_CATEGORY_2_LICENSE'),
+        rt.Literal('USER_CATEGORY_3_LICENSE'),
+        rt.Literal('VOUCHER_FACTORY'),
+        rt.Literal('OCR_AUTOPAY'),
+        rt.Literal('CLOSED_ACCOUNT'),
+      ),
     })
     .asPartial()
     .asReadonly(),
@@ -9418,24 +9777,6 @@ export const Activity_post = buildCall() //
   .body((args) => args.body)
   .build();
 
-// Operation: ActivityList_postList
-
-const activityList_postListArgsRt = rt
-  .Record({ body: rt.Array(activityRt) })
-  .asPartial()
-  .asReadonly();
-
-/**
- * operation ID: ActivityList_postList
- * `POST: /activity/list`
- */
-export const ActivityList_postList = buildCall() //
-  .args<rt.Static<typeof activityList_postListArgsRt>>()
-  .method('post')
-  .path('/activity/list')
-  .body((args) => args.body)
-  .build();
-
 // Operation: ActivityForTimeSheet_getForTimeSheet
 
 const activityForTimeSheet_getForTimeSheetArgsRt = rt.Intersect(
@@ -9477,6 +9818,24 @@ export const ActivityForTimeSheet_getForTimeSheet = buildCall() //
       ),
   )
   .parseJson(withRuntype(listResponseActivityRt))
+  .build();
+
+// Operation: ActivityList_postList
+
+const activityList_postListArgsRt = rt
+  .Record({ body: rt.Array(activityRt) })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ActivityList_postList
+ * `POST: /activity/list`
+ */
+export const ActivityList_postList = buildCall() //
+  .args<rt.Static<typeof activityList_postListArgsRt>>()
+  .method('post')
+  .path('/activity/list')
+  .body((args) => args.body)
   .build();
 
 // Operation: Activity_get
@@ -9910,6 +10269,28 @@ export const BankReconciliationLastClosed_lastClosed = buildCall() //
   .parseJson(withRuntype(responseWrapperBankReconciliationRt))
   .build();
 
+// Operation: BankReconciliationAdjustment_adjustment
+
+const bankReconciliationAdjustment_adjustmentArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt
+    .Record({ body: rt.Array(bankReconciliationAdjustmentRt) })
+    .asPartial()
+    .asReadonly(),
+);
+
+/**
+ * operation ID: BankReconciliationAdjustment_adjustment
+ * `PUT: /bank/reconciliation/{id}/:adjustment`
+ */
+export const BankReconciliationAdjustment_adjustment = buildCall() //
+  .args<rt.Static<typeof bankReconciliationAdjustment_adjustmentArgsRt>>()
+  .method('put')
+  .path((args) => `/bank/reconciliation/${args.id}/:adjustment`)
+  .body((args) => args.body)
+  .parseJson(withRuntype(listResponseBankReconciliationAdjustmentRt))
+  .build();
+
 // Operation: BankReconciliation_get
 
 const bankReconciliation_getArgsRt = rt.Intersect(
@@ -9962,28 +10343,6 @@ export const BankReconciliation_delete = buildCall() //
   .args<rt.Static<typeof bankReconciliation_deleteArgsRt>>()
   .method('delete')
   .path((args) => `/bank/reconciliation/${args.id}`)
-  .build();
-
-// Operation: BankReconciliationAdjustment_adjustment
-
-const bankReconciliationAdjustment_adjustmentArgsRt = rt.Intersect(
-  rt.Record({ id: rt.Number }).asReadonly(),
-  rt
-    .Record({ body: rt.Array(bankReconciliationAdjustmentRt) })
-    .asPartial()
-    .asReadonly(),
-);
-
-/**
- * operation ID: BankReconciliationAdjustment_adjustment
- * `PUT: /bank/reconciliation/{id}/:adjustment`
- */
-export const BankReconciliationAdjustment_adjustment = buildCall() //
-  .args<rt.Static<typeof bankReconciliationAdjustment_adjustmentArgsRt>>()
-  .method('put')
-  .path((args) => `/bank/reconciliation/${args.id}/:adjustment`)
-  .body((args) => args.body)
-  .parseJson(withRuntype(listResponseBankReconciliationAdjustmentRt))
   .build();
 
 // Operation: BankReconciliationMatch_search
@@ -11203,6 +11562,7 @@ const department_searchArgsRt = rt
     name: rt.String,
     departmentNumber: rt.String,
     departmentManagerId: rt.String,
+    isInactive: rt.Boolean,
     from: rt.Number,
     count: rt.Number,
     sorting: rt.String,
@@ -11228,6 +11588,7 @@ export const Department_search = buildCall() //
           'name',
           'departmentNumber',
           'departmentManagerId',
+          'isInactive',
           'from',
           'count',
           'sorting',
@@ -11502,64 +11863,6 @@ export const DocumentArchiveReception_receptionPost = buildCall() //
   .path('/documentArchive/reception')
   .build();
 
-// Operation: DocumentArchiveCustomer_getCustomer
-
-const documentArchiveCustomer_getCustomerArgsRt = rt.Intersect(
-  rt.Record({ id: rt.Number }).asReadonly(),
-  rt
-    .Record({
-      periodDateFrom: rt.String,
-      periodDateTo: rt.String,
-      from: rt.Number,
-      count: rt.Number,
-      sorting: rt.String,
-      fields: rt.String,
-    })
-    .asPartial()
-    .asReadonly(),
-);
-
-/**
- * operation ID: DocumentArchiveCustomer_getCustomer
- * `GET: /documentArchive/customer/{id}`
- */
-export const DocumentArchiveCustomer_getCustomer = buildCall() //
-  .args<rt.Static<typeof documentArchiveCustomer_getCustomerArgsRt>>()
-  .method('get')
-  .path((args) => `/documentArchive/customer/${args.id}`)
-  .query(
-    (args) =>
-      new URLSearchParams(
-        pickQueryValues(
-          args,
-          'periodDateFrom',
-          'periodDateTo',
-          'from',
-          'count',
-          'sorting',
-          'fields',
-        ),
-      ),
-  )
-  .parseJson(withRuntype(listResponseDocumentArchiveRt))
-  .build();
-
-// Operation: DocumentArchiveCustomer_customerPost
-
-const documentArchiveCustomer_customerPostArgsRt = rt
-  .Record({ file: rt.Unknown, id: rt.Number })
-  .asReadonly();
-
-/**
- * operation ID: DocumentArchiveCustomer_customerPost
- * `POST: /documentArchive/customer/{id}`
- */
-export const DocumentArchiveCustomer_customerPost = buildCall() //
-  .args<rt.Static<typeof documentArchiveCustomer_customerPostArgsRt>>()
-  .method('post')
-  .path((args) => `/documentArchive/customer/${args.id}`)
-  .build();
-
 // Operation: DocumentArchiveProject_getProject
 
 const documentArchiveProject_getProjectArgsRt = rt.Intersect(
@@ -11616,6 +11919,64 @@ export const DocumentArchiveProject_projectPost = buildCall() //
   .args<rt.Static<typeof documentArchiveProject_projectPostArgsRt>>()
   .method('post')
   .path((args) => `/documentArchive/project/${args.id}`)
+  .build();
+
+// Operation: DocumentArchiveCustomer_getCustomer
+
+const documentArchiveCustomer_getCustomerArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt
+    .Record({
+      periodDateFrom: rt.String,
+      periodDateTo: rt.String,
+      from: rt.Number,
+      count: rt.Number,
+      sorting: rt.String,
+      fields: rt.String,
+    })
+    .asPartial()
+    .asReadonly(),
+);
+
+/**
+ * operation ID: DocumentArchiveCustomer_getCustomer
+ * `GET: /documentArchive/customer/{id}`
+ */
+export const DocumentArchiveCustomer_getCustomer = buildCall() //
+  .args<rt.Static<typeof documentArchiveCustomer_getCustomerArgsRt>>()
+  .method('get')
+  .path((args) => `/documentArchive/customer/${args.id}`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'periodDateFrom',
+          'periodDateTo',
+          'from',
+          'count',
+          'sorting',
+          'fields',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(listResponseDocumentArchiveRt))
+  .build();
+
+// Operation: DocumentArchiveCustomer_customerPost
+
+const documentArchiveCustomer_customerPostArgsRt = rt
+  .Record({ file: rt.Unknown, id: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: DocumentArchiveCustomer_customerPost
+ * `POST: /documentArchive/customer/{id}`
+ */
+export const DocumentArchiveCustomer_customerPost = buildCall() //
+  .args<rt.Static<typeof documentArchiveCustomer_customerPostArgsRt>>()
+  .method('post')
+  .path((args) => `/documentArchive/customer/${args.id}`)
   .build();
 
 // Operation: DocumentArchiveSupplier_getSupplier
@@ -13633,6 +13994,8 @@ const inventoryInventories_searchArgsRt = rt.Intersect(
   rt
     .Record({
       productId: rt.Number,
+      inventoryId: rt.Number,
+      onlyProductWithChangedStatus: rt.Boolean,
       from: rt.Number,
       count: rt.Number,
       sorting: rt.String,
@@ -13658,6 +14021,8 @@ export const InventoryInventories_search = buildCall() //
           'dateFrom',
           'dateTo',
           'productId',
+          'inventoryId',
+          'onlyProductWithChangedStatus',
           'from',
           'count',
           'sorting',
@@ -13762,6 +14127,23 @@ export const InventoryLocationList_postList = buildCall() //
   .method('post')
   .path('/inventory/location/list')
   .body((args) => args.body)
+  .build();
+
+// Operation: InventoryLocationList_deleteByIds
+
+const inventoryLocationList_deleteByIdsArgsRt = rt
+  .Record({ ids: rt.String })
+  .asReadonly();
+
+/**
+ * operation ID: InventoryLocationList_deleteByIds
+ * `DELETE: /inventory/location/list`
+ */
+export const InventoryLocationList_deleteByIds = buildCall() //
+  .args<rt.Static<typeof inventoryLocationList_deleteByIdsArgsRt>>()
+  .method('delete')
+  .path('/inventory/location/list')
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'ids')))
   .build();
 
 // Operation: InventoryLocation_get
@@ -14152,25 +14534,6 @@ export const InvoiceList_postList = buildCall() //
   .body((args) => args.body)
   .build();
 
-// Operation: InvoicePdf_downloadPdf
-
-const invoicePdf_downloadPdfArgsRt = rt
-  .Record({ invoiceId: rt.Number })
-  .asReadonly();
-
-const invoicePdf_downloadPdfResponseBodyRt = rt.String;
-
-/**
- * operation ID: InvoicePdf_downloadPdf
- * `GET: /invoice/{invoiceId}/pdf`
- */
-export const InvoicePdf_downloadPdf = buildCall() //
-  .args<rt.Static<typeof invoicePdf_downloadPdfArgsRt>>()
-  .method('get')
-  .path((args) => `/invoice/${args.invoiceId}/pdf`)
-  .parseJson(withRuntype(invoicePdf_downloadPdfResponseBodyRt))
-  .build();
-
 // Operation: InvoiceSend_send
 
 const invoiceSend_sendArgsRt = rt.Intersect(
@@ -14203,6 +14566,25 @@ export const InvoiceSend_send = buildCall() //
         pickQueryValues(args, 'sendType', 'overrideEmailAddress'),
       ),
   )
+  .build();
+
+// Operation: InvoicePdf_downloadPdf
+
+const invoicePdf_downloadPdfArgsRt = rt
+  .Record({ invoiceId: rt.Number })
+  .asReadonly();
+
+const invoicePdf_downloadPdfResponseBodyRt = rt.String;
+
+/**
+ * operation ID: InvoicePdf_downloadPdf
+ * `GET: /invoice/{invoiceId}/pdf`
+ */
+export const InvoicePdf_downloadPdf = buildCall() //
+  .args<rt.Static<typeof invoicePdf_downloadPdfArgsRt>>()
+  .method('get')
+  .path((args) => `/invoice/${args.invoiceId}/pdf`)
+  .parseJson(withRuntype(invoicePdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: InvoicePayment_payment
@@ -15359,6 +15741,27 @@ export const LedgerVoucher_post = buildCall() //
   .body((args) => args.body)
   .build();
 
+// Operation: LedgerVoucherImportDocument_importDocument
+
+const ledgerVoucherImportDocument_importDocumentArgsRt = rt.Intersect(
+  rt.Record({ file: rt.Unknown }).asReadonly(),
+  rt
+    .Record({ description: rt.String, split: rt.Boolean })
+    .asPartial()
+    .asReadonly(),
+);
+
+/**
+ * operation ID: LedgerVoucherImportDocument_importDocument
+ * `POST: /ledger/voucher/importDocument`
+ */
+export const LedgerVoucherImportDocument_importDocument = buildCall() //
+  .args<rt.Static<typeof ledgerVoucherImportDocument_importDocumentArgsRt>>()
+  .method('post')
+  .path('/ledger/voucher/importDocument')
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'split')))
+  .build();
+
 // Operation: LedgerVoucherList_putList
 
 const ledgerVoucherList_putListArgsRt = rt
@@ -15379,46 +15782,46 @@ export const LedgerVoucherList_putList = buildCall() //
   .parseJson(withRuntype(listResponseVoucherRt))
   .build();
 
-// Operation: LedgerVoucherSendToLedger_sendToLedger
+// Operation: LedgerVoucherAttachment_uploadAttachment
 
-const ledgerVoucherSendToLedger_sendToLedgerArgsRt = rt.Intersect(
-  rt.Record({ id: rt.Number }).asReadonly(),
-  rt.Record({ version: rt.Number, number: rt.Number }).asPartial().asReadonly(),
-);
+const ledgerVoucherAttachment_uploadAttachmentArgsRt = rt
+  .Record({ voucherId: rt.Number, file: rt.Unknown })
+  .asReadonly();
 
 /**
- * operation ID: LedgerVoucherSendToLedger_sendToLedger
- * `PUT: /ledger/voucher/{id}/:sendToLedger`
+ * operation ID: LedgerVoucherAttachment_uploadAttachment
+ * `POST: /ledger/voucher/{voucherId}/attachment`
  */
-export const LedgerVoucherSendToLedger_sendToLedger = buildCall() //
-  .args<rt.Static<typeof ledgerVoucherSendToLedger_sendToLedgerArgsRt>>()
-  .method('put')
-  .path((args) => `/ledger/voucher/${args.id}/:sendToLedger`)
-  .query(
-    (args) => new URLSearchParams(pickQueryValues(args, 'version', 'number')),
-  )
-  .parseJson(withRuntype(responseWrapperVoucherRt))
+export const LedgerVoucherAttachment_uploadAttachment = buildCall() //
+  .args<rt.Static<typeof ledgerVoucherAttachment_uploadAttachmentArgsRt>>()
+  .method('post')
+  .path((args) => `/ledger/voucher/${args.voucherId}/attachment`)
   .build();
 
-// Operation: LedgerVoucherImportDocument_importDocument
+// Operation: LedgerVoucherAttachment_deleteAttachment
 
-const ledgerVoucherImportDocument_importDocumentArgsRt = rt.Intersect(
-  rt.Record({ file: rt.Unknown }).asReadonly(),
+const ledgerVoucherAttachment_deleteAttachmentArgsRt = rt.Intersect(
+  rt.Record({ voucherId: rt.Number }).asReadonly(),
   rt
-    .Record({ description: rt.String, split: rt.Boolean })
+    .Record({ version: rt.Number, sendToInbox: rt.Boolean, split: rt.Boolean })
     .asPartial()
     .asReadonly(),
 );
 
 /**
- * operation ID: LedgerVoucherImportDocument_importDocument
- * `POST: /ledger/voucher/importDocument`
+ * operation ID: LedgerVoucherAttachment_deleteAttachment
+ * `DELETE: /ledger/voucher/{voucherId}/attachment`
  */
-export const LedgerVoucherImportDocument_importDocument = buildCall() //
-  .args<rt.Static<typeof ledgerVoucherImportDocument_importDocumentArgsRt>>()
-  .method('post')
-  .path('/ledger/voucher/importDocument')
-  .query((args) => new URLSearchParams(pickQueryValues(args, 'split')))
+export const LedgerVoucherAttachment_deleteAttachment = buildCall() //
+  .args<rt.Static<typeof ledgerVoucherAttachment_deleteAttachmentArgsRt>>()
+  .method('delete')
+  .path((args) => `/ledger/voucher/${args.voucherId}/attachment`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'version', 'sendToInbox', 'split'),
+      ),
+  )
   .build();
 
 // Operation: LedgerVoucherNonPosted_nonPosted
@@ -15466,6 +15869,27 @@ export const LedgerVoucherNonPosted_nonPosted = buildCall() //
   .parseJson(withRuntype(listResponseVoucherRt))
   .build();
 
+// Operation: LedgerVoucherSendToLedger_sendToLedger
+
+const ledgerVoucherSendToLedger_sendToLedgerArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt.Record({ version: rt.Number, number: rt.Number }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: LedgerVoucherSendToLedger_sendToLedger
+ * `PUT: /ledger/voucher/{id}/:sendToLedger`
+ */
+export const LedgerVoucherSendToLedger_sendToLedger = buildCall() //
+  .args<rt.Static<typeof ledgerVoucherSendToLedger_sendToLedgerArgsRt>>()
+  .method('put')
+  .path((args) => `/ledger/voucher/${args.id}/:sendToLedger`)
+  .query(
+    (args) => new URLSearchParams(pickQueryValues(args, 'version', 'number')),
+  )
+  .parseJson(withRuntype(responseWrapperVoucherRt))
+  .build();
+
 // Operation: LedgerVoucherVoucherReception_voucherReception
 
 const ledgerVoucherVoucherReception_voucherReceptionArgsRt = rt
@@ -15509,6 +15933,49 @@ export const LedgerVoucherVoucherReception_voucherReception = buildCall() //
   .parseJson(withRuntype(listResponseVoucherRt))
   .build();
 
+// Operation: LedgerVoucherExternalVoucherNumber_externalVoucherNumber
+
+const ledgerVoucherExternalVoucherNumber_externalVoucherNumberArgsRt = rt
+  .Record({
+    externalVoucherNumber: rt.String,
+    from: rt.Number,
+    count: rt.Number,
+    sorting: rt.String,
+    fields: rt.String,
+  })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID:
+ * LedgerVoucherExternalVoucherNumber_externalVoucherNumber
+ * `GET: /ledger/voucher/>externalVoucherNumber`
+ */
+export const LedgerVoucherExternalVoucherNumber_externalVoucherNumber =
+  buildCall() //
+    .args<
+      rt.Static<
+        typeof ledgerVoucherExternalVoucherNumber_externalVoucherNumberArgsRt
+      >
+    >()
+    .method('get')
+    .path('/ledger/voucher/>externalVoucherNumber')
+    .query(
+      (args) =>
+        new URLSearchParams(
+          pickQueryValues(
+            args,
+            'externalVoucherNumber',
+            'from',
+            'count',
+            'sorting',
+            'fields',
+          ),
+        ),
+    )
+    .parseJson(withRuntype(listResponseVoucherRt))
+    .build();
+
 // Operation: LedgerVoucherPdf_downloadPdf
 
 const ledgerVoucherPdf_downloadPdfArgsRt = rt
@@ -15542,48 +16009,6 @@ export const LedgerVoucherPdf_uploadPdf = buildCall() //
   .args<rt.Static<typeof ledgerVoucherPdf_uploadPdfArgsRt>>()
   .method('post')
   .path((args) => `/ledger/voucher/${args.voucherId}/pdf/${args.fileName}`)
-  .build();
-
-// Operation: LedgerVoucherAttachment_uploadAttachment
-
-const ledgerVoucherAttachment_uploadAttachmentArgsRt = rt
-  .Record({ voucherId: rt.Number, file: rt.Unknown })
-  .asReadonly();
-
-/**
- * operation ID: LedgerVoucherAttachment_uploadAttachment
- * `POST: /ledger/voucher/{voucherId}/attachment`
- */
-export const LedgerVoucherAttachment_uploadAttachment = buildCall() //
-  .args<rt.Static<typeof ledgerVoucherAttachment_uploadAttachmentArgsRt>>()
-  .method('post')
-  .path((args) => `/ledger/voucher/${args.voucherId}/attachment`)
-  .build();
-
-// Operation: LedgerVoucherAttachment_deleteAttachment
-
-const ledgerVoucherAttachment_deleteAttachmentArgsRt = rt.Intersect(
-  rt.Record({ voucherId: rt.Number }).asReadonly(),
-  rt
-    .Record({ version: rt.Number, sendToInbox: rt.Boolean, split: rt.Boolean })
-    .asPartial()
-    .asReadonly(),
-);
-
-/**
- * operation ID: LedgerVoucherAttachment_deleteAttachment
- * `DELETE: /ledger/voucher/{voucherId}/attachment`
- */
-export const LedgerVoucherAttachment_deleteAttachment = buildCall() //
-  .args<rt.Static<typeof ledgerVoucherAttachment_deleteAttachmentArgsRt>>()
-  .method('delete')
-  .path((args) => `/ledger/voucher/${args.voucherId}/attachment`)
-  .query(
-    (args) =>
-      new URLSearchParams(
-        pickQueryValues(args, 'version', 'sendToInbox', 'split'),
-      ),
-  )
   .build();
 
 // Operation: LedgerVoucherSendToInbox_sendToInbox
@@ -16478,6 +16903,38 @@ export const ProductList_postList = buildCall() //
   .body((args) => args.body)
   .build();
 
+// Operation: ProductImage_uploadImage
+
+const productImage_uploadImageArgsRt = rt
+  .Record({ id: rt.Number, file: rt.Unknown })
+  .asReadonly();
+
+/**
+ * operation ID: ProductImage_uploadImage
+ * `POST: /product/{id}/image`
+ */
+export const ProductImage_uploadImage = buildCall() //
+  .args<rt.Static<typeof productImage_uploadImageArgsRt>>()
+  .method('post')
+  .path((args) => `/product/${args.id}/image`)
+  .build();
+
+// Operation: ProductImage_deleteImage
+
+const productImage_deleteImageArgsRt = rt
+  .Record({ id: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: ProductImage_deleteImage
+ * `DELETE: /product/{id}/image`
+ */
+export const ProductImage_deleteImage = buildCall() //
+  .args<rt.Static<typeof productImage_deleteImageArgsRt>>()
+  .method('delete')
+  .path((args) => `/product/${args.id}/image`)
+  .build();
+
 // Operation: Product_get
 
 const product_getArgsRt = rt.Intersect(
@@ -16528,6 +16985,214 @@ export const Product_delete = buildCall() //
   .args<rt.Static<typeof product_deleteArgsRt>>()
   .method('delete')
   .path((args) => `/product/${args.id}`)
+  .build();
+
+// Operation: ProductSupplierProduct_search
+
+const productSupplierProduct_searchArgsRt = rt
+  .Record({
+    productId: rt.Number,
+    vendorId: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    sorting: rt.String,
+    fields: rt.String,
+  })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ProductSupplierProduct_search
+ * `GET: /product/supplierProduct`
+ */
+export const ProductSupplierProduct_search = buildCall() //
+  .args<rt.Static<typeof productSupplierProduct_searchArgsRt>>()
+  .method('get')
+  .path('/product/supplierProduct')
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'productId',
+          'vendorId',
+          'from',
+          'count',
+          'sorting',
+          'fields',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(listResponseSupplierProductRt))
+  .build();
+
+// Operation: ProductSupplierProduct_post
+
+const productSupplierProduct_postArgsRt = rt
+  .Record({ body: supplierProductRt })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ProductSupplierProduct_post
+ * `POST: /product/supplierProduct`
+ */
+export const ProductSupplierProduct_post = buildCall() //
+  .args<rt.Static<typeof productSupplierProduct_postArgsRt>>()
+  .method('post')
+  .path('/product/supplierProduct')
+  .body((args) => args.body)
+  .build();
+
+// Operation: ProductSupplierProductList_putList
+
+const productSupplierProductList_putListArgsRt = rt
+  .Record({ body: rt.Array(supplierProductRt) })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ProductSupplierProductList_putList
+ * `PUT: /product/supplierProduct/list`
+ */
+export const ProductSupplierProductList_putList = buildCall() //
+  .args<rt.Static<typeof productSupplierProductList_putListArgsRt>>()
+  .method('put')
+  .path('/product/supplierProduct/list')
+  .body((args) => args.body)
+  .parseJson(withRuntype(listResponseSupplierProductRt))
+  .build();
+
+// Operation: ProductSupplierProductList_postList
+
+const productSupplierProductList_postListArgsRt = rt
+  .Record({ body: rt.Array(supplierProductRt) })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ProductSupplierProductList_postList
+ * `POST: /product/supplierProduct/list`
+ */
+export const ProductSupplierProductList_postList = buildCall() //
+  .args<rt.Static<typeof productSupplierProductList_postListArgsRt>>()
+  .method('post')
+  .path('/product/supplierProduct/list')
+  .body((args) => args.body)
+  .build();
+
+// Operation: ProductSupplierProduct_get
+
+const productSupplierProduct_getArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: ProductSupplierProduct_get
+ * `GET: /product/supplierProduct/{id}`
+ */
+export const ProductSupplierProduct_get = buildCall() //
+  .args<rt.Static<typeof productSupplierProduct_getArgsRt>>()
+  .method('get')
+  .path((args) => `/product/supplierProduct/${args.id}`)
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperSupplierProductRt))
+  .build();
+
+// Operation: ProductSupplierProduct_put
+
+const productSupplierProduct_putArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt.Record({ body: supplierProductRt }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: ProductSupplierProduct_put
+ * `PUT: /product/supplierProduct/{id}`
+ */
+export const ProductSupplierProduct_put = buildCall() //
+  .args<rt.Static<typeof productSupplierProduct_putArgsRt>>()
+  .method('put')
+  .path((args) => `/product/supplierProduct/${args.id}`)
+  .body((args) => args.body)
+  .parseJson(withRuntype(responseWrapperSupplierProductRt))
+  .build();
+
+// Operation: ProductSupplierProduct_delete
+
+const productSupplierProduct_deleteArgsRt = rt
+  .Record({ id: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: ProductSupplierProduct_delete
+ * `DELETE: /product/supplierProduct/{id}`
+ */
+export const ProductSupplierProduct_delete = buildCall() //
+  .args<rt.Static<typeof productSupplierProduct_deleteArgsRt>>()
+  .method('delete')
+  .path((args) => `/product/supplierProduct/${args.id}`)
+  .build();
+
+// Operation: ProductDiscountGroup_get
+
+const productDiscountGroup_getArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: ProductDiscountGroup_get
+ * `GET: /product/discountGroup/{id}`
+ */
+export const ProductDiscountGroup_get = buildCall() //
+  .args<rt.Static<typeof productDiscountGroup_getArgsRt>>()
+  .method('get')
+  .path((args) => `/product/discountGroup/${args.id}`)
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperDiscountGroupRt))
+  .build();
+
+// Operation: ProductDiscountGroup_search
+
+const productDiscountGroup_searchArgsRt = rt
+  .Record({
+    id: rt.String,
+    name: rt.String,
+    number: rt.String,
+    from: rt.Number,
+    count: rt.Number,
+    sorting: rt.String,
+    fields: rt.String,
+  })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ProductDiscountGroup_search
+ * `GET: /product/discountGroup`
+ */
+export const ProductDiscountGroup_search = buildCall() //
+  .args<rt.Static<typeof productDiscountGroup_searchArgsRt>>()
+  .method('get')
+  .path('/product/discountGroup')
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'id',
+          'name',
+          'number',
+          'from',
+          'count',
+          'sorting',
+          'fields',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(listResponseDiscountGroupRt))
   .build();
 
 // Operation: ProductInventoryLocation_search
@@ -17370,6 +18035,45 @@ export const Project_deleteList = buildCall() //
   .body((args) => args.body)
   .build();
 
+// Operation: ProjectForTimeSheet_getForTimeSheet
+
+const projectForTimeSheet_getForTimeSheetArgsRt = rt
+  .Record({
+    employeeId: rt.Number,
+    date: rt.String,
+    from: rt.Number,
+    count: rt.Number,
+    sorting: rt.String,
+    fields: rt.String,
+  })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: ProjectForTimeSheet_getForTimeSheet
+ * `GET: /project/>forTimeSheet`
+ */
+export const ProjectForTimeSheet_getForTimeSheet = buildCall() //
+  .args<rt.Static<typeof projectForTimeSheet_getForTimeSheetArgsRt>>()
+  .method('get')
+  .path('/project/>forTimeSheet')
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'employeeId',
+          'date',
+          'from',
+          'count',
+          'sorting',
+          'fields',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(listResponseProjectRt))
+  .build();
+
 // Operation: ProjectList_putList
 
 const projectList_putListArgsRt = rt
@@ -17422,45 +18126,6 @@ export const ProjectList_deleteByIds = buildCall() //
   .method('delete')
   .path('/project/list')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'ids')))
-  .build();
-
-// Operation: ProjectForTimeSheet_getForTimeSheet
-
-const projectForTimeSheet_getForTimeSheetArgsRt = rt
-  .Record({
-    employeeId: rt.Number,
-    date: rt.String,
-    from: rt.Number,
-    count: rt.Number,
-    sorting: rt.String,
-    fields: rt.String,
-  })
-  .asPartial()
-  .asReadonly();
-
-/**
- * operation ID: ProjectForTimeSheet_getForTimeSheet
- * `GET: /project/>forTimeSheet`
- */
-export const ProjectForTimeSheet_getForTimeSheet = buildCall() //
-  .args<rt.Static<typeof projectForTimeSheet_getForTimeSheetArgsRt>>()
-  .method('get')
-  .path('/project/>forTimeSheet')
-  .query(
-    (args) =>
-      new URLSearchParams(
-        pickQueryValues(
-          args,
-          'employeeId',
-          'date',
-          'from',
-          'count',
-          'sorting',
-          'fields',
-        ),
-      ),
-  )
-  .parseJson(withRuntype(listResponseProjectRt))
   .build();
 
 // Operation: ProjectImport_importProjectStatement
@@ -17873,34 +18538,6 @@ export const ProjectParticipant_put = buildCall() //
   .parseJson(withRuntype(responseWrapperProjectParticipantRt))
   .build();
 
-// Operation: ProjectPeriodInvoicingReserve_invoicingReserve
-
-const projectPeriodInvoicingReserve_invoicingReserveArgsRt = rt.Intersect(
-  rt
-    .Record({ dateFrom: rt.String, dateTo: rt.String, id: rt.Number })
-    .asReadonly(),
-  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
-);
-
-/**
- * operation ID: ProjectPeriodInvoicingReserve_invoicingReserve
- * `GET: /project/{id}/period/invoicingReserve`
- */
-export const ProjectPeriodInvoicingReserve_invoicingReserve = buildCall() //
-  .args<
-    rt.Static<typeof projectPeriodInvoicingReserve_invoicingReserveArgsRt>
-  >()
-  .method('get')
-  .path((args) => `/project/${args.id}/period/invoicingReserve`)
-  .query(
-    (args) =>
-      new URLSearchParams(
-        pickQueryValues(args, 'dateFrom', 'dateTo', 'fields'),
-      ),
-  )
-  .parseJson(withRuntype(responseWrapperProjectPeriodInvoicingReserveRt))
-  .build();
-
 // Operation: ProjectPeriodInvoiced_invoiced
 
 const projectPeriodInvoiced_invoicedArgsRt = rt.Intersect(
@@ -18019,6 +18656,34 @@ export const ProjectPeriodHourlistReport_hourlistReport = buildCall() //
       ),
   )
   .parseJson(withRuntype(responseWrapperProjectPeriodHourlyReportRt))
+  .build();
+
+// Operation: ProjectPeriodInvoicingReserve_invoicingReserve
+
+const projectPeriodInvoicingReserve_invoicingReserveArgsRt = rt.Intersect(
+  rt
+    .Record({ dateFrom: rt.String, dateTo: rt.String, id: rt.Number })
+    .asReadonly(),
+  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: ProjectPeriodInvoicingReserve_invoicingReserve
+ * `GET: /project/{id}/period/invoicingReserve`
+ */
+export const ProjectPeriodInvoicingReserve_invoicingReserve = buildCall() //
+  .args<
+    rt.Static<typeof projectPeriodInvoicingReserve_invoicingReserveArgsRt>
+  >()
+  .method('get')
+  .path((args) => `/project/${args.id}/period/invoicingReserve`)
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'dateFrom', 'dateTo', 'fields'),
+      ),
+  )
+  .parseJson(withRuntype(responseWrapperProjectPeriodInvoicingReserveRt))
   .build();
 
 // Operation: ProjectProjectActivity_post
@@ -18868,22 +19533,6 @@ export const PurchaseOrder_post = buildCall() //
   .body((args) => args.body)
   .build();
 
-// Operation: PurchaseOrderAttachment_uploadAttachment
-
-const purchaseOrderAttachment_uploadAttachmentArgsRt = rt
-  .Record({ id: rt.Number, file: rt.Unknown })
-  .asReadonly();
-
-/**
- * operation ID: PurchaseOrderAttachment_uploadAttachment
- * `POST: /purchaseOrder/{id}/attachment`
- */
-export const PurchaseOrderAttachment_uploadAttachment = buildCall() //
-  .args<rt.Static<typeof purchaseOrderAttachment_uploadAttachmentArgsRt>>()
-  .method('post')
-  .path((args) => `/purchaseOrder/${args.id}/attachment`)
-  .build();
-
 // Operation: PurchaseOrderSend_send
 
 const purchaseOrderSend_sendArgsRt = rt.Intersect(
@@ -18936,6 +19585,57 @@ export const PurchaseOrderSendByEmail_sendByEmail = buildCall() //
       ),
   )
   .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
+  .build();
+
+// Operation: PurchaseOrderAttachment_uploadAttachment
+
+const purchaseOrderAttachment_uploadAttachmentArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number, file: rt.Unknown }).asReadonly(),
+  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: PurchaseOrderAttachment_uploadAttachment
+ * `POST: /purchaseOrder/{id}/attachment`
+ */
+export const PurchaseOrderAttachment_uploadAttachment = buildCall() //
+  .args<rt.Static<typeof purchaseOrderAttachment_uploadAttachmentArgsRt>>()
+  .method('post')
+  .path((args) => `/purchaseOrder/${args.id}/attachment`)
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .build();
+
+// Operation: PurchaseOrderAttachment_deleteAttachment
+
+const purchaseOrderAttachment_deleteAttachmentArgsRt = rt
+  .Record({ id: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: PurchaseOrderAttachment_deleteAttachment
+ * `DELETE: /purchaseOrder/{id}/attachment`
+ */
+export const PurchaseOrderAttachment_deleteAttachment = buildCall() //
+  .args<rt.Static<typeof purchaseOrderAttachment_deleteAttachmentArgsRt>>()
+  .method('delete')
+  .path((args) => `/purchaseOrder/${args.id}/attachment`)
+  .build();
+
+// Operation: PurchaseOrderAttachmentList_uploadAttachments
+
+const purchaseOrderAttachmentList_uploadAttachmentsArgsRt = rt
+  .Record({ id: rt.Number, body: formDataMultiPartRt })
+  .asReadonly();
+
+/**
+ * operation ID: PurchaseOrderAttachmentList_uploadAttachments
+ * `POST: /purchaseOrder/{id}/attachment/list`
+ */
+export const PurchaseOrderAttachmentList_uploadAttachments = buildCall() //
+  .args<rt.Static<typeof purchaseOrderAttachmentList_uploadAttachmentsArgsRt>>()
+  .method('post')
+  .path((args) => `/purchaseOrder/${args.id}/attachment/list`)
+  .body((args) => args.body)
   .build();
 
 // Operation: PurchaseOrder_get
@@ -19142,23 +19842,6 @@ export const PurchaseOrderDeviationList_postList = buildCall() //
   .body((args) => args.body)
   .build();
 
-// Operation: PurchaseOrderDeviationApprove_approve
-
-const purchaseOrderDeviationApprove_approveArgsRt = rt
-  .Record({ id: rt.Number })
-  .asReadonly();
-
-/**
- * operation ID: PurchaseOrderDeviationApprove_approve
- * `PUT: /purchaseOrder/deviation/{id}/:approve`
- */
-export const PurchaseOrderDeviationApprove_approve = buildCall() //
-  .args<rt.Static<typeof purchaseOrderDeviationApprove_approveArgsRt>>()
-  .method('put')
-  .path((args) => `/purchaseOrder/deviation/${args.id}/:approve`)
-  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
-  .build();
-
 // Operation: PurchaseOrderDeviationDeliver_deliver
 
 const purchaseOrderDeviationDeliver_deliverArgsRt = rt
@@ -19190,6 +19873,23 @@ export const PurchaseOrderDeviationUndeliver_undeliver = buildCall() //
   .args<rt.Static<typeof purchaseOrderDeviationUndeliver_undeliverArgsRt>>()
   .method('put')
   .path((args) => `/purchaseOrder/deviation/${args.id}/:undeliver`)
+  .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
+  .build();
+
+// Operation: PurchaseOrderDeviationApprove_approve
+
+const purchaseOrderDeviationApprove_approveArgsRt = rt
+  .Record({ id: rt.Number })
+  .asReadonly();
+
+/**
+ * operation ID: PurchaseOrderDeviationApprove_approve
+ * `PUT: /purchaseOrder/deviation/{id}/:approve`
+ */
+export const PurchaseOrderDeviationApprove_approve = buildCall() //
+  .args<rt.Static<typeof purchaseOrderDeviationApprove_approveArgsRt>>()
+  .method('put')
+  .path((args) => `/purchaseOrder/deviation/${args.id}/:approve`)
   .parseJson(withRuntype(responseWrapperPurchaseOrderRt))
   .build();
 
@@ -20144,6 +20844,61 @@ export const ResultbudgetEmployee_getEmployeeResultBudget = buildCall() //
   .parseJson(withRuntype(listResponseResultBudgetRt))
   .build();
 
+// Operation: SaftExportSAFT_exportSAFT
+
+const saftExportSAFT_exportSAFTArgsRt = rt
+  .Record({ year: rt.Number })
+  .asReadonly();
+
+const saftExportSAFT_exportSAFTResponseBodyRt = rt.String;
+
+/**
+ * operation ID: SaftExportSAFT_exportSAFT
+ * `GET: /saft/exportSAFT`
+ */
+export const SaftExportSAFT_exportSAFT = buildCall() //
+  .args<rt.Static<typeof saftExportSAFT_exportSAFTArgsRt>>()
+  .method('get')
+  .path('/saft/exportSAFT')
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'year')))
+  .parseJson(withRuntype(saftExportSAFT_exportSAFTResponseBodyRt))
+  .build();
+
+// Operation: SaftImportSAFT_importSAFT
+
+const saftImportSAFT_importSAFTArgsRt = rt
+  .Record({
+    saftFile: rt.Unknown,
+    mappingFile: rt.Unknown,
+    importCustomerVendors: rt.Boolean,
+    createMissingAccounts: rt.Boolean,
+    importStartBalanceFromOpening: rt.Boolean,
+    importStartBalanceFromClosing: rt.Boolean,
+    importVouchers: rt.Boolean,
+    importDepartments: rt.Boolean,
+    importProjects: rt.Boolean,
+    tripletexGeneratesCustomerNumbers: rt.Boolean,
+    createCustomerIB: rt.Boolean,
+    updateAccountNames: rt.Boolean,
+    createVendorIB: rt.Boolean,
+    overrideVoucherDateOnDiscrepancy: rt.Boolean,
+    overwriteCustomersContacts: rt.Boolean,
+    onlyActiveCustomers: rt.Boolean,
+    onlyActiveAccounts: rt.Boolean,
+    updateStartBalance: rt.Boolean,
+  })
+  .asReadonly();
+
+/**
+ * operation ID: SaftImportSAFT_importSAFT
+ * `POST: /saft/importSAFT`
+ */
+export const SaftImportSAFT_importSAFT = buildCall() //
+  .args<rt.Static<typeof saftImportSAFT_importSAFTArgsRt>>()
+  .method('post')
+  .path('/saft/importSAFT')
+  .build();
+
 // Operation: SalaryType_search
 
 const salaryType_searchArgsRt = rt
@@ -20958,68 +21713,6 @@ export const SupplierInvoiceApprove_approve = buildCall() //
   .parseJson(withRuntype(responseWrapperSupplierInvoiceRt))
   .build();
 
-// Operation: SupplierInvoicePdf_downloadPdf
-
-const supplierInvoicePdf_downloadPdfArgsRt = rt
-  .Record({ invoiceId: rt.Number })
-  .asReadonly();
-
-const supplierInvoicePdf_downloadPdfResponseBodyRt = rt.String;
-
-/**
- * operation ID: SupplierInvoicePdf_downloadPdf
- * `GET: /supplierInvoice/{invoiceId}/pdf`
- */
-export const SupplierInvoicePdf_downloadPdf = buildCall() //
-  .args<rt.Static<typeof supplierInvoicePdf_downloadPdfArgsRt>>()
-  .method('get')
-  .path((args) => `/supplierInvoice/${args.invoiceId}/pdf`)
-  .parseJson(withRuntype(supplierInvoicePdf_downloadPdfResponseBodyRt))
-  .build();
-
-// Operation: SupplierInvoiceForApproval_getApprovalInvoices
-
-const supplierInvoiceForApproval_getApprovalInvoicesArgsRt = rt
-  .Record({
-    searchText: rt.String,
-    showAll: rt.Boolean,
-    employeeId: rt.Number,
-    from: rt.Number,
-    count: rt.Number,
-    sorting: rt.String,
-    fields: rt.String,
-  })
-  .asPartial()
-  .asReadonly();
-
-/**
- * operation ID: SupplierInvoiceForApproval_getApprovalInvoices
- * `GET: /supplierInvoice/forApproval`
- */
-export const SupplierInvoiceForApproval_getApprovalInvoices = buildCall() //
-  .args<
-    rt.Static<typeof supplierInvoiceForApproval_getApprovalInvoicesArgsRt>
-  >()
-  .method('get')
-  .path('/supplierInvoice/forApproval')
-  .query(
-    (args) =>
-      new URLSearchParams(
-        pickQueryValues(
-          args,
-          'searchText',
-          'showAll',
-          'employeeId',
-          'from',
-          'count',
-          'sorting',
-          'fields',
-        ),
-      ),
-  )
-  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
-  .build();
-
 // Operation: SupplierInvoiceVoucherPostings_putPostings
 
 const supplierInvoiceVoucherPostings_putPostingsArgsRt = rt.Intersect(
@@ -21178,6 +21871,68 @@ export const SupplierInvoiceAddPayment_addPayment = buildCall() //
         ),
       ),
   )
+  .build();
+
+// Operation: SupplierInvoiceForApproval_getApprovalInvoices
+
+const supplierInvoiceForApproval_getApprovalInvoicesArgsRt = rt
+  .Record({
+    searchText: rt.String,
+    showAll: rt.Boolean,
+    employeeId: rt.Number,
+    from: rt.Number,
+    count: rt.Number,
+    sorting: rt.String,
+    fields: rt.String,
+  })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: SupplierInvoiceForApproval_getApprovalInvoices
+ * `GET: /supplierInvoice/forApproval`
+ */
+export const SupplierInvoiceForApproval_getApprovalInvoices = buildCall() //
+  .args<
+    rt.Static<typeof supplierInvoiceForApproval_getApprovalInvoicesArgsRt>
+  >()
+  .method('get')
+  .path('/supplierInvoice/forApproval')
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(
+          args,
+          'searchText',
+          'showAll',
+          'employeeId',
+          'from',
+          'count',
+          'sorting',
+          'fields',
+        ),
+      ),
+  )
+  .parseJson(withRuntype(listResponseSupplierInvoiceRt))
+  .build();
+
+// Operation: SupplierInvoicePdf_downloadPdf
+
+const supplierInvoicePdf_downloadPdfArgsRt = rt
+  .Record({ invoiceId: rt.Number })
+  .asReadonly();
+
+const supplierInvoicePdf_downloadPdfResponseBodyRt = rt.String;
+
+/**
+ * operation ID: SupplierInvoicePdf_downloadPdf
+ * `GET: /supplierInvoice/{invoiceId}/pdf`
+ */
+export const SupplierInvoicePdf_downloadPdf = buildCall() //
+  .args<rt.Static<typeof supplierInvoicePdf_downloadPdfArgsRt>>()
+  .method('get')
+  .path((args) => `/supplierInvoice/${args.invoiceId}/pdf`)
+  .parseJson(withRuntype(supplierInvoicePdf_downloadPdfResponseBodyRt))
   .build();
 
 // Operation: SupplierInvoiceReject_reject
@@ -21632,6 +22387,25 @@ export const TimesheetMonthByMonthNumber_getByMonthNumber = buildCall() //
   .parseJson(withRuntype(listResponseMonthlyStatusRt))
   .build();
 
+// Operation: TimesheetMonth_get
+
+const timesheetMonth_getArgsRt = rt.Intersect(
+  rt.Record({ id: rt.Number }).asReadonly(),
+  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: TimesheetMonth_get
+ * `GET: /timesheet/month/{id}`
+ */
+export const TimesheetMonth_get = buildCall() //
+  .args<rt.Static<typeof timesheetMonth_getArgsRt>>()
+  .method('get')
+  .path((args) => `/timesheet/month/${args.id}`)
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
+  .parseJson(withRuntype(responseWrapperMonthlyStatusRt))
+  .build();
+
 // Operation: TimesheetMonthComplete_complete
 
 const timesheetMonthComplete_completeArgsRt = rt
@@ -21654,25 +22428,6 @@ export const TimesheetMonthComplete_complete = buildCall() //
       ),
   )
   .parseJson(withRuntype(listResponseMonthlyStatusRt))
-  .build();
-
-// Operation: TimesheetMonth_get
-
-const timesheetMonth_getArgsRt = rt.Intersect(
-  rt.Record({ id: rt.Number }).asReadonly(),
-  rt.Record({ fields: rt.String }).asPartial().asReadonly(),
-);
-
-/**
- * operation ID: TimesheetMonth_get
- * `GET: /timesheet/month/{id}`
- */
-export const TimesheetMonth_get = buildCall() //
-  .args<rt.Static<typeof timesheetMonth_getArgsRt>>()
-  .method('get')
-  .path((args) => `/timesheet/month/${args.id}`)
-  .query((args) => new URLSearchParams(pickQueryValues(args, 'fields')))
-  .parseJson(withRuntype(responseWrapperMonthlyStatusRt))
   .build();
 
 // Operation: TimesheetSalaryTypeSpecification_search
@@ -22038,30 +22793,6 @@ export const TimesheetWeekReopen_reopen = buildCall() //
   .parseJson(withRuntype(responseWrapperWeekRt))
   .build();
 
-// Operation: TimesheetWeekComplete_complete
-
-const timesheetWeekComplete_completeArgsRt = rt
-  .Record({ id: rt.Number, employeeId: rt.Number, weekYear: rt.String })
-  .asPartial()
-  .asReadonly();
-
-/**
- * operation ID: TimesheetWeekComplete_complete
- * `PUT: /timesheet/week/:complete`
- */
-export const TimesheetWeekComplete_complete = buildCall() //
-  .args<rt.Static<typeof timesheetWeekComplete_completeArgsRt>>()
-  .method('put')
-  .path('/timesheet/week/:complete')
-  .query(
-    (args) =>
-      new URLSearchParams(
-        pickQueryValues(args, 'id', 'employeeId', 'weekYear'),
-      ),
-  )
-  .parseJson(withRuntype(responseWrapperWeekRt))
-  .build();
-
 // Operation: TimesheetWeek_search
 
 const timesheetWeek_searchArgsRt = rt
@@ -22103,6 +22834,30 @@ export const TimesheetWeek_search = buildCall() //
       ),
   )
   .parseJson(withRuntype(listResponseWeekRt))
+  .build();
+
+// Operation: TimesheetWeekComplete_complete
+
+const timesheetWeekComplete_completeArgsRt = rt
+  .Record({ id: rt.Number, employeeId: rt.Number, weekYear: rt.String })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: TimesheetWeekComplete_complete
+ * `PUT: /timesheet/week/:complete`
+ */
+export const TimesheetWeekComplete_complete = buildCall() //
+  .args<rt.Static<typeof timesheetWeekComplete_completeArgsRt>>()
+  .method('put')
+  .path('/timesheet/week/:complete')
+  .query(
+    (args) =>
+      new URLSearchParams(
+        pickQueryValues(args, 'id', 'employeeId', 'weekYear'),
+      ),
+  )
+  .parseJson(withRuntype(responseWrapperWeekRt))
   .build();
 
 // Operation: TravelExpenseAccommodationAllowance_search
@@ -22824,25 +23579,6 @@ export const TravelExpense_post = buildCall() //
   .body((args) => args.body)
   .build();
 
-// Operation: TravelExpenseApprove_approve
-
-const travelExpenseApprove_approveArgsRt = rt
-  .Record({ id: rt.String })
-  .asPartial()
-  .asReadonly();
-
-/**
- * operation ID: TravelExpenseApprove_approve
- * `PUT: /travelExpense/:approve`
- */
-export const TravelExpenseApprove_approve = buildCall() //
-  .args<rt.Static<typeof travelExpenseApprove_approveArgsRt>>()
-  .method('put')
-  .path('/travelExpense/:approve')
-  .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
-  .parseJson(withRuntype(listResponseTravelExpenseRt))
-  .build();
-
 // Operation: TravelExpenseAttachment_downloadAttachment
 
 const travelExpenseAttachment_downloadAttachmentArgsRt = rt
@@ -22908,6 +23644,27 @@ export const TravelExpenseAttachment_deleteAttachment = buildCall() //
   )
   .build();
 
+// Operation: TravelExpenseAttachmentList_uploadAttachments
+
+const travelExpenseAttachmentList_uploadAttachmentsArgsRt = rt.Intersect(
+  rt
+    .Record({ travelExpenseId: rt.Number, body: formDataMultiPartRt })
+    .asReadonly(),
+  rt.Record({ createNewCost: rt.Boolean }).asPartial().asReadonly(),
+);
+
+/**
+ * operation ID: TravelExpenseAttachmentList_uploadAttachments
+ * `POST: /travelExpense/{travelExpenseId}/attachment/list`
+ */
+export const TravelExpenseAttachmentList_uploadAttachments = buildCall() //
+  .args<rt.Static<typeof travelExpenseAttachmentList_uploadAttachmentsArgsRt>>()
+  .method('post')
+  .path((args) => `/travelExpense/${args.travelExpenseId}/attachment/list`)
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'createNewCost')))
+  .body((args) => args.body)
+  .build();
+
 // Operation: TravelExpenseDeliver_deliver
 
 const travelExpenseDeliver_deliverArgsRt = rt
@@ -22942,6 +23699,25 @@ export const TravelExpenseUndeliver_undeliver = buildCall() //
   .args<rt.Static<typeof travelExpenseUndeliver_undeliverArgsRt>>()
   .method('put')
   .path('/travelExpense/:undeliver')
+  .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
+  .parseJson(withRuntype(listResponseTravelExpenseRt))
+  .build();
+
+// Operation: TravelExpenseApprove_approve
+
+const travelExpenseApprove_approveArgsRt = rt
+  .Record({ id: rt.String })
+  .asPartial()
+  .asReadonly();
+
+/**
+ * operation ID: TravelExpenseApprove_approve
+ * `PUT: /travelExpense/:approve`
+ */
+export const TravelExpenseApprove_approve = buildCall() //
+  .args<rt.Static<typeof travelExpenseApprove_approveArgsRt>>()
+  .method('put')
+  .path('/travelExpense/:approve')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id')))
   .parseJson(withRuntype(listResponseTravelExpenseRt))
   .build();
@@ -22982,27 +23758,6 @@ export const TravelExpenseCreateVouchers_createVouchers = buildCall() //
   .path('/travelExpense/:createVouchers')
   .query((args) => new URLSearchParams(pickQueryValues(args, 'id', 'date')))
   .parseJson(withRuntype(listResponseTravelExpenseRt))
-  .build();
-
-// Operation: TravelExpenseAttachmentList_uploadAttachments
-
-const travelExpenseAttachmentList_uploadAttachmentsArgsRt = rt.Intersect(
-  rt
-    .Record({ travelExpenseId: rt.Number, body: formDataMultiPartRt })
-    .asReadonly(),
-  rt.Record({ createNewCost: rt.Boolean }).asPartial().asReadonly(),
-);
-
-/**
- * operation ID: TravelExpenseAttachmentList_uploadAttachments
- * `POST: /travelExpense/{travelExpenseId}/attachment/list`
- */
-export const TravelExpenseAttachmentList_uploadAttachments = buildCall() //
-  .args<rt.Static<typeof travelExpenseAttachmentList_uploadAttachmentsArgsRt>>()
-  .method('post')
-  .path((args) => `/travelExpense/${args.travelExpenseId}/attachment/list`)
-  .query((args) => new URLSearchParams(pickQueryValues(args, 'createNewCost')))
-  .body((args) => args.body)
   .build();
 
 // Operation: TravelExpense_get
