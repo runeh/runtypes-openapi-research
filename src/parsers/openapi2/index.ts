@@ -124,45 +124,6 @@ function getDefinitions(doc: OpenAPIV2.Document): ReferenceType[] {
   );
 }
 
-// function getParameters(doc: OpenAPIV2.Document): ReferenceParam[] {
-//   console.log(doc.parameters);
-
-//   // const lal = doc.parameters?
-
-//   // const parameters = Object.entries(
-//   //   doc.components?.parameters ?? {},
-//   // ).map<ReferenceParam>(([name, rawParameter]) => {
-//   //   invariant(isParameterObject(rawParameter), 'should be parameter!');
-//   //   const p = parseParameter([], rawParameter);
-//   //   const ref = `#/components/parameters/${name}`;
-//   //   return {
-//   //     ...p,
-//   //     ref,
-//   //     typeName: `${name}Parameter`,
-//   //   };
-//   // });
-
-//   // return parameters;
-
-//   return [];
-// }
-
-// function getSchemas(doc: OpenAPIV2.Document): Schema[] {
-//   return Object.entries(doc.components?.schemas ?? {}).map<Schema>(
-//     ([name, schema]) => {
-//       invariant(isSchemaObject(schema), 'should be schema!');
-//       const ref = `#/components/schemas/${name}`;
-//       return {
-//         name,
-//         ref,
-//         type: schemaToType(schema),
-//         typeName: `${name}Schema`,
-//         description: schema.description,
-//       };
-//     },
-//   );
-// }
-
 interface ReferenceParam extends ReferenceType {
   in: ParamKind;
   required: boolean;

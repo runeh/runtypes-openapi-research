@@ -70,6 +70,7 @@ function parseRequestBodyParameter(body: RequestBodyObject): Param {
     name: 'requestBody',
     in: 'body',
     required: body.required ?? false,
+    description: body.description,
     // fixme: description
     type,
   };
