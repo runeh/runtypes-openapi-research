@@ -83,6 +83,10 @@ export function schemaToType(
     return { kind: 'named', name: refToName(t) };
   }
 
+  if (Object.keys(t).length === 0) {
+    return { kind: 'unknown' };
+  }
+
   switch (t.type) {
     // fixme: check spec for difference
     case 'number':
@@ -92,6 +96,7 @@ export function schemaToType(
 
     // fixme: more parsing on dates?
     case 'date':
+    case 'dateTime':
       return { kind: 'string' };
 
     case 'boolean':
@@ -113,8 +118,13 @@ export function schemaToType(
       return { kind: 'unknown' };
   }
 
+  // there's an items prop, but no "array" as type. Assume it's an array
+  // I guess.
+  if (t.items) {
+    return { kind: 'array', type: schemaToType(t.items) };
+  }
+
   // fixme: do things with oneOf / allOf etc
-  console.log(t);
   throw new Error(`Unable to parse thing of type "${t.type}"`);
 }
 
@@ -199,11 +209,6 @@ function parseOperation(
 
   const operationId = operation.operationId ?? inferOperationId(path, method);
 
-  if (!operationId) {
-    console.log(inferOperationId(path, method));
-    // console.log(operation);
-  }
-
   invariant(operationId, 'op id missing');
 
   const ret = {
@@ -249,7 +254,9 @@ function parseParameter(
 }
 
 function isResponseObject(thing: unknown): thing is OpenAPIV2.ResponseObject {
-  return typeof thing === 'object' && thing != null && 'description' in thing;
+  // fixme: what this is, is usually an object with a ref in the definitions
+  // I've tested with.
+  return typeof thing === 'object' && thing != null; // && 'description' in thing;
 }
 
 function parseResponses(responses: OpenAPIV2.ResponsesObject): ApiResponse[] {
@@ -257,8 +264,6 @@ function parseResponses(responses: OpenAPIV2.ResponsesObject): ApiResponse[] {
     if (isResponseObject(val)) {
       return parseResponse(val, key);
     } else {
-      // fixme: deal with refs and "any"
-      console.log(key, val);
       throw new Error('halp');
     }
   });
@@ -290,11 +295,17 @@ function parseHeaders(
     .filter(isDefined);
 }
 
+// fixme: the thing here can be a ref, a schema ref (are those the same?) or
+// a response object
 function parseBody(body: OpenAPIV2.Response): {
   mimeType: string;
   type: AnyType;
 } {
   if (isNotReferenceObject(body) && body.schema) {
+    // fixme: empty schema object. is that allowed? What is the type?
+    if (Object.keys(body.schema).length === 0) {
+      return { mimeType: '', type: { kind: 'never' } };
+    }
     return { mimeType: 'application/json', type: schemaToType(body.schema) };
   } else {
     // fixme: deal with reference types here too!
