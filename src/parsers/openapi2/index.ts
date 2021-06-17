@@ -14,6 +14,7 @@ import {
   isDefined,
   isOpenApi2,
 } from '../../common';
+import { camelCase } from 'camel-case';
 
 /**
  * Parse a "string" schema type. Strings are either strings or
@@ -85,8 +86,13 @@ export function schemaToType(
   switch (t.type) {
     // fixme: check spec for difference
     case 'number':
+    case 'double':
     case 'integer':
       return { kind: 'number' };
+
+    // fixme: more parsing on dates?
+    case 'date':
+      return { kind: 'string' };
 
     case 'boolean':
       return { kind: 'boolean' };
@@ -108,6 +114,7 @@ export function schemaToType(
   }
 
   // fixme: do things with oneOf / allOf etc
+  console.log(t);
   throw new Error(`Unable to parse thing of type "${t.type}"`);
 }
 
@@ -154,7 +161,7 @@ function parsePath(
     .map<Operation | undefined>((method) => {
       const operation = item[method];
       if (operation) {
-        const op = parseOperation(parameterRefs, operation);
+        const op = parseOperation(path, method, parameterRefs, operation);
         return {
           path,
           method,
@@ -170,21 +177,34 @@ function parsePath(
   return operations;
 }
 
+function inferOperationId(path: string, method: string): string {
+  return camelCase([...path.split('/'), method].join(' '));
+}
+
 function parseOperation(
+  path: string,
+  method: string,
   parameterRefs: ReferenceParam[],
   operation: OpenAPIV2.OperationObject,
 ): Omit<Operation, 'method' | 'path'> {
   const {
     deprecated,
     description,
-    operationId,
+
     parameters,
     // consumes,
     summary,
     responses,
   } = operation;
 
-  invariant(operationId);
+  const operationId = operation.operationId ?? inferOperationId(path, method);
+
+  if (!operationId) {
+    console.log(inferOperationId(path, method));
+    // console.log(operation);
+  }
+
+  invariant(operationId, 'op id missing');
 
   const ret = {
     operationId,
@@ -238,6 +258,7 @@ function parseResponses(responses: OpenAPIV2.ResponsesObject): ApiResponse[] {
       return parseResponse(val, key);
     } else {
       // fixme: deal with refs and "any"
+      console.log(key, val);
       throw new Error('halp');
     }
   });

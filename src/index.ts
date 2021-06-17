@@ -268,9 +268,7 @@ async function generateTripletex() {
   const definitionPath = resolve(__dirname, '../resources/tripletex.json');
   const raw = await readFile(definitionPath, 'utf-8');
   const parsed = await parse(raw);
-
   const apiData = await parseOpenApi2(parsed);
-  // console.log(JSON.stringify(apiData, null, 2));
 
   const source = generateApiSource(apiData);
   const prettierConfig = await resolveConfig('./lol.ts');
@@ -284,9 +282,7 @@ async function generatePetstore() {
   const definitionPath = resolve(__dirname, '../resources/petstore.json');
   const raw = await readFile(definitionPath, 'utf-8');
   const parsed = await parse(raw);
-
   const apiData = await parseOpenApi2(parsed);
-  // console.log(JSON.stringify(apiData, null, 2));
 
   const source = generateApiSource(apiData);
   const prettierConfig = await resolveConfig('./lol.ts');
@@ -296,8 +292,27 @@ async function generatePetstore() {
   await writeFile(dst, formatted);
 }
 
+async function generateUnieconomy() {
+  const definitionPath = resolve(__dirname, '../resources/unieconomy.json');
+  const raw = await readFile(definitionPath, 'utf-8');
+  const parsed = await parse(raw);
+  const apiData = await parseOpenApi2(parsed);
+
+  const source = generateApiSource(apiData);
+  const prettierConfig = await resolveConfig('./lol.ts');
+  const formatted = format(source, prettierConfig ?? undefined);
+
+  const dst = resolve(__dirname, '../generated/unieconomy.ts');
+  await writeFile(dst, formatted);
+}
+
 async function main() {
-  await Promise.all([generatePetstore(), generateFiken(), generateTripletex()]);
+  await Promise.all([
+    generatePetstore(),
+    generateFiken(),
+    generateTripletex(),
+    generateUnieconomy(),
+  ]);
 }
 
 main();

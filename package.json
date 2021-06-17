@@ -31,6 +31,7 @@
     "typical-fetch": "^1.0.3"
   },
   "dependencies": {
+    "camel-case": "^4.1.2",
     "generate-runtypes": "^3.0.0",
     "hasha": "^5.2.2",
     "openapi-types": "^8.0.0",
